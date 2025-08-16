@@ -190,7 +190,7 @@ export default function Calculator() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "הצלחה", description: "סיסמה אופסה לברירת מחדל: 795915" });
+      toast({ title: "הצלחה", description: "סיסמה אופסה לברירת מחדל" });
     },
     onError: () => {
       toast({ title: "שגיאה", description: "שגיאה באיפוס סיסמה", variant: "destructive" });
@@ -226,9 +226,9 @@ export default function Calculator() {
     return (
       <div dir="rtl">
         <Tabs defaultValue="manage" dir="rtl">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="manage">ניהול מחירים</TabsTrigger>
-            <TabsTrigger value="settings">הגדרות</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-0 h-auto sm:h-10">
+            <TabsTrigger value="manage" className="text-sm sm:text-base py-3 sm:py-2 px-4">ניהול מחירים</TabsTrigger>
+            <TabsTrigger value="settings" className="text-sm sm:text-base py-3 sm:py-2 px-4">הגדרות</TabsTrigger>
           </TabsList>
           
           <TabsContent value="manage" className="mt-4">
@@ -237,7 +237,7 @@ export default function Calculator() {
               <Card>
                 <CardContent className="p-4">
                   <h4 className="font-semibold mb-4" style={{direction: 'rtl'}}>הוספת תצורה חדשה</h4>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                     <div>
                       <Label style={{direction: 'rtl'}}>סוג פרויקט</Label>
                       <Input
@@ -290,7 +290,7 @@ export default function Calculator() {
                       </Select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
                       <Label style={{direction: 'rtl'}}>מחיר תעודת גיבוי</Label>
                       <Input
@@ -498,7 +498,7 @@ export default function Calculator() {
                     variant="outline"
                     className="w-full mb-4"
                   >
-                    {resetPasswordMutation.isPending ? "מאפס..." : "אפס סיסמה לברירת מחדל (795915)"}
+                    {resetPasswordMutation.isPending ? "מאפס..." : "אפס סיסמה לברירת מחדל"}
                   </Button>
                   
                   <Button 
@@ -521,31 +521,31 @@ export default function Calculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
-      <Card className="w-full max-w-sm sm:max-w-md shadow-2xl relative bg-white/95 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 transition-all duration-300" dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
-        <CardContent className="p-4 sm:p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-2 sm:p-4 lg:p-6 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
+      <Card className="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl shadow-2xl relative bg-white/95 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 transition-all duration-300" dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
+        <CardContent className="p-4 sm:p-6 md:p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
           {/* Header with Logo and Settings */}
           <div className="mb-4 sm:mb-8">
-            <div className="flex items-center justify-between mb-2 sm:mb-4">
-              {/* Logo on the right */}
-              <div className="flex-shrink-0">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mb-3 sm:mb-4">
+              {/* Logo centered on mobile, right on desktop */}
+              <div className="flex-shrink-0 order-1 sm:order-none">
                 <img 
                   src={comsignLogo} 
                   alt="Comsign Logo" 
-                  className="h-16 sm:h-24 w-auto object-contain"
+                  className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto object-contain"
                   data-testid="logo-comsign"
                 />
               </div>
               
-              {/* Settings button on the left */}
-              <div>
+              {/* Settings button centered on mobile, left on desktop */}
+              <div className="order-2 sm:order-none">
                 <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="lg" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl" data-testid="button-settings">
                       <Settings className="h-4 w-4 text-red-600" />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-sm sm:max-w-4xl max-h-[80vh] overflow-y-auto p-4 sm:p-6" dir="rtl">
+                  <DialogContent className="max-w-[95vw] sm:max-w-2xl md:max-w-4xl lg:max-w-5xl max-h-[85vh] sm:max-h-[80vh] overflow-y-auto p-3 sm:p-4 md:p-6" dir="rtl">
                     <DialogHeader>
                       <DialogTitle className="text-center text-xl font-bold" dir="rtl" style={{direction: 'rtl'}}>פאנל ניהול מערכת</DialogTitle>
                     </DialogHeader>
@@ -565,7 +565,7 @@ export default function Calculator() {
           </div>
 
           {/* Calculator Form */}
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             {/* Project Type Selection */}
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-4 block text-right" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
@@ -575,7 +575,7 @@ export default function Calculator() {
                 </div>
               </Label>
               <Select value={projectType} onValueChange={setProjectType} dir="rtl">
-                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
+                <SelectTrigger className="w-full p-3 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900 min-h-[48px] sm:min-h-[44px]" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
                   <SelectValue placeholder="בחר סוג פרויקט" className="text-sm sm:text-base text-gray-900" dir="rtl" style={{direction: 'rtl', color: '#111827'}} />
                 </SelectTrigger>
                 <SelectContent>
