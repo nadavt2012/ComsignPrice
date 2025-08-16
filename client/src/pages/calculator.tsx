@@ -293,7 +293,7 @@ export default function Calculator() {
                               <SelectItem key={icon.value} value={icon.value}>
                                 <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
                                   <span>{icon.label}</span>
-                                  <IconComponent className="h-4 w-4 text-red-500" />
+                                  <IconComponent className={`h-4 w-4 ${icon.value === 'Wrench' ? 'text-black dark:text-white' : 'text-red-500'}`} />
                                 </div>
                               </SelectItem>
                             );
@@ -390,7 +390,7 @@ export default function Calculator() {
                                       <SelectItem key={icon.value} value={icon.value}>
                                         <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
                                           <span>{icon.label}</span>
-                                          <IconComponent className="h-4 w-4 text-red-500" />
+                                          <IconComponent className={`h-4 w-4 ${icon.value === 'Wrench' ? 'text-black dark:text-white' : 'text-red-500'}`} />
                                         </div>
                                       </SelectItem>
                                     );
@@ -424,7 +424,7 @@ export default function Calculator() {
                                   const iconData = availableIcons.find(icon => icon.value === config.icon);
                                   if (iconData) {
                                     const IconComponent = iconData.component;
-                                    return <IconComponent className="h-5 w-5 text-red-500" />;
+                                    return <IconComponent className={`h-5 w-5 ${config.icon === 'Wrench' ? 'text-black dark:text-white' : 'text-red-500'}`} />;
                                   }
                                   return <User className="h-5 w-5 text-red-500" />;
                                 })()}
