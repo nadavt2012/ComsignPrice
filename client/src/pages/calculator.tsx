@@ -474,9 +474,11 @@ export default function Calculator() {
           <div className="space-y-4 sm:space-y-6">
             {/* Project Type Selection */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
-                <span>סוג הפרויקט</span>
-                <Building className="h-5 w-5 text-red-500" />
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
+                <div className="flex items-center gap-2" style={{float: 'right'}}>
+                  <span>סוג הפרויקט</span>
+                  <Building className="h-5 w-5 text-red-500" />
+                </div>
               </Label>
               <Select value={projectType} onValueChange={setProjectType} dir="rtl">
                 <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
@@ -500,9 +502,11 @@ export default function Calculator() {
 
             {/* Years Selection */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
-                <span>כמות שנים</span>
-                <Calendar className="h-5 w-5 text-red-500" />
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
+                <div className="flex items-center gap-2" style={{float: 'right'}}>
+                  <span>כמות שנים</span>
+                  <Calendar className="h-5 w-5 text-red-500" />
+                </div>
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
                 <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-gray-50 disabled:border-gray-200 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
@@ -520,9 +524,11 @@ export default function Calculator() {
 
             {/* Certificate Quantity */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
-                <span>כמות תעודות</span>
-                <Award className="h-5 w-5 text-red-500" />
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
+                <div className="flex items-center gap-2" style={{float: 'right'}}>
+                  <span>כמות תעודות</span>
+                  <Award className="h-5 w-5 text-red-500" />
+                </div>
               </Label>
               <Input
                 type="number"
@@ -539,9 +545,11 @@ export default function Calculator() {
 
             {/* Backup Certificates */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
-                <span>תעודות גיבוי</span>
-                <Shield className="h-5 w-5 text-red-500" />
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
+                <div className="flex items-center gap-2" style={{float: 'right'}}>
+                  <span>תעודות גיבוי</span>
+                  <Shield className="h-5 w-5 text-red-500" />
+                </div>
               </Label>
               <Input
                 type="number"
