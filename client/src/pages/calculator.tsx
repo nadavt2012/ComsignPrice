@@ -725,9 +725,9 @@ export default function Calculator() {
           </div>
 
           {/* Footer */}
-          <div className="mt-8 text-center text-sm text-black">
-            <p className="font-medium" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-company">Comsign 2025</p>
-            <p className="text-xs text-black" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-developer">NadavT</p>
+          <div className="mt-8 text-center">
+            <p className="font-medium elegant-text" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-company">Comsign 2025</p>
+            <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} elegant-text transition-colors duration-300`} data-testid="text-developer">Developed By NadavT</p>
           </div>
         </CardContent>
       </Card>
