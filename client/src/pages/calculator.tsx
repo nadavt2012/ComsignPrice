@@ -569,7 +569,6 @@ export default function Calculator() {
           <div className="mt-4 sm:mt-8 p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 shadow-xl relative overflow-hidden hover:shadow-2xl transition-all duration-300">
             {/* Animated sparkles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute top-2 right-4 w-2 h-2 bg-gray-400 rounded-full animate-ping"></div>
               <div className="absolute top-6 left-6 w-1 h-1 bg-gray-300 rounded-full animate-pulse" style={{animationDuration: '1.5s'}}></div>
               <div className="absolute bottom-4 right-8 w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDuration: '2s'}}></div>
             </div>
