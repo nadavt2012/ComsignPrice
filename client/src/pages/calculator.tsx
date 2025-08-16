@@ -574,7 +574,7 @@ export default function Calculator() {
             <div className="text-center relative z-10">
               <p className="text-base sm:text-lg text-gray-700 mb-2 sm:mb-3 font-bold" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
               <div className="bg-white rounded-lg p-3 sm:p-4 shadow-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-300">
-                <p className="text-3xl sm:text-4xl font-bold text-red-600 animate-pulse" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-total-price">
+                <p className="text-3xl sm:text-4xl font-bold text-red-600" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-total-price">
                   ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                 </p>
               </div>
