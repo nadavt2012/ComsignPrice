@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Certificate, Shield } from "lucide-react";
+import { Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Award, Shield } from "lucide-react";
 import type { CalculationRequest, CalculationResult, PricingConfig } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
@@ -74,14 +74,14 @@ export default function Calculator() {
                 <img 
                   src={comsignLogo} 
                   alt="Comsign Logo" 
-                  className="h-16 w-auto object-contain"
+                  className="h-20 w-auto object-contain"
                   data-testid="logo-comsign"
                 />
               </div>
               
               {/* Settings button on the left */}
               <div>
-                <Button variant="outline" size="sm" className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400" data-testid="button-settings">
+                <Button variant="outline" size="md" className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400" data-testid="button-settings">
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
@@ -90,7 +90,7 @@ export default function Calculator() {
             {/* Title */}
             <div className="text-center">
               <h1 className="text-3xl font-bold text-gray-800 mb-2" data-testid="title-main">
-                מחירון פרויקט
+                מחירון פרויקטים
               </h1>
               <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-700 mx-auto rounded-full shadow-sm"></div>
             </div>
@@ -102,7 +102,7 @@ export default function Calculator() {
             <div>
               <Label className="text-lg font-semibold text-gray-700 mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-project-type">
                 <span>סוג הפרויקט</span>
-                <Building className="h-5 w-5 text-red-600" />
+                <Building className="h-5 w-5 text-black" />
               </Label>
               <Select value={projectType} onValueChange={setProjectType}>
                 <SelectTrigger className="w-full p-3 border-2 border-gray-300 text-lg focus:border-red-500 hover:border-gray-400 transition-colors" data-testid="select-project-type">
@@ -128,7 +128,7 @@ export default function Calculator() {
             <div>
               <Label className="text-lg font-semibold text-gray-700 mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-years">
                 <span>כמות שנים</span>
-                <Calendar className="h-5 w-5 text-red-600" />
+                <Calendar className="h-5 w-5 text-black" />
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType}>
                 <SelectTrigger className="w-full p-3 border-2 border-gray-300 text-lg focus:border-red-500 hover:border-gray-400 disabled:bg-gray-50 disabled:border-gray-200 transition-colors" data-testid="select-years">
@@ -148,7 +148,7 @@ export default function Calculator() {
             <div>
               <Label className="text-lg font-semibold text-gray-700 mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-certificates">
                 <span>כמות תעודות</span>
-                <Certificate className="h-5 w-5 text-red-600" />
+                <Award className="h-5 w-5 text-black" />
               </Label>
               <Input
                 type="number"
@@ -165,7 +165,7 @@ export default function Calculator() {
             <div>
               <Label className="text-lg font-semibold text-gray-700 mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-backup-certificates">
                 <span>תעודות גיבוי</span>
-                <Shield className="h-5 w-5 text-red-600" />
+                <Shield className="h-5 w-5 text-black" />
               </Label>
               <Input
                 type="number"
