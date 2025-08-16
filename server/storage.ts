@@ -9,11 +9,12 @@ export interface IStorage {
   deletePricingConfig(id: string): Promise<boolean>;
   verifyAdminPassword(password: string): Promise<boolean>;
   updateAdminPassword(newPassword: string): Promise<void>;
+  resetAdminPassword(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
   private pricingConfigs: Map<string, PricingConfig>;
-  private adminPassword: string = "123456"; // Default password
+  private adminPassword: string = "795915"; // Default password
 
   constructor() {
     this.pricingConfigs = new Map();
@@ -44,7 +45,7 @@ export class MemStorage implements IStorage {
 
     defaultConfigs.forEach(config => {
       const id = randomUUID();
-      const fullConfig: PricingConfig = { ...config, id };
+      const fullConfig: PricingConfig = { ...config, id, icon: config.icon || "User" };
       this.pricingConfigs.set(id, fullConfig);
     });
   }
@@ -61,7 +62,7 @@ export class MemStorage implements IStorage {
 
   async createPricingConfig(insertConfig: InsertPricingConfig): Promise<PricingConfig> {
     const id = randomUUID();
-    const config: PricingConfig = { ...insertConfig, id };
+    const config: PricingConfig = { ...insertConfig, id, icon: insertConfig.icon || "User" };
     this.pricingConfigs.set(id, config);
     return config;
   }
@@ -95,6 +96,10 @@ export class MemStorage implements IStorage {
 
   async updateAdminPassword(newPassword: string): Promise<void> {
     this.adminPassword = newPassword;
+  }
+
+  async resetAdminPassword(): Promise<void> {
+    this.adminPassword = "795915";
   }
 }
 

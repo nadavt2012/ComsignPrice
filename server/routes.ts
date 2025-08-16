@@ -192,6 +192,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin - Reset password to default
+  app.post("/api/admin/reset-password", async (req, res) => {
+    try {
+      await storage.resetAdminPassword();
+      res.json({ success: true, message: "Password reset to default (795915)" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

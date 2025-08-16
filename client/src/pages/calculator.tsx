@@ -183,6 +183,20 @@ export default function Calculator() {
     },
   });
 
+  // Reset password mutation
+  const resetPasswordMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/reset-password", {});
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "הצלחה", description: "סיסמה אופסה לברירת מחדל: 795915" });
+    },
+    onError: () => {
+      toast({ title: "שגיאה", description: "שגיאה באיפוס סיסמה", variant: "destructive" });
+    },
+  });
+
   const AdminModal = () => {
     if (!isAdminLoggedIn) {
       return (
@@ -477,6 +491,16 @@ export default function Calculator() {
                 </div>
                 
                 <div className="mt-6 pt-4 border-t">
+                  <h5 className="font-semibold mb-3" style={{direction: 'rtl'}}>איפוס סיסמה</h5>
+                  <Button 
+                    onClick={() => resetPasswordMutation.mutate()}
+                    disabled={resetPasswordMutation.isPending}
+                    variant="outline"
+                    className="w-full mb-4"
+                  >
+                    {resetPasswordMutation.isPending ? "מאפס..." : "אפס סיסמה לברירת מחדל (795915)"}
+                  </Button>
+                  
                   <Button 
                     variant="outline" 
                     className="w-full"
