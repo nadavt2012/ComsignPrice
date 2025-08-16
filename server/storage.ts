@@ -13,7 +13,7 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private pricingConfigs: Map<string, PricingConfig>;
-  private adminPassword: string = "admin123"; // Default password
+  private adminPassword: string = "Nadavt6716781"; // Default password
 
   constructor() {
     this.pricingConfigs = new Map();
