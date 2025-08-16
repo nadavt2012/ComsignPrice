@@ -481,7 +481,7 @@ export default function Calculator() {
                 </div>
               </Label>
               <Select value={projectType} onValueChange={setProjectType} dir="rtl">
-                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
+                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
                   <SelectValue placeholder="בחר סוג פרויקט" className="text-sm sm:text-base text-gray-900" dir="rtl" style={{direction: 'rtl', color: '#111827'}} />
                 </SelectTrigger>
                 <SelectContent>
@@ -509,7 +509,7 @@ export default function Calculator() {
                 </div>
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
-                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
+                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
                   <SelectValue placeholder="בחר כמות שנים" className="text-sm sm:text-base text-gray-900" dir="rtl" style={{direction: 'rtl', color: '#111827'}} />
                 </SelectTrigger>
                 <SelectContent>
@@ -536,7 +536,7 @@ export default function Calculator() {
                 max="1000"
                 value={certificates}
                 onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white"
+                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900"
                 dir="rtl"
                 style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-certificates"
@@ -557,7 +557,7 @@ export default function Calculator() {
                 max="100"
                 value={backupCertificates}
                 onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white"
+                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900"
                 dir="rtl"
                 style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-backup-certificates"
