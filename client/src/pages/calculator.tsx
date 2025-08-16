@@ -150,17 +150,15 @@ export default function Calculator() {
                 <span>כמות תעודות</span>
                 <Award className="h-5 w-5 text-black" />
               </Label>
-              <Select value={certificates.toString()} onValueChange={(value) => setCertificates(parseInt(value))}>
-                <SelectTrigger className="w-full p-3 border-2 border-gray-300 text-lg focus:border-red-500 hover:border-gray-400 transition-colors" data-testid="select-certificates">
-                  <SelectValue placeholder="בחר כמות תעודות" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1" data-testid="option-certificates-1">1 תעודה</SelectItem>
-                  <SelectItem value="2" data-testid="option-certificates-2">2 תעודות</SelectItem>
-                  <SelectItem value="4" data-testid="option-certificates-4">4 תעודות</SelectItem>
-                  <SelectItem value="5" data-testid="option-certificates-5">5 תעודות</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                type="number"
+                min="1"
+                max="1000"
+                value={certificates}
+                onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
+                className="w-full p-3 border-2 border-gray-300 text-lg focus:border-red-500 hover:border-gray-400 transition-colors"
+                data-testid="input-certificates"
+              />
             </div>
 
             {/* Backup Certificates */}
