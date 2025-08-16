@@ -19,6 +19,7 @@ const adminConfigUpdateSchema = z.object({
   projectType: z.string(),
   years: z.number(),
   basePrice: z.number(),
+  backupCertificatePrice: z.number(),
 });
 
 const adminPasswordChangeSchema = z.object({
@@ -62,21 +63,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Pricing configuration not found" });
       }
 
-      const totalCertificates = data.certificates + data.backupCertificates;
+      const regularCertificates = data.certificates;
+      const backupCertificates = data.backupCertificates;
       const basePrice = pricingConfig.basePrice;
+      const backupPrice = pricingConfig.backupCertificatePrice;
       
-      // Calculate discount: every second certificate gets 50% discount
-      const fullPriceCertificates = Math.ceil(totalCertificates / 2);
-      const discountedCertificates = Math.floor(totalCertificates / 2);
+      // Calculate total price: regular certificates + backup certificates
+      const regularCertificatesCost = regularCertificates * basePrice;
+      const backupCertificatesCost = backupCertificates * backupPrice;
+      const totalPrice = regularCertificatesCost + backupCertificatesCost;
       
-      const totalPrice = (fullPriceCertificates * basePrice) + (discountedCertificates * basePrice * 0.5);
+      const totalCertificates = regularCertificates + backupCertificates;
       
       const result: CalculationResult = {
         totalPrice: Math.round(totalPrice),
         basePrice,
         totalCertificates,
-        discountedCertificates,
-        discountInfo: discountedCertificates > 0 ? `הנחה על ${discountedCertificates} תעודות (50%)` : ""
+        discountedCertificates: backupCertificates,
+        discountInfo: backupCertificates > 0 ? `${backupCertificates} תעודות גיבוי (₪${backupPrice} לכל אחת)` : ""
       };
 
       res.json(result);

@@ -25,7 +25,7 @@ export default function Calculator() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
-  const [newConfig, setNewConfig] = useState<AdminConfigUpdate>({ projectType: "", years: 1, basePrice: 0 });
+  const [newConfig, setNewConfig] = useState<AdminConfigUpdate>({ projectType: "", years: 1, basePrice: 0, backupCertificatePrice: 0 });
   const [passwordChange, setPasswordChange] = useState({ currentPassword: "", newPassword: "" });
   
   const { toast } = useToast();
@@ -105,7 +105,8 @@ export default function Calculator() {
     },
     onSuccess: () => {
       refetchConfigs();
-      setNewConfig({ projectType: "", years: 1, basePrice: 0 });
+      setNewConfig({ projectType: "", years: 1, basePrice: 0, backupCertificatePrice: 0 });
+      queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       toast({ title: "הצלחה", description: "תצורה חדשה נוצרה" });
     },
     onError: () => {
@@ -121,6 +122,7 @@ export default function Calculator() {
     },
     onSuccess: () => {
       refetchConfigs();
+      queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       setEditingConfig(null);
       toast({ title: "הצלחה", description: "תצורה עודכנה" });
     },
@@ -137,6 +139,7 @@ export default function Calculator() {
     },
     onSuccess: () => {
       refetchConfigs();
+      queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       toast({ title: "הצלחה", description: "תצורה נמחקה" });
     },
     onError: () => {
@@ -199,7 +202,7 @@ export default function Calculator() {
               <Card>
                 <CardContent className="p-4">
                   <h4 className="font-semibold mb-4" style={{direction: 'rtl'}}>הוספת תצורה חדשה</h4>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <Label style={{direction: 'rtl'}}>סוג פרויקט</Label>
                       <Input
@@ -221,7 +224,7 @@ export default function Calculator() {
                       />
                     </div>
                     <div>
-                      <Label style={{direction: 'rtl'}}>מחיר בסיסי</Label>
+                      <Label style={{direction: 'rtl'}}>מחיר תעודה רגילה</Label>
                       <Input
                         type="number"
                         value={newConfig.basePrice}
@@ -231,8 +234,29 @@ export default function Calculator() {
                       />
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label style={{direction: 'rtl'}}>מחיר תעודת גיבוי</Label>
+                      <Input
+                        type="number"
+                        value={newConfig.backupCertificatePrice}
+                        onChange={(e) => setNewConfig({...newConfig, backupCertificatePrice: parseFloat(e.target.value) || 0})}
+                        dir="rtl"
+                        style={{direction: 'rtl', textAlign: 'right'}}
+                      />
+                    </div>
+                    <div>
+                      <Label style={{direction: 'rtl'}}>סה"כ מחירים</Label>
+                      <div className="p-3 bg-gray-100 rounded border text-center font-bold text-green-600" style={{direction: 'rtl'}}>
+                        ₪{(newConfig.basePrice + newConfig.backupCertificatePrice).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
                   <Button 
-                    onClick={() => createConfigMutation.mutate(newConfig)}
+                    onClick={() => {
+                      createConfigMutation.mutate(newConfig);
+                      queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+                    }}
                     className="mt-4 w-full"
                     disabled={!newConfig.projectType || createConfigMutation.isPending}
                   >
@@ -250,44 +274,73 @@ export default function Calculator() {
                     {allPricingConfigs.map((config) => (
                       <div key={config.id} className="flex items-center justify-between p-3 border rounded-lg">
                         {editingConfig?.id === config.id ? (
-                          <div className="flex gap-2 flex-1">
-                            <Input
-                              value={editingConfig.projectType}
-                              onChange={(e) => setEditingConfig({...editingConfig, projectType: e.target.value})}
-                              dir="rtl"
-                              style={{direction: 'rtl', textAlign: 'right'}}
-                            />
-                            <Input
-                              type="number"
-                              value={editingConfig.years}
-                              onChange={(e) => setEditingConfig({...editingConfig, years: parseInt(e.target.value) || 1})}
-                              dir="rtl"
-                              style={{direction: 'rtl', textAlign: 'right'}}
-                            />
-                            <Input
-                              type="number"
-                              value={editingConfig.basePrice}
-                              onChange={(e) => setEditingConfig({...editingConfig, basePrice: parseFloat(e.target.value) || 0})}
-                              dir="rtl"
-                              style={{direction: 'rtl', textAlign: 'right'}}
-                            />
-                            <Button 
-                              size="sm" 
-                              onClick={() => updateConfigMutation.mutate({ id: config.id, config: editingConfig })}
-                              disabled={updateConfigMutation.isPending}
-                            >
-                              שמור
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => setEditingConfig(null)}>
-                              בטל
-                            </Button>
+                          <div className="flex-1 space-y-2">
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input
+                                placeholder="סוג פרויקט"
+                                value={editingConfig.projectType}
+                                onChange={(e) => setEditingConfig({...editingConfig, projectType: e.target.value})}
+                                dir="rtl"
+                                style={{direction: 'rtl', textAlign: 'right'}}
+                              />
+                              <Input
+                                placeholder="שנים"
+                                type="number"
+                                value={editingConfig.years}
+                                onChange={(e) => setEditingConfig({...editingConfig, years: parseInt(e.target.value) || 1})}
+                                dir="rtl"
+                                style={{direction: 'rtl', textAlign: 'right'}}
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input
+                                placeholder="מחיר רגיל"
+                                type="number"
+                                value={editingConfig.basePrice}
+                                onChange={(e) => setEditingConfig({...editingConfig, basePrice: parseFloat(e.target.value) || 0})}
+                                dir="rtl"
+                                style={{direction: 'rtl', textAlign: 'right'}}
+                              />
+                              <Input
+                                placeholder="מחיר גיבוי"
+                                type="number"
+                                value={editingConfig.backupCertificatePrice}
+                                onChange={(e) => setEditingConfig({...editingConfig, backupCertificatePrice: parseFloat(e.target.value) || 0})}
+                                dir="rtl"
+                                style={{direction: 'rtl', textAlign: 'right'}}
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                onClick={() => {
+                                  updateConfigMutation.mutate({ id: config.id, config: editingConfig });
+                                  queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+                                }}
+                                disabled={updateConfigMutation.isPending}
+                                className="flex-1"
+                              >
+                                שמור
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => setEditingConfig(null)} className="flex-1">
+                                בטל
+                              </Button>
+                            </div>
                           </div>
                         ) : (
                           <>
-                            <div className="text-right flex-1" style={{direction: 'rtl'}}>
-                              <span className="font-medium">{config.projectType}</span> - 
-                              <span>{config.years} שנים</span> - 
-                              <span className="text-green-600">₪{config.basePrice}</span>
+                            <div className="text-right flex-1 space-y-1" style={{direction: 'rtl'}}>
+                              <div>
+                                <span className="font-bold text-lg">{config.projectType}</span> - 
+                                <span className="text-gray-600">{config.years} שנים</span>
+                              </div>
+                              <div className="text-sm">
+                                <span className="text-blue-600">תעודה רגילה: ₪{config.basePrice}</span> | 
+                                <span className="text-orange-600">תעודת גיבוי: ₪{config.backupCertificatePrice}</span>
+                              </div>
+                              <div className="font-bold text-green-600">
+                                סה"כ: ₪{(config.basePrice + config.backupCertificatePrice).toLocaleString()}
+                              </div>
                             </div>
                             <div className="flex gap-2">
                               <Button 
@@ -300,7 +353,10 @@ export default function Calculator() {
                               <Button 
                                 size="sm" 
                                 variant="destructive"
-                                onClick={() => deleteConfigMutation.mutate(config.id)}
+                                onClick={() => {
+                                  deleteConfigMutation.mutate(config.id);
+                                  queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+                                }}
                                 disabled={deleteConfigMutation.isPending}
                               >
                                 <Trash2 className="h-4 w-4" />
