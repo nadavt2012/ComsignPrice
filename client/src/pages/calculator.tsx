@@ -454,8 +454,8 @@ export default function Calculator() {
               <div>
                 <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="lg" className="border-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse" data-testid="button-settings">
-                      <Settings className="h-4 w-4 text-gray-600 animate-spin" style={{animationDuration: '4s'}} />
+                    <Button variant="outline" size="lg" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl" data-testid="button-settings">
+                      <Settings className="h-4 w-4 text-red-600" />
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-sm sm:max-w-4xl max-h-[80vh] overflow-y-auto p-4 sm:p-6" dir="rtl">
@@ -473,7 +473,7 @@ export default function Calculator() {
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="title-main">
                 מחירון פרויקטים
               </h1>
-              <div className="w-20 h-1.5 bg-gradient-to-r from-gray-600 to-gray-800 mx-auto rounded-full shadow-lg animate-pulse"></div>
+              <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full shadow-lg"></div>
             </div>
           </div>
 
@@ -483,7 +483,7 @@ export default function Calculator() {
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
                 <span>סוג הפרויקט</span>
-                <Building className="h-5 w-5 text-gray-600 animate-bounce" style={{animationDuration: '2s'}} />
+                <Building className="h-5 w-5 text-red-500" />
               </Label>
               <Select value={projectType} onValueChange={setProjectType} dir="rtl">
                 <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
@@ -496,7 +496,7 @@ export default function Calculator() {
                       <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
                         <div className="flex items-center gap-1 sm:gap-2 justify-end" style={{direction: 'rtl'}}>
                           <span className="text-sm sm:text-base">{type.label}</span>
-                          <IconComponent className="h-4 w-4 text-gray-600" />
+                          <IconComponent className="h-4 w-4 text-red-500" />
                         </div>
                       </SelectItem>
                     );
@@ -509,7 +509,7 @@ export default function Calculator() {
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
                 <span>כמות שנים</span>
-                <Calendar className="h-5 w-5 text-gray-600 animate-pulse" />
+                <Calendar className="h-5 w-5 text-red-500" />
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
                 <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-gray-50 disabled:border-gray-200 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
@@ -529,7 +529,7 @@ export default function Calculator() {
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
                 <span>כמות תעודות</span>
-                <Award className="h-5 w-5 text-gray-600 animate-spin" style={{animationDuration: '3s'}} />
+                <Award className="h-5 w-5 text-red-500" />
               </Label>
               <Input
                 type="number"
@@ -548,7 +548,7 @@ export default function Calculator() {
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
                 <span>תעודות גיבוי</span>
-                <Shield className="h-5 w-5 text-gray-600 animate-bounce" style={{animationDuration: '2.5s'}} />
+                <Shield className="h-5 w-5 text-red-500" />
               </Label>
               <Input
                 type="number"
