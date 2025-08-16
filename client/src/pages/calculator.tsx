@@ -482,7 +482,7 @@ export default function Calculator() {
               </Label>
               <Select value={projectType} onValueChange={setProjectType} dir="rtl">
                 <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
-                  <SelectValue placeholder="בחר סוג פרויקט" className="text-sm sm:text-base" dir="rtl" style={{direction: 'rtl'}} />
+                  <SelectValue placeholder="בחר סוג פרויקט" className="text-sm sm:text-base text-gray-900" dir="rtl" style={{direction: 'rtl', color: '#111827'}} />
                 </SelectTrigger>
                 <SelectContent>
                   {projectTypes.map((type) => {
@@ -510,7 +510,7 @@ export default function Calculator() {
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
                 <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
-                  <SelectValue placeholder="בחר כמות שנים" className="text-sm sm:text-base" dir="rtl" style={{direction: 'rtl'}} />
+                  <SelectValue placeholder="בחר כמות שנים" className="text-sm sm:text-base text-gray-900" dir="rtl" style={{direction: 'rtl', color: '#111827'}} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableYears.map((year) => (
