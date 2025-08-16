@@ -428,13 +428,6 @@ export default function Calculator() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-gray-200/30 to-gray-300/20 rounded-full animate-pulse"></div>
-        <div className="absolute top-1/4 -left-20 w-60 h-60 bg-gradient-to-br from-gray-100/25 to-gray-200/15 rounded-full animate-bounce" style={{animationDuration: '3s'}}></div>
-        <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-gray-300/20 to-gray-400/15 rounded-full animate-ping" style={{animationDuration: '4s'}}></div>
-        <div className="absolute bottom-10 left-10 w-48 h-48 bg-gradient-to-br from-gray-200/25 to-gray-300/20 rounded-full animate-pulse" style={{animationDuration: '2s'}}></div>
-      </div>
       <Card className="w-full max-w-sm sm:max-w-md shadow-2xl relative bg-white/95 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 transition-all duration-300" dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
         <CardContent className="p-4 sm:p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
           {/* Header with Logo and Settings */}
@@ -481,7 +474,7 @@ export default function Calculator() {
           <div className="space-y-4 sm:space-y-6">
             {/* Project Type Selection */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-center" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-project-type">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
                 <span>סוג הפרויקט</span>
                 <Building className="h-5 w-5 text-red-500" />
               </Label>
@@ -507,7 +500,7 @@ export default function Calculator() {
 
             {/* Years Selection */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-center" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-years">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
                 <span>כמות שנים</span>
                 <Calendar className="h-5 w-5 text-red-500" />
               </Label>
@@ -527,7 +520,7 @@ export default function Calculator() {
 
             {/* Certificate Quantity */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-center" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-certificates">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
                 <span>כמות תעודות</span>
                 <Award className="h-5 w-5 text-red-500" />
               </Label>
@@ -546,7 +539,7 @@ export default function Calculator() {
 
             {/* Backup Certificates */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-center" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-backup-certificates">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
                 <span>תעודות גיבוי</span>
                 <Shield className="h-5 w-5 text-red-500" />
               </Label>
