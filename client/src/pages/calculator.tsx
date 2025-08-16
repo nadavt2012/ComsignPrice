@@ -427,7 +427,7 @@ export default function Calculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-2 sm:p-4 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
       {/* Animated background shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-gray-200/30 to-gray-300/20 rounded-full animate-pulse"></div>
@@ -435,17 +435,17 @@ export default function Calculator() {
         <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-gray-300/20 to-gray-400/15 rounded-full animate-ping" style={{animationDuration: '4s'}}></div>
         <div className="absolute bottom-10 left-10 w-48 h-48 bg-gradient-to-br from-gray-200/25 to-gray-300/20 rounded-full animate-pulse" style={{animationDuration: '2s'}}></div>
       </div>
-      <Card className="w-full max-w-md shadow-2xl relative bg-white/95 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 transition-all duration-300" dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
-        <CardContent className="p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
+      <Card className="w-full max-w-sm sm:max-w-md shadow-2xl relative bg-white/95 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 transition-all duration-300" dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
+        <CardContent className="p-4 sm:p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
           {/* Header with Logo and Settings */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 sm:mb-8">
+            <div className="flex items-center justify-between mb-2 sm:mb-4">
               {/* Logo on the right */}
               <div className="flex-shrink-0">
                 <img 
                   src={comsignLogo} 
                   alt="Comsign Logo" 
-                  className="h-24 w-auto object-contain"
+                  className="h-16 sm:h-24 w-auto object-contain"
                   data-testid="logo-comsign"
                 />
               </div>
@@ -454,11 +454,11 @@ export default function Calculator() {
               <div>
                 <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="lg" className="border-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 p-4 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse" data-testid="button-settings">
+                    <Button variant="outline" size="lg" className="border-2 border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse" data-testid="button-settings">
                       <Settings className="h-4 w-4 text-gray-600 animate-spin" style={{animationDuration: '4s'}} />
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" dir="rtl">
+                  <DialogContent className="max-w-sm sm:max-w-4xl max-h-[80vh] overflow-y-auto p-4 sm:p-6" dir="rtl">
                     <DialogHeader>
                       <DialogTitle className="text-center text-xl font-bold" dir="rtl" style={{direction: 'rtl'}}>פאנל ניהול מערכת</DialogTitle>
                     </DialogHeader>
@@ -470,7 +470,7 @@ export default function Calculator() {
             
             {/* Title */}
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="title-main">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="title-main">
                 מחירון פרויקטים
               </h1>
               <div className="w-20 h-1.5 bg-gradient-to-r from-gray-600 to-gray-800 mx-auto rounded-full shadow-lg animate-pulse"></div>
@@ -478,24 +478,24 @@ export default function Calculator() {
           </div>
 
           {/* Calculator Form */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Project Type Selection */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
                 <span>סוג הפרויקט</span>
                 <Building className="h-5 w-5 text-gray-600 animate-bounce" style={{animationDuration: '2s'}} />
               </Label>
               <Select value={projectType} onValueChange={setProjectType} dir="rtl">
-                <SelectTrigger className="w-full p-3 border-2 border-gray-300 text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
-                  <SelectValue placeholder="בחר סוג פרויקט" dir="rtl" style={{direction: 'rtl'}} />
+                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
+                  <SelectValue placeholder="בחר סוג פרויקט" className="text-sm sm:text-base" dir="rtl" style={{direction: 'rtl'}} />
                 </SelectTrigger>
                 <SelectContent>
                   {projectTypes.map((type) => {
                     const IconComponent = type.icon;
                     return (
                       <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
-                        <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
-                          <span>{type.label}</span>
+                        <div className="flex items-center gap-1 sm:gap-2 justify-end" style={{direction: 'rtl'}}>
+                          <span className="text-sm sm:text-base">{type.label}</span>
                           <IconComponent className="h-4 w-4 text-gray-600" />
                         </div>
                       </SelectItem>
@@ -507,17 +507,17 @@ export default function Calculator() {
 
             {/* Years Selection */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
                 <span>כמות שנים</span>
                 <Calendar className="h-5 w-5 text-gray-600 animate-pulse" />
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
-                <SelectTrigger className="w-full p-3 border-2 border-gray-300 text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-gray-50 disabled:border-gray-200 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
-                  <SelectValue placeholder="בחר כמות שנים" dir="rtl" style={{direction: 'rtl'}} />
+                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-gray-50 disabled:border-gray-200 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
+                  <SelectValue placeholder="בחר כמות שנים" className="text-sm sm:text-base" dir="rtl" style={{direction: 'rtl'}} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableYears.map((year) => (
-                    <SelectItem key={year} value={year.toString()} data-testid={`option-years-${year}`}>
+                    <SelectItem key={year} value={year.toString()} className="text-sm sm:text-base" data-testid={`option-years-${year}`}>
                       {year} שנים
                     </SelectItem>
                   ))}
@@ -527,7 +527,7 @@ export default function Calculator() {
 
             {/* Certificate Quantity */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
                 <span>כמות תעודות</span>
                 <Award className="h-5 w-5 text-gray-600 animate-spin" style={{animationDuration: '3s'}} />
               </Label>
@@ -537,7 +537,7 @@ export default function Calculator() {
                 max="1000"
                 value={certificates}
                 onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                className="w-full p-3 border-2 border-gray-300 text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white"
+                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white"
                 dir="rtl"
                 style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-certificates"
@@ -546,7 +546,7 @@ export default function Calculator() {
 
             {/* Backup Certificates */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
+              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
                 <span>תעודות גיבוי</span>
                 <Shield className="h-5 w-5 text-gray-600 animate-bounce" style={{animationDuration: '2.5s'}} />
               </Label>
@@ -556,7 +556,7 @@ export default function Calculator() {
                 max="100"
                 value={backupCertificates}
                 onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                className="w-full p-3 border-2 border-gray-300 text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white"
+                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white"
                 dir="rtl"
                 style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-backup-certificates"
@@ -565,7 +565,7 @@ export default function Calculator() {
           </div>
 
           {/* Price Display */}
-          <div className="mt-8 p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 shadow-xl relative overflow-hidden hover:shadow-2xl transition-all duration-300">
+          <div className="mt-4 sm:mt-8 p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 shadow-xl relative overflow-hidden hover:shadow-2xl transition-all duration-300">
             {/* Animated sparkles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div className="absolute top-2 right-4 w-2 h-2 bg-gray-400 rounded-full animate-ping"></div>
@@ -573,14 +573,14 @@ export default function Calculator() {
               <div className="absolute bottom-4 right-8 w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDuration: '2s'}}></div>
             </div>
             <div className="text-center relative z-10">
-              <p className="text-lg text-gray-700 mb-3 font-bold" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
-              <div className="bg-white rounded-lg p-4 shadow-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-300">
-                <p className="text-4xl font-bold text-red-600 animate-pulse" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-total-price">
+              <p className="text-base sm:text-lg text-gray-700 mb-2 sm:mb-3 font-bold" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
+              <div className="bg-white rounded-lg p-3 sm:p-4 shadow-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-300">
+                <p className="text-3xl sm:text-4xl font-bold text-red-600 animate-pulse" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-total-price">
                   ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                 </p>
               </div>
               {calculationResult?.discountInfo && (
-                <p className="text-sm text-gray-600 mt-3 font-medium" data-testid="text-discount-info">
+                <p className="text-xs sm:text-sm text-gray-600 mt-2 sm:mt-3 font-medium" data-testid="text-discount-info">
                   {calculationResult.discountInfo}
                 </p>
               )}
