@@ -197,9 +197,9 @@ export default function Calculator() {
           </div>
 
           {/* Footer */}
-          <div className="mt-8 text-center text-sm text-gray-600">
+          <div className="mt-8 text-center text-sm text-black">
             <p className="font-medium" data-testid="text-company">Comsign 2025</p>
-            <p className="text-xs text-gray-500" data-testid="text-developer">NadavT</p>
+            <p className="text-xs text-black" data-testid="text-developer">NadavT</p>
           </div>
         </CardContent>
       </Card>
