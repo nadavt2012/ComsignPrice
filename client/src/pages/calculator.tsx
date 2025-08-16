@@ -570,7 +570,6 @@ export default function Calculator() {
             {/* Animated sparkles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div className="absolute top-6 left-6 w-1 h-1 bg-gray-300 rounded-full animate-pulse" style={{animationDuration: '1.5s'}}></div>
-              <div className="absolute bottom-4 right-8 w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style={{animationDuration: '2s'}}></div>
             </div>
             <div className="text-center relative z-10">
               <p className="text-base sm:text-lg text-gray-700 mb-2 sm:mb-3 font-bold" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
