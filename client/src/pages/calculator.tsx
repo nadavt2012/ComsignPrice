@@ -509,7 +509,7 @@ export default function Calculator() {
                 </div>
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
-                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-gray-50 disabled:border-gray-200 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
+                <SelectTrigger className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
                   <SelectValue placeholder="בחר כמות שנים" className="text-sm sm:text-base" dir="rtl" style={{direction: 'rtl'}} />
                 </SelectTrigger>
                 <SelectContent>
