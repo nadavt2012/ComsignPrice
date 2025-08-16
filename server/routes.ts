@@ -2,13 +2,28 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
-import type { CalculationRequest, CalculationResult } from "@shared/schema";
+import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate, AdminPasswordChange } from "@shared/schema";
 
 const calculationRequestSchema = z.object({
   projectType: z.string(),
   years: z.number(),
   certificates: z.number().min(1),
   backupCertificates: z.number().min(0),
+});
+
+const adminLoginSchema = z.object({
+  password: z.string(),
+});
+
+const adminConfigUpdateSchema = z.object({
+  projectType: z.string(),
+  years: z.number(),
+  basePrice: z.number(),
+});
+
+const adminPasswordChangeSchema = z.object({
+  currentPassword: z.string(),
+  newPassword: z.string(),
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -70,6 +85,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid request data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to calculate price" });
+    }
+  });
+
+  // Admin authentication endpoint
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = adminLoginSchema.parse(req.body) as AdminLoginRequest;
+      const isValid = await storage.verifyAdminPassword(password);
+      
+      if (isValid) {
+        res.json({ success: true, message: "Login successful" });
+      } else {
+        res.status(401).json({ success: false, message: "Invalid password" });
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to authenticate" });
+    }
+  });
+
+  // Admin - Get all pricing configurations
+  app.get("/api/admin/pricing", async (req, res) => {
+    try {
+      const configs = await storage.getPricingConfigs();
+      res.json(configs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch pricing configurations" });
+    }
+  });
+
+  // Admin - Create new pricing configuration
+  app.post("/api/admin/pricing", async (req, res) => {
+    try {
+      const data = adminConfigUpdateSchema.parse(req.body) as AdminConfigUpdate;
+      const newConfig = await storage.createPricingConfig(data);
+      res.json(newConfig);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create pricing configuration" });
+    }
+  });
+
+  // Admin - Update pricing configuration
+  app.put("/api/admin/pricing/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const data = adminConfigUpdateSchema.parse(req.body) as AdminConfigUpdate;
+      const updatedConfig = await storage.updatePricingConfig(id, data);
+      
+      if (!updatedConfig) {
+        return res.status(404).json({ message: "Pricing configuration not found" });
+      }
+      
+      res.json(updatedConfig);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update pricing configuration" });
+    }
+  });
+
+  // Admin - Delete pricing configuration
+  app.delete("/api/admin/pricing/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deletePricingConfig(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Pricing configuration not found" });
+      }
+      
+      res.json({ success: true, message: "Pricing configuration deleted" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete pricing configuration" });
+    }
+  });
+
+  // Admin - Change password
+  app.post("/api/admin/change-password", async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = adminPasswordChangeSchema.parse(req.body) as AdminPasswordChange;
+      
+      const isValidCurrent = await storage.verifyAdminPassword(currentPassword);
+      if (!isValidCurrent) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+      
+      await storage.updateAdminPassword(newPassword);
+      res.json({ success: true, message: "Password updated successfully" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to change password" });
     }
   });
 

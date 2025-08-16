@@ -1,14 +1,19 @@
-import { type PricingConfig, type InsertPricingConfig } from "@shared/schema";
+import { type PricingConfig, type InsertPricingConfig, type AdminConfigUpdate } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
   getPricingConfigs(): Promise<PricingConfig[]>;
   getPricingConfig(projectType: string, years: number): Promise<PricingConfig | undefined>;
   createPricingConfig(config: InsertPricingConfig): Promise<PricingConfig>;
+  updatePricingConfig(id: string, config: AdminConfigUpdate): Promise<PricingConfig | undefined>;
+  deletePricingConfig(id: string): Promise<boolean>;
+  verifyAdminPassword(password: string): Promise<boolean>;
+  updateAdminPassword(newPassword: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
   private pricingConfigs: Map<string, PricingConfig>;
+  private adminPassword: string = "admin123"; // Default password
 
   constructor() {
     this.pricingConfigs = new Map();
@@ -59,6 +64,35 @@ export class MemStorage implements IStorage {
     const config: PricingConfig = { ...insertConfig, id };
     this.pricingConfigs.set(id, config);
     return config;
+  }
+
+  async updatePricingConfig(id: string, updateConfig: AdminConfigUpdate): Promise<PricingConfig | undefined> {
+    const existingConfig = this.pricingConfigs.get(id);
+    if (!existingConfig) {
+      return undefined;
+    }
+    
+    const updatedConfig: PricingConfig = {
+      ...existingConfig,
+      projectType: updateConfig.projectType,
+      years: updateConfig.years,
+      basePrice: updateConfig.basePrice
+    };
+    
+    this.pricingConfigs.set(id, updatedConfig);
+    return updatedConfig;
+  }
+
+  async deletePricingConfig(id: string): Promise<boolean> {
+    return this.pricingConfigs.delete(id);
+  }
+
+  async verifyAdminPassword(password: string): Promise<boolean> {
+    return password === this.adminPassword;
+  }
+
+  async updateAdminPassword(newPassword: string): Promise<void> {
+    this.adminPassword = newPassword;
   }
 }
 

@@ -5,9 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Award, Shield } from "lucide-react";
-import type { CalculationRequest, CalculationResult, PricingConfig } from "@shared/schema";
-import { apiRequest } from "@/lib/queryClient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Trash2, Plus, Edit, Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Award, Shield } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import type { CalculationRequest, CalculationResult, PricingConfig, AdminLoginRequest, AdminConfigUpdate } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
 
 export default function Calculator() {
@@ -16,6 +19,16 @@ export default function Calculator() {
   const [certificates, setCertificates] = useState<number>(1);
   const [backupCertificates, setBackupCertificates] = useState<number>(0);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
+  
+  // Admin modal states
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
+  const [newConfig, setNewConfig] = useState<AdminConfigUpdate>({ projectType: "", years: 1, basePrice: 0 });
+  const [passwordChange, setPasswordChange] = useState({ currentPassword: "", newPassword: "" });
+  
+  const { toast } = useToast();
 
   const projectTypes = [
     { value: "lawyers", label: "עורכי דין", icon: Scale },
@@ -62,6 +75,301 @@ export default function Calculator() {
     setYears("");
   }, [projectType]);
 
+  // Get all pricing configs for admin
+  const { data: allPricingConfigs = [], refetch: refetchConfigs } = useQuery<PricingConfig[]>({
+    queryKey: ["/api/admin/pricing"],
+    enabled: isAdminLoggedIn,
+  });
+
+  // Admin login mutation
+  const adminLoginMutation = useMutation({
+    mutationFn: async (password: string) => {
+      const res = await apiRequest("POST", "/api/admin/login", { password });
+      return res.json();
+    },
+    onSuccess: () => {
+      setIsAdminLoggedIn(true);
+      setAdminPassword("");
+      toast({ title: "התחברות הצליחה", description: "ברוך הבא לפאנל הניהול" });
+    },
+    onError: () => {
+      toast({ title: "שגיאה", description: "סיסמה שגויה", variant: "destructive" });
+    },
+  });
+
+  // Create pricing config mutation
+  const createConfigMutation = useMutation({
+    mutationFn: async (config: AdminConfigUpdate) => {
+      const res = await apiRequest("POST", "/api/admin/pricing", config);
+      return res.json();
+    },
+    onSuccess: () => {
+      refetchConfigs();
+      setNewConfig({ projectType: "", years: 1, basePrice: 0 });
+      toast({ title: "הצלחה", description: "תצורה חדשה נוצרה" });
+    },
+    onError: () => {
+      toast({ title: "שגיאה", description: "שגיאה ביצירת תצורה", variant: "destructive" });
+    },
+  });
+
+  // Update pricing config mutation
+  const updateConfigMutation = useMutation({
+    mutationFn: async ({ id, config }: { id: string; config: AdminConfigUpdate }) => {
+      const res = await apiRequest("PUT", `/api/admin/pricing/${id}`, config);
+      return res.json();
+    },
+    onSuccess: () => {
+      refetchConfigs();
+      setEditingConfig(null);
+      toast({ title: "הצלחה", description: "תצורה עודכנה" });
+    },
+    onError: () => {
+      toast({ title: "שגיאה", description: "שגיאה בעדכון תצורה", variant: "destructive" });
+    },
+  });
+
+  // Delete pricing config mutation
+  const deleteConfigMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("DELETE", `/api/admin/pricing/${id}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      refetchConfigs();
+      toast({ title: "הצלחה", description: "תצורה נמחקה" });
+    },
+    onError: () => {
+      toast({ title: "שגיאה", description: "שגיאה במחיקת תצורה", variant: "destructive" });
+    },
+  });
+
+  // Change password mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: async (passwords: { currentPassword: string; newPassword: string }) => {
+      const res = await apiRequest("POST", "/api/admin/change-password", passwords);
+      return res.json();
+    },
+    onSuccess: () => {
+      setPasswordChange({ currentPassword: "", newPassword: "" });
+      toast({ title: "הצלחה", description: "סיסמה שונתה בהצלחה" });
+    },
+    onError: () => {
+      toast({ title: "שגיאה", description: "שגיאה בשינוי סיסמה", variant: "destructive" });
+    },
+  });
+
+  const AdminModal = () => {
+    if (!isAdminLoggedIn) {
+      return (
+        <div className="p-6 text-center" dir="rtl">
+          <h3 className="text-lg font-semibold mb-4" style={{direction: 'rtl'}}>התחברות אדמין</h3>
+          <div className="space-y-4">
+            <Input
+              type="password"
+              placeholder="הכנס סיסמה"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              dir="rtl"
+              style={{direction: 'rtl', textAlign: 'right'}}
+            />
+            <Button 
+              onClick={() => adminLoginMutation.mutate(adminPassword)}
+              disabled={adminLoginMutation.isPending}
+              className="w-full"
+            >
+              {adminLoginMutation.isPending ? "מתחבר..." : "התחבר"}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div dir="rtl">
+        <Tabs defaultValue="manage" dir="rtl">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="manage">ניהול מחירים</TabsTrigger>
+            <TabsTrigger value="settings">הגדרות</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="manage" className="mt-4">
+            <div className="space-y-6">
+              {/* Add New Configuration */}
+              <Card>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold mb-4" style={{direction: 'rtl'}}>הוספת תצורה חדשה</h4>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label style={{direction: 'rtl'}}>סוג פרויקט</Label>
+                      <Input
+                        value={newConfig.projectType}
+                        onChange={(e) => setNewConfig({...newConfig, projectType: e.target.value})}
+                        placeholder="למשל: עורכי דין"
+                        dir="rtl"
+                        style={{direction: 'rtl', textAlign: 'right'}}
+                      />
+                    </div>
+                    <div>
+                      <Label style={{direction: 'rtl'}}>שנים</Label>
+                      <Input
+                        type="number"
+                        value={newConfig.years}
+                        onChange={(e) => setNewConfig({...newConfig, years: parseInt(e.target.value) || 1})}
+                        dir="rtl"
+                        style={{direction: 'rtl', textAlign: 'right'}}
+                      />
+                    </div>
+                    <div>
+                      <Label style={{direction: 'rtl'}}>מחיר בסיסי</Label>
+                      <Input
+                        type="number"
+                        value={newConfig.basePrice}
+                        onChange={(e) => setNewConfig({...newConfig, basePrice: parseFloat(e.target.value) || 0})}
+                        dir="rtl"
+                        style={{direction: 'rtl', textAlign: 'right'}}
+                      />
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => createConfigMutation.mutate(newConfig)}
+                    className="mt-4 w-full"
+                    disabled={!newConfig.projectType || createConfigMutation.isPending}
+                  >
+                    <Plus className="h-4 w-4 ml-2" />
+                    {createConfigMutation.isPending ? "יוצר..." : "הוסף תצורה"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Existing Configurations */}
+              <Card>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold mb-4" style={{direction: 'rtl'}}>תצורות קיימות</h4>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {allPricingConfigs.map((config) => (
+                      <div key={config.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        {editingConfig?.id === config.id ? (
+                          <div className="flex gap-2 flex-1">
+                            <Input
+                              value={editingConfig.projectType}
+                              onChange={(e) => setEditingConfig({...editingConfig, projectType: e.target.value})}
+                              dir="rtl"
+                              style={{direction: 'rtl', textAlign: 'right'}}
+                            />
+                            <Input
+                              type="number"
+                              value={editingConfig.years}
+                              onChange={(e) => setEditingConfig({...editingConfig, years: parseInt(e.target.value) || 1})}
+                              dir="rtl"
+                              style={{direction: 'rtl', textAlign: 'right'}}
+                            />
+                            <Input
+                              type="number"
+                              value={editingConfig.basePrice}
+                              onChange={(e) => setEditingConfig({...editingConfig, basePrice: parseFloat(e.target.value) || 0})}
+                              dir="rtl"
+                              style={{direction: 'rtl', textAlign: 'right'}}
+                            />
+                            <Button 
+                              size="sm" 
+                              onClick={() => updateConfigMutation.mutate({ id: config.id, config: editingConfig })}
+                              disabled={updateConfigMutation.isPending}
+                            >
+                              שמור
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditingConfig(null)}>
+                              בטל
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="text-right flex-1" style={{direction: 'rtl'}}>
+                              <span className="font-medium">{config.projectType}</span> - 
+                              <span>{config.years} שנים</span> - 
+                              <span className="text-green-600">₪{config.basePrice}</span>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => setEditingConfig(config)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="destructive"
+                                onClick={() => deleteConfigMutation.mutate(config.id)}
+                                disabled={deleteConfigMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="settings" className="mt-4">
+            <Card>
+              <CardContent className="p-4">
+                <h4 className="font-semibold mb-4" style={{direction: 'rtl'}}>שינוי סיסמה</h4>
+                <div className="space-y-4">
+                  <div>
+                    <Label style={{direction: 'rtl'}}>סיסמה נוכחית</Label>
+                    <Input
+                      type="password"
+                      value={passwordChange.currentPassword}
+                      onChange={(e) => setPasswordChange({...passwordChange, currentPassword: e.target.value})}
+                      dir="rtl"
+                      style={{direction: 'rtl', textAlign: 'right'}}
+                    />
+                  </div>
+                  <div>
+                    <Label style={{direction: 'rtl'}}>סיסמה חדשה</Label>
+                    <Input
+                      type="password"
+                      value={passwordChange.newPassword}
+                      onChange={(e) => setPasswordChange({...passwordChange, newPassword: e.target.value})}
+                      dir="rtl"
+                      style={{direction: 'rtl', textAlign: 'right'}}
+                    />
+                  </div>
+                  <Button 
+                    onClick={() => changePasswordMutation.mutate(passwordChange)}
+                    disabled={!passwordChange.currentPassword || !passwordChange.newPassword || changePasswordMutation.isPending}
+                    className="w-full"
+                  >
+                    {changePasswordMutation.isPending ? "משנה..." : "שנה סיסמה"}
+                  </Button>
+                </div>
+                
+                <div className="mt-6 pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => {
+                      setIsAdminLoggedIn(false);
+                      setIsAdminModalOpen(false);
+                    }}
+                  >
+                    התנתק
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 via-pink-50 to-yellow-50 flex items-center justify-center p-4 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
       {/* Animated background shapes */}
@@ -88,9 +396,19 @@ export default function Calculator() {
               
               {/* Settings button on the left */}
               <div>
-                <Button variant="outline" size="lg" className="border-2 border-red-300 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:border-red-400 p-4 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse" data-testid="button-settings">
-                  <Settings className="h-4 w-4 text-red-500 animate-spin" style={{animationDuration: '4s'}} />
-                </Button>
+                <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="lg" className="border-2 border-red-300 text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:border-red-400 p-4 transition-all duration-300 shadow-lg hover:shadow-xl animate-pulse" data-testid="button-settings">
+                      <Settings className="h-4 w-4 text-red-500 animate-spin" style={{animationDuration: '4s'}} />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" dir="rtl">
+                    <DialogHeader>
+                      <DialogTitle className="text-center text-xl font-bold" dir="rtl" style={{direction: 'rtl'}}>פאנל ניהול מערכת</DialogTitle>
+                    </DialogHeader>
+                    {AdminModal()}
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
             

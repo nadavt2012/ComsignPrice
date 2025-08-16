@@ -31,3 +31,19 @@ export interface CalculationResult {
   discountedCertificates: number;
   discountInfo: string;
 }
+
+// Admin management types
+export interface AdminLoginRequest {
+  password: string;
+}
+
+export interface AdminConfigUpdate {
+  projectType: string;
+  years: number;
+  basePrice: number;
+}
+
+export interface AdminPasswordChange {
+  currentPassword: string;
+  newPassword: string;
+}
