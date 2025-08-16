@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Heebo:wght@300;400;500;600;700;800&family=Assistant:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -36,9 +38,9 @@
   --sidebar-accent-foreground: hsl(203.8863 88.2845% 53.1373%);
   --sidebar-border: hsl(205.0000 25.0000% 90.5882%);
   --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --font-sans: Open Sans, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-sans: 'Inter', 'Heebo', 'Assistant', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   --radius: 1.3rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
@@ -86,9 +88,9 @@
   --sidebar-accent-foreground: hsl(203.7736 87.6033% 52.5490%);
   --sidebar-border: hsl(205.7143 15.7895% 26.0784%);
   --sidebar-ring: hsl(202.8169 89.1213% 53.1373%);
-  --font-sans: Open Sans, sans-serif;
-  --font-serif: Georgia, serif;
-  --font-mono: Menlo, monospace;
+  --font-sans: 'Inter', 'Heebo', 'Assistant', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   --radius: 1.3rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0.00);
@@ -107,5 +109,26 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
+    font-feature-settings: 'liga' 1, 'kern' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium;
+    letter-spacing: -0.025em;
+  }
+  
+  .price-display {
+    @apply font-bold text-xl;
+    font-feature-settings: 'tnum' 1;
+    letter-spacing: -0.02em;
+  }
+  
+  .elegant-text {
+    @apply font-medium;
+    letter-spacing: -0.01em;
+    line-height: 1.6;
   }
 }

@@ -213,7 +213,7 @@ export default function Calculator() {
     if (!isAdminLoggedIn) {
       return (
         <div className="p-6 text-center" dir="rtl">
-          <h3 className="text-lg font-semibold mb-4" style={{direction: 'rtl'}}>התחברות אדמין</h3>
+          <h3 className="text-lg font-semibold mb-4 elegant-text" style={{direction: 'rtl'}}>התחברות אדמין</h3>
           <div className="space-y-4">
             <Input
               type="password"
@@ -248,10 +248,10 @@ export default function Calculator() {
               {/* Add New Configuration */}
               <Card>
                 <CardContent className="p-4">
-                  <h4 className="font-semibold mb-4" style={{direction: 'rtl'}}>הוספת תצורה חדשה</h4>
+                  <h4 className="font-semibold mb-4 elegant-text" style={{direction: 'rtl'}}>הוספת תצורה חדשה</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
                     <div>
-                      <Label style={{direction: 'rtl'}}>סוג פרויקט</Label>
+                      <Label className="elegant-text" style={{direction: 'rtl'}}>סוג פרויקט</Label>
                       <Input
                         value={newConfig.projectType}
                         onChange={(e) => setNewConfig({...newConfig, projectType: e.target.value})}
@@ -261,7 +261,7 @@ export default function Calculator() {
                       />
                     </div>
                     <div>
-                      <Label style={{direction: 'rtl'}}>שנים</Label>
+                      <Label className="elegant-text" style={{direction: 'rtl'}}>שנים</Label>
                       <Input
                         type="number"
                         value={newConfig.years}
@@ -271,7 +271,7 @@ export default function Calculator() {
                       />
                     </div>
                     <div>
-                      <Label style={{direction: 'rtl'}}>מחיר תעודה רגילה</Label>
+                      <Label className="elegant-text" style={{direction: 'rtl'}}>מחיר תעודה רגילה</Label>
                       <Input
                         type="number"
                         value={newConfig.basePrice}
@@ -281,7 +281,7 @@ export default function Calculator() {
                       />
                     </div>
                     <div>
-                      <Label style={{direction: 'rtl'}}>בחר אייקון</Label>
+                      <Label className="elegant-text" style={{direction: 'rtl'}}>בחר אייקון</Label>
                       <Select value={newConfig.icon || "User"} onValueChange={(value) => setNewConfig({...newConfig, icon: value})} dir="rtl">
                         <SelectTrigger className="w-full border-2 border-gray-300 text-gray-900" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
                           <SelectValue placeholder="בחר אייקון" />
@@ -304,7 +304,7 @@ export default function Calculator() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <Label style={{direction: 'rtl'}}>מחיר תעודת גיבוי</Label>
+                      <Label className="elegant-text" style={{direction: 'rtl'}}>מחיר תעודת גיבוי</Label>
                       <Input
                         type="number"
                         value={newConfig.backupCertificatePrice}
@@ -314,8 +314,8 @@ export default function Calculator() {
                       />
                     </div>
                     <div>
-                      <Label style={{direction: 'rtl'}}>סה"כ מחירים</Label>
-                      <div className="p-3 bg-gray-100 rounded border text-center font-bold text-green-600" style={{direction: 'rtl'}}>
+                      <Label className="elegant-text" style={{direction: 'rtl'}}>סה"כ מחירים</Label>
+                      <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded border text-center price-display text-green-600" style={{direction: 'rtl'}}>
                         ₪{(newConfig.basePrice + newConfig.backupCertificatePrice).toLocaleString()}
                       </div>
                     </div>
@@ -337,7 +337,7 @@ export default function Calculator() {
               {/* Existing Configurations */}
               <Card>
                 <CardContent className="p-4">
-                  <h4 className="font-semibold mb-4" style={{direction: 'rtl'}}>תצורות קיימות</h4>
+                  <h4 className="font-semibold mb-4 elegant-text" style={{direction: 'rtl'}}>תצורות קיימות</h4>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {allPricingConfigs.map((config) => (
                       <div key={config.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -419,7 +419,7 @@ export default function Calculator() {
                           <>
                             <div className="text-right flex-1 space-y-1" style={{direction: 'rtl'}}>
                               <div className="flex items-center gap-2 justify-start">
-                                <span className="font-bold text-lg">{config.projectType}</span>
+                                <span className="font-bold text-lg elegant-text">{config.projectType}</span>
                                 {(() => {
                                   const iconData = availableIcons.find(icon => icon.value === config.icon);
                                   if (iconData) {
@@ -434,7 +434,7 @@ export default function Calculator() {
                                 <div><span className="font-semibold">מחיר תעודה רגילה:</span> <span className="text-blue-600">₪{config.basePrice}</span></div>
                                 <div><span className="font-semibold">מחיר תעודת גיבוי:</span> <span className="text-orange-600">₪{config.backupCertificatePrice}</span></div>
                               </div>
-                              <div className="font-bold text-green-600">
+                              <div className="price-display text-green-600">
                                 סה"כ: ₪{(config.basePrice + config.backupCertificatePrice).toLocaleString()}
                               </div>
                             </div>
@@ -599,7 +599,7 @@ export default function Calculator() {
             
             {/* Title */}
             <div className="text-center">
-              <h1 className={`text-2xl sm:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-2 transition-colors duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="title-main">
+              <h1 className={`text-3xl sm:text-4xl elegant-text ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-2 transition-colors duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'center', fontWeight: '700', letterSpacing: '-0.025em'}} data-testid="title-main">
                 מחירון פרויקטים
               </h1>
               <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full shadow-lg"></div>
@@ -710,9 +710,9 @@ export default function Calculator() {
               <div className="absolute top-6 left-6 w-1 h-1 bg-gray-300 rounded-full animate-pulse" style={{animationDuration: '1.5s'}}></div>
             </div>
             <div className="text-center relative z-10">
-              <p className={`text-base sm:text-lg ${isDarkMode ? 'text-gray-200' : 'text-gray-700'} mb-2 sm:mb-3 font-bold transition-colors duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
+              <p className={`text-base sm:text-lg ${isDarkMode ? 'text-gray-200' : 'text-gray-700'} mb-2 sm:mb-3 elegant-text transition-colors duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'center', fontWeight: '600'}} data-testid="label-final-price">מחיר סופי</p>
               <div className={`${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-lg p-3 sm:p-4 shadow-xl border-2 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105 active:scale-95`}>
-                <p className="text-3xl sm:text-4xl font-bold text-red-600 animate-pulse" dir="rtl" style={{direction: 'rtl', textAlign: 'center', animationDuration: '2s'}} data-testid="text-total-price">
+                <p className="text-3xl sm:text-4xl price-display text-red-600 animate-pulse" dir="rtl" style={{direction: 'rtl', textAlign: 'center', animationDuration: '2s', fontWeight: '800'}} data-testid="text-total-price">
                   ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                 </p>
               </div>
