@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Settings, Scale, Building, Wrench, GraduationCap, User } from "lucide-react";
 import type { CalculationRequest, CalculationResult, PricingConfig } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
 
 export default function Calculator() {
   const [projectType, setProjectType] = useState<string>("");
@@ -65,19 +66,34 @@ export default function Calculator() {
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center p-4" dir="rtl">
       <Card className="w-full max-w-md shadow-2xl relative bg-white/90 backdrop-blur-sm border-red-100">
         <CardContent className="p-8">
-          {/* Settings Button */}
-          <div className="absolute top-4 left-4">
-            <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300" data-testid="button-settings">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent mb-2" data-testid="title-main">
-              מחירון פרויקט
-            </h1>
-            <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-700 mx-auto rounded-full shadow-sm"></div>
+          {/* Header with Logo and Settings */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              {/* Logo on the right */}
+              <div className="flex-shrink-0">
+                <img 
+                  src={comsignLogo} 
+                  alt="Comsign Logo" 
+                  className="h-12 w-auto object-contain"
+                  data-testid="logo-comsign"
+                />
+              </div>
+              
+              {/* Settings button on the left */}
+              <div>
+                <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300" data-testid="button-settings">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            {/* Title */}
+            <div className="text-center">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent mb-2" data-testid="title-main">
+                מחירון פרויקט
+              </h1>
+              <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-700 mx-auto rounded-full shadow-sm"></div>
+            </div>
           </div>
 
           {/* Calculator Form */}
