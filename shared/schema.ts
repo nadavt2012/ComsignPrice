@@ -8,6 +8,7 @@ export const pricingConfigs = pgTable("pricing_configs", {
   years: integer("years").notNull(),
   basePrice: real("base_price").notNull(),
   backupCertificatePrice: real("backup_certificate_price").notNull(),
+  icon: text("icon").notNull().default("User"),
 });
 
 export const insertPricingConfigSchema = createInsertSchema(pricingConfigs).omit({
@@ -43,6 +44,7 @@ export interface AdminConfigUpdate {
   years: number;
   basePrice: number;
   backupCertificatePrice: number;
+  icon?: string;
 }
 
 export interface AdminPasswordChange {

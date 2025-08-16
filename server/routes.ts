@@ -20,6 +20,7 @@ const adminConfigUpdateSchema = z.object({
   years: z.number(),
   basePrice: z.number(),
   backupCertificatePrice: z.number(),
+  icon: z.string().optional(),
 });
 
 const adminPasswordChangeSchema = z.object({

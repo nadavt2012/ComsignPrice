@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Plus, Edit, Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Award, Shield } from "lucide-react";
+import { Trash2, Plus, Edit, Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Award, Shield, Briefcase, Star, Heart, Home, Car, Plane, Camera, Music, Book, Coffee } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { CalculationRequest, CalculationResult, PricingConfig, AdminLoginRequest, AdminConfigUpdate } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -25,7 +25,7 @@ export default function Calculator() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
-  const [newConfig, setNewConfig] = useState<AdminConfigUpdate>({ projectType: "", years: 1, basePrice: 0, backupCertificatePrice: 0 });
+  const [newConfig, setNewConfig] = useState<AdminConfigUpdate>({ projectType: "", years: 1, basePrice: 0, backupCertificatePrice: 0, icon: "User" });
   const [passwordChange, setPasswordChange] = useState({ currentPassword: "", newPassword: "" });
   
   const { toast } = useToast();
@@ -36,6 +36,27 @@ export default function Calculator() {
     { value: "engineers", label: "מהנדסים", icon: Wrench },
     { value: "magna", label: "מגנא", icon: GraduationCap },
     { value: "regular", label: "רגיל", icon: User }
+  ];
+
+  const availableIcons = [
+    { value: "User", label: "משתמש", component: User },
+    { value: "Scale", label: "משפט", component: Scale },
+    { value: "Building", label: "בניין", component: Building },
+    { value: "Wrench", label: "כלי עבודה", component: Wrench },
+    { value: "GraduationCap", label: "כובע סיום", component: GraduationCap },
+    { value: "Briefcase", label: "תיק עבודה", component: Briefcase },
+    { value: "Star", label: "כוכב", component: Star },
+    { value: "Heart", label: "לב", component: Heart },
+    { value: "Home", label: "בית", component: Home },
+    { value: "Car", label: "רכב", component: Car },
+    { value: "Plane", label: "מטוס", component: Plane },
+    { value: "Camera", label: "מצלמה", component: Camera },
+    { value: "Music", label: "מוזיקה", component: Music },
+    { value: "Book", label: "ספר", component: Book },
+    { value: "Coffee", label: "קפה", component: Coffee },
+    { value: "Calendar", label: "לוח שנה", component: Calendar },
+    { value: "Award", label: "פרס", component: Award },
+    { value: "Shield", label: "מגן", component: Shield }
   ];
 
   // Get available years for selected project type
@@ -105,7 +126,7 @@ export default function Calculator() {
     },
     onSuccess: () => {
       refetchConfigs();
-      setNewConfig({ projectType: "", years: 1, basePrice: 0, backupCertificatePrice: 0 });
+      setNewConfig({ projectType: "", years: 1, basePrice: 0, backupCertificatePrice: 0, icon: "User" });
       queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       toast({ title: "הצלחה", description: "תצורה חדשה נוצרה" });
     },
@@ -233,6 +254,27 @@ export default function Calculator() {
                         style={{direction: 'rtl', textAlign: 'right'}}
                       />
                     </div>
+                    <div>
+                      <Label style={{direction: 'rtl'}}>בחר אייקון</Label>
+                      <Select value={newConfig.icon || "User"} onValueChange={(value) => setNewConfig({...newConfig, icon: value})} dir="rtl">
+                        <SelectTrigger className="w-full border-2 border-gray-300 text-gray-900" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
+                          <SelectValue placeholder="בחר אייקון" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableIcons.map((icon) => {
+                            const IconComponent = icon.component;
+                            return (
+                              <SelectItem key={icon.value} value={icon.value}>
+                                <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
+                                  <span>{icon.label}</span>
+                                  <IconComponent className="h-4 w-4 text-red-500" />
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -310,6 +352,26 @@ export default function Calculator() {
                                 style={{direction: 'rtl', textAlign: 'right'}}
                               />
                             </div>
+                            <div>
+                              <Select value={editingConfig.icon || "User"} onValueChange={(value) => setEditingConfig({...editingConfig, icon: value})} dir="rtl">
+                                <SelectTrigger className="w-full border-2 border-gray-300 text-gray-900" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
+                                  <SelectValue placeholder="בחר אייקון" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {availableIcons.map((icon) => {
+                                    const IconComponent = icon.component;
+                                    return (
+                                      <SelectItem key={icon.value} value={icon.value}>
+                                        <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
+                                          <span>{icon.label}</span>
+                                          <IconComponent className="h-4 w-4 text-red-500" />
+                                        </div>
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                            </div>
                             <div className="flex gap-2">
                               <Button 
                                 size="sm" 
@@ -330,9 +392,17 @@ export default function Calculator() {
                         ) : (
                           <>
                             <div className="text-right flex-1 space-y-1" style={{direction: 'rtl'}}>
-                              <div>
+                              <div className="flex items-center gap-2 justify-start">
                                 <span className="font-bold text-lg">{config.projectType}</span> - 
                                 <span className="text-gray-600">{config.years} שנים</span>
+                                {(() => {
+                                  const iconData = availableIcons.find(icon => icon.value === config.icon);
+                                  if (iconData) {
+                                    const IconComponent = iconData.component;
+                                    return <IconComponent className="h-5 w-5 text-red-500" />;
+                                  }
+                                  return <User className="h-5 w-5 text-red-500" />;
+                                })()}
                               </div>
                               <div className="text-sm">
                                 <span className="text-blue-600">תעודה רגילה: ₪{config.basePrice}</span> | 
