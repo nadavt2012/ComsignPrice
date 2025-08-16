@@ -62,33 +62,33 @@ export default function Calculator() {
   }, [projectType]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
-      <Card className="w-full max-w-md shadow-lg relative">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50 flex items-center justify-center p-4" dir="rtl">
+      <Card className="w-full max-w-md shadow-2xl relative bg-white/90 backdrop-blur-sm border-red-100">
         <CardContent className="p-8">
           {/* Settings Button */}
           <div className="absolute top-4 left-4">
-            <Button variant="outline" size="sm" data-testid="button-settings">
+            <Button variant="outline" size="sm" className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300" data-testid="button-settings">
               <Settings className="h-4 w-4" />
             </Button>
           </div>
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2" data-testid="title-main">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent mb-2" data-testid="title-main">
               מחירון פרויקט
             </h1>
-            <div className="w-16 h-1 bg-primary mx-auto rounded"></div>
+            <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-700 mx-auto rounded-full shadow-sm"></div>
           </div>
 
           {/* Calculator Form */}
           <div className="space-y-6">
             {/* Project Type Selection */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block" data-testid="label-project-type">
+              <Label className="text-lg font-semibold text-red-700 mb-3 block" data-testid="label-project-type">
                 סוג הפרויקט
               </Label>
               <Select value={projectType} onValueChange={setProjectType}>
-                <SelectTrigger className="w-full p-3 border-2 text-lg focus:border-primary" data-testid="select-project-type">
+                <SelectTrigger className="w-full p-3 border-2 border-red-200 text-lg focus:border-red-500 hover:border-red-300 transition-colors" data-testid="select-project-type">
                   <SelectValue placeholder="בחר סוג פרויקט" />
                 </SelectTrigger>
                 <SelectContent>
@@ -109,11 +109,11 @@ export default function Calculator() {
 
             {/* Years Selection */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block" data-testid="label-years">
+              <Label className="text-lg font-semibold text-red-700 mb-3 block" data-testid="label-years">
                 כמות שנים
               </Label>
               <Select value={years} onValueChange={setYears} disabled={!projectType}>
-                <SelectTrigger className="w-full p-3 border-2 text-lg focus:border-primary disabled:bg-gray-100" data-testid="select-years">
+                <SelectTrigger className="w-full p-3 border-2 border-red-200 text-lg focus:border-red-500 hover:border-red-300 disabled:bg-red-50 disabled:border-red-100 transition-colors" data-testid="select-years">
                   <SelectValue placeholder="בחר כמות שנים" />
                 </SelectTrigger>
                 <SelectContent>
@@ -128,7 +128,7 @@ export default function Calculator() {
 
             {/* Certificate Quantity */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block" data-testid="label-certificates">
+              <Label className="text-lg font-semibold text-red-700 mb-3 block" data-testid="label-certificates">
                 כמות תעודות
               </Label>
               <Input
@@ -137,14 +137,14 @@ export default function Calculator() {
                 max="1000"
                 value={certificates}
                 onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                className="w-full p-3 border-2 text-lg focus:border-primary"
+                className="w-full p-3 border-2 border-red-200 text-lg focus:border-red-500 hover:border-red-300 transition-colors"
                 data-testid="input-certificates"
               />
             </div>
 
             {/* Backup Certificates */}
             <div>
-              <Label className="text-lg font-semibold text-gray-700 mb-3 block" data-testid="label-backup-certificates">
+              <Label className="text-lg font-semibold text-red-700 mb-3 block" data-testid="label-backup-certificates">
                 תעודות גיבוי
               </Label>
               <Input
@@ -153,21 +153,23 @@ export default function Calculator() {
                 max="100"
                 value={backupCertificates}
                 onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                className="w-full p-3 border-2 text-lg focus:border-primary"
+                className="w-full p-3 border-2 border-red-200 text-lg focus:border-red-500 hover:border-red-300 transition-colors"
                 data-testid="input-backup-certificates"
               />
             </div>
           </div>
 
           {/* Price Display */}
-          <div className="mt-8 p-6 bg-primary-light rounded-lg">
+          <div className="mt-8 p-6 bg-gradient-to-r from-red-50 to-red-100 rounded-xl border border-red-200 shadow-inner">
             <div className="text-center">
-              <p className="text-lg text-gray-600 mb-2" data-testid="label-final-price">מחיר סופי</p>
-              <p className="text-4xl font-bold text-primary" data-testid="text-total-price">
-                ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
-              </p>
+              <p className="text-lg text-red-700 mb-3 font-medium" data-testid="label-final-price">מחיר סופי</p>
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-red-100">
+                <p className="text-4xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent" data-testid="text-total-price">
+                  ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
+                </p>
+              </div>
               {calculationResult?.discountInfo && (
-                <p className="text-sm text-gray-500 mt-2" data-testid="text-discount-info">
+                <p className="text-sm text-red-600 mt-3 font-medium" data-testid="text-discount-info">
                   {calculationResult.discountInfo}
                 </p>
               )}
@@ -175,9 +177,9 @@ export default function Calculator() {
           </div>
 
           {/* Footer */}
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p data-testid="text-company">Comsign 2025</p>
-            <p className="text-xs" data-testid="text-developer">NadavT</p>
+          <div className="mt-8 text-center text-sm text-red-600">
+            <p className="font-medium" data-testid="text-company">Comsign 2025</p>
+            <p className="text-xs text-red-500" data-testid="text-developer">NadavT</p>
           </div>
         </CardContent>
       </Card>
