@@ -160,7 +160,7 @@ export default function Calculator() {
           </div>
 
           {/* Price Display */}
-          <div className="mt-8 p-6 bg-primary-light rounded-lg border-r-4 border-primary">
+          <div className="mt-8 p-6 bg-primary-light rounded-lg">
             <div className="text-center">
               <p className="text-lg text-gray-600 mb-2" data-testid="label-final-price">מחיר סופי</p>
               <p className="text-4xl font-bold text-primary" data-testid="text-total-price">
