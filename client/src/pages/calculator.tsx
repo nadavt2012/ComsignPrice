@@ -475,7 +475,7 @@ export default function Calculator() {
             {/* Project Type Selection */}
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-4 block text-right" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
-                <div className="flex items-center gap-2 justify-end">
+                <div className="flex items-center gap-2 justify-start">
                   <span>סוג הפרויקט</span>
                   <Building className="h-5 w-5 text-red-500" />
                 </div>
@@ -503,7 +503,7 @@ export default function Calculator() {
             {/* Years Selection */}
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-4 block text-right" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
-                <div className="flex items-center gap-2 justify-end">
+                <div className="flex items-center gap-2 justify-start">
                   <span>כמות שנים</span>
                   <Calendar className="h-5 w-5 text-red-500" />
                 </div>
@@ -525,7 +525,7 @@ export default function Calculator() {
             {/* Certificate Quantity */}
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-4 block text-right" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
-                <div className="flex items-center gap-2 justify-end">
+                <div className="flex items-center gap-2 justify-start">
                   <span>כמות תעודות</span>
                   <Award className="h-5 w-5 text-red-500" />
                 </div>
@@ -546,7 +546,7 @@ export default function Calculator() {
             {/* Backup Certificates */}
             <div>
               <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-4 block text-right" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
-                <div className="flex items-center gap-2 justify-end">
+                <div className="flex items-center gap-2 justify-start">
                   <span>תעודות גיבוי</span>
                   <Shield className="h-5 w-5 text-red-500" />
                 </div>
