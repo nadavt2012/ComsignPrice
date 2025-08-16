@@ -63,8 +63,8 @@ export default function Calculator() {
   }, [projectType]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-red-50 flex items-center justify-center p-4" dir="rtl">
-      <Card className="w-full max-w-md shadow-xl relative bg-white backdrop-blur-sm border-gray-200">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-red-50 flex items-center justify-center p-4" dir="rtl" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right'}}>
+      <Card className="w-full max-w-md shadow-xl relative bg-white backdrop-blur-sm border-gray-200" style={{direction: 'rtl', textAlign: 'right'}}>
         <CardContent className="p-8">
           {/* Header with Logo and Settings */}
           <div className="mb-8">
@@ -113,9 +113,9 @@ export default function Calculator() {
                     const IconComponent = type.icon;
                     return (
                       <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
+                          <span>{type.label}</span>
                           <IconComponent className="h-4 w-4 text-primary" />
-                          {type.label}
                         </div>
                       </SelectItem>
                     );
@@ -150,15 +150,17 @@ export default function Calculator() {
                 <span>כמות תעודות</span>
                 <Award className="h-5 w-5 text-black" />
               </Label>
-              <Input
-                type="number"
-                min="1"
-                max="1000"
-                value={certificates}
-                onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                className="w-full p-3 border-2 border-gray-300 text-lg focus:border-red-500 hover:border-gray-400 transition-colors"
-                data-testid="input-certificates"
-              />
+              <Select value={certificates.toString()} onValueChange={(value) => setCertificates(parseInt(value))}>
+                <SelectTrigger className="w-full p-3 border-2 border-gray-300 text-lg focus:border-red-500 hover:border-gray-400 transition-colors" data-testid="select-certificates">
+                  <SelectValue placeholder="בחר כמות תעודות" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1" data-testid="option-certificates-1">1 תעודה</SelectItem>
+                  <SelectItem value="2" data-testid="option-certificates-2">2 תעודות</SelectItem>
+                  <SelectItem value="4" data-testid="option-certificates-4">4 תעודות</SelectItem>
+                  <SelectItem value="5" data-testid="option-certificates-5">5 תעודות</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Backup Certificates */}
