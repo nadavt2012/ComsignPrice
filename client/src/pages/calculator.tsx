@@ -63,7 +63,7 @@ export default function Calculator() {
   }, [projectType]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 via-pink-50 to-yellow-50 flex items-center justify-center p-4 relative overflow-hidden" dir="rtl" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right'}}>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 via-pink-50 to-yellow-50 flex items-center justify-center p-4 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
       {/* Animated background shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full animate-pulse"></div>
@@ -71,8 +71,8 @@ export default function Calculator() {
         <div className="absolute bottom-1/4 right-1/4 w-32 h-32 bg-gradient-to-br from-yellow-400/25 to-orange-400/25 rounded-full animate-ping" style={{animationDuration: '4s'}}></div>
         <div className="absolute bottom-10 left-10 w-48 h-48 bg-gradient-to-br from-green-400/20 to-teal-400/20 rounded-full animate-pulse" style={{animationDuration: '2s'}}></div>
       </div>
-      <Card className="w-full max-w-md shadow-2xl relative bg-white/90 backdrop-blur-sm border-2 border-transparent bg-clip-padding" style={{direction: 'rtl', textAlign: 'right', background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #f59e0b, #ef4444, #8b5cf6, #3b82f6) border-box'}}>
-        <CardContent className="p-8">
+      <Card className="w-full max-w-md shadow-2xl relative bg-white/90 backdrop-blur-sm border-2 border-transparent bg-clip-padding" dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed', background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #f59e0b, #ef4444, #8b5cf6, #3b82f6) border-box'}}>
+        <CardContent className="p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
           {/* Header with Logo and Settings */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -96,7 +96,7 @@ export default function Calculator() {
             
             {/* Title */}
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2" data-testid="title-main">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="title-main">
                 מחירון פרויקטים
               </h1>
               <div className="w-20 h-1.5 bg-gradient-to-r from-pink-500 via-red-500 to-orange-500 mx-auto rounded-full shadow-lg animate-pulse"></div>
@@ -107,13 +107,13 @@ export default function Calculator() {
           <div className="space-y-6">
             {/* Project Type Selection */}
             <div>
-              <Label className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-project-type">
+              <Label className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
                 <span>סוג הפרויקט</span>
                 <Building className="h-5 w-5 text-blue-500 animate-bounce" style={{animationDuration: '2s'}} />
               </Label>
-              <Select value={projectType} onValueChange={setProjectType}>
-                <SelectTrigger className="w-full p-3 border-2 border-blue-300 text-lg focus:border-blue-500 hover:border-blue-400 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-50 to-purple-50" data-testid="select-project-type">
-                  <SelectValue placeholder="בחר סוג פרויקט" />
+              <Select value={projectType} onValueChange={setProjectType} dir="rtl">
+                <SelectTrigger className="w-full p-3 border-2 border-blue-300 text-lg focus:border-blue-500 hover:border-blue-400 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-50 to-purple-50" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
+                  <SelectValue placeholder="בחר סוג פרויקט" dir="rtl" style={{direction: 'rtl'}} />
                 </SelectTrigger>
                 <SelectContent>
                   {projectTypes.map((type) => {
@@ -133,13 +133,13 @@ export default function Calculator() {
 
             {/* Years Selection */}
             <div>
-              <Label className="text-lg font-semibold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-years">
+              <Label className="text-lg font-semibold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-years">
                 <span>כמות שנים</span>
                 <Calendar className="h-5 w-5 text-green-500 animate-pulse" />
               </Label>
-              <Select value={years} onValueChange={setYears} disabled={!projectType}>
-                <SelectTrigger className="w-full p-3 border-2 border-green-300 text-lg focus:border-green-500 hover:border-green-400 disabled:bg-gray-50 disabled:border-gray-200 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-green-50 to-teal-50" data-testid="select-years">
-                  <SelectValue placeholder="בחר כמות שנים" />
+              <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
+                <SelectTrigger className="w-full p-3 border-2 border-green-300 text-lg focus:border-green-500 hover:border-green-400 disabled:bg-gray-50 disabled:border-gray-200 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-green-50 to-teal-50" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-years">
+                  <SelectValue placeholder="בחר כמות שנים" dir="rtl" style={{direction: 'rtl'}} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableYears.map((year) => (
@@ -153,7 +153,7 @@ export default function Calculator() {
 
             {/* Certificate Quantity */}
             <div>
-              <Label className="text-lg font-semibold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-certificates">
+              <Label className="text-lg font-semibold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-certificates">
                 <span>כמות תעודות</span>
                 <Award className="h-5 w-5 text-yellow-500 animate-spin" style={{animationDuration: '3s'}} />
               </Label>
@@ -164,13 +164,15 @@ export default function Calculator() {
                 value={certificates}
                 onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
                 className="w-full p-3 border-2 border-yellow-300 text-lg focus:border-yellow-500 hover:border-yellow-400 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-yellow-50 to-orange-50"
+                dir="rtl"
+                style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-certificates"
               />
             </div>
 
             {/* Backup Certificates */}
             <div>
-              <Label className="text-lg font-semibold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-3 block text-right flex items-center gap-2 justify-end" data-testid="label-backup-certificates">
+              <Label className="text-lg font-semibold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-3 block flex items-center gap-2 justify-end" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-backup-certificates">
                 <span>תעודות גיבוי</span>
                 <Shield className="h-5 w-5 text-emerald-500 animate-bounce" style={{animationDuration: '2.5s'}} />
               </Label>
@@ -181,6 +183,8 @@ export default function Calculator() {
                 value={backupCertificates}
                 onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
                 className="w-full p-3 border-2 border-emerald-300 text-lg focus:border-emerald-500 hover:border-emerald-400 transition-all duration-300 shadow-lg hover:shadow-xl bg-gradient-to-r from-emerald-50 to-green-50"
+                dir="rtl"
+                style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-backup-certificates"
               />
             </div>
@@ -195,9 +199,9 @@ export default function Calculator() {
               <div className="absolute bottom-4 right-8 w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style={{animationDuration: '2s'}}></div>
             </div>
             <div className="text-center relative z-10">
-              <p className="text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3 font-bold" data-testid="label-final-price">מחיר סופי</p>
+              <p className="text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3 font-bold" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
               <div className="bg-gradient-to-r from-white to-gray-50 rounded-lg p-4 shadow-xl border-2 border-transparent" style={{background: 'linear-gradient(white, white) padding-box, linear-gradient(45deg, #f59e0b, #ef4444, #8b5cf6) border-box'}}>
-                <p className="text-4xl font-bold bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-pulse" data-testid="text-total-price">
+                <p className="text-4xl font-bold bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 bg-clip-text text-transparent animate-pulse" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-total-price">
                   ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                 </p>
               </div>
@@ -211,8 +215,8 @@ export default function Calculator() {
 
           {/* Footer */}
           <div className="mt-8 text-center text-sm text-black">
-            <p className="font-medium" data-testid="text-company">Comsign 2025</p>
-            <p className="text-xs text-black" data-testid="text-developer">NadavT</p>
+            <p className="font-medium" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-company">Comsign 2025</p>
+            <p className="text-xs text-black" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-developer">NadavT</p>
           </div>
         </CardContent>
       </Card>
