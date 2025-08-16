@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Settings } from "lucide-react";
+import { Settings, Scale, Building, Wrench, GraduationCap, User } from "lucide-react";
 import type { CalculationRequest, CalculationResult, PricingConfig } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -17,11 +17,11 @@ export default function Calculator() {
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
 
   const projectTypes = [
-    { value: "lawyers", label: "עורכי דין" },
-    { value: "architects", label: "אדריכלים" },
-    { value: "engineers", label: "מהנדסים" },
-    { value: "magna", label: "מגנא" },
-    { value: "regular", label: "רגיל" }
+    { value: "lawyers", label: "עורכי דין", icon: Scale },
+    { value: "architects", label: "אדריכלים", icon: Building },
+    { value: "engineers", label: "מהנדסים", icon: Wrench },
+    { value: "magna", label: "מגנא", icon: GraduationCap },
+    { value: "regular", label: "רגיל", icon: User }
   ];
 
   // Get available years for selected project type
@@ -92,11 +92,17 @@ export default function Calculator() {
                   <SelectValue placeholder="בחר סוג פרויקט" />
                 </SelectTrigger>
                 <SelectContent>
-                  {projectTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
+                  {projectTypes.map((type) => {
+                    const IconComponent = type.icon;
+                    return (
+                      <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
+                        <div className="flex items-center gap-2">
+                          <IconComponent className="h-4 w-4 text-primary" />
+                          {type.label}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
