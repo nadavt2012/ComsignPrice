@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
 import type { CalculationRequest, CalculationResult, PricingConfig } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -60,13 +62,20 @@ export default function Calculator() {
   }, [projectType]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4" dir="rtl">
+      <Card className="w-full max-w-md shadow-lg relative">
         <CardContent className="p-8">
+          {/* Settings Button */}
+          <div className="absolute top-4 left-4">
+            <Button variant="outline" size="sm" data-testid="button-settings">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2" data-testid="title-main">
-              מחירון תעודות
+              מחירון פרויקט
             </h1>
             <div className="w-16 h-1 bg-primary mx-auto rounded"></div>
           </div>
