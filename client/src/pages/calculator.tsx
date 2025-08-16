@@ -74,14 +74,14 @@ export default function Calculator() {
                 <img 
                   src={comsignLogo} 
                   alt="Comsign Logo" 
-                  className="h-20 w-auto object-contain"
+                  className="h-24 w-auto object-contain"
                   data-testid="logo-comsign"
                 />
               </div>
               
               {/* Settings button on the left */}
               <div>
-                <Button variant="outline" size="md" className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400" data-testid="button-settings">
+                <Button variant="outline" size="lg" className="border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 p-4" data-testid="button-settings">
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
