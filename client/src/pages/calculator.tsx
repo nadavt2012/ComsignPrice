@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Plus, Edit, Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Award, Shield, Briefcase, Star, Heart, Home, Car, Plane, Camera, Music, Book, Coffee } from "lucide-react";
+import { Trash2, Plus, Edit, Settings, Scale, Building, Wrench, GraduationCap, User, Calendar, Award, Shield, Briefcase, Star, Heart, Home, Car, Plane, Camera, Music, Book, Coffee, Moon, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { CalculationRequest, CalculationResult, PricingConfig, AdminLoginRequest, AdminConfigUpdate } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -27,8 +28,19 @@ export default function Calculator() {
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [newConfig, setNewConfig] = useState<AdminConfigUpdate>({ projectType: "", years: 1, basePrice: 0, backupCertificatePrice: 0, icon: "User" });
   const [passwordChange, setPasswordChange] = useState({ currentPassword: "", newPassword: "" });
+  const [deleteConfirmConfig, setDeleteConfirmConfig] = useState<PricingConfig | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   
   const { toast } = useToast();
+
+  // Dark mode effect
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   const projectTypes = [
     { value: "lawyers", label: "עורכי דין", icon: Scale },
@@ -434,17 +446,38 @@ export default function Calculator() {
                               >
                                 <Edit className="h-4 w-4" />
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="destructive"
-                                onClick={() => {
-                                  deleteConfigMutation.mutate(config.id);
-                                  queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
-                                }}
-                                disabled={deleteConfigMutation.isPending}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button 
+                                    size="sm" 
+                                    variant="destructive"
+                                    disabled={deleteConfigMutation.isPending}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent dir="rtl">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle style={{direction: 'rtl', textAlign: 'right'}}>האם אתה בטוח?</AlertDialogTitle>
+                                    <AlertDialogDescription style={{direction: 'rtl', textAlign: 'right'}}>
+                                      פעולה זו תמחק את התצורה עבור {config.projectType} ({config.years} שנים) לצמיתות.
+                                      לא ניתן לבטל פעולה זו.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter className="flex-row-reverse gap-2">
+                                    <AlertDialogCancel>בטל</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => {
+                                        deleteConfigMutation.mutate(config.id);
+                                        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+                                      }}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      מחק
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </>
                         )}
@@ -521,8 +554,8 @@ export default function Calculator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-2 sm:p-4 lg:p-6 relative overflow-hidden" dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
-      <Card className="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl shadow-2xl relative bg-white/95 backdrop-blur-sm border-2 border-gray-200 hover:border-gray-300 transition-all duration-300" dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' : 'bg-gradient-to-br from-gray-50 via-white to-gray-100'} flex items-center justify-center p-2 sm:p-4 lg:p-6 relative overflow-hidden transition-all duration-500`} dir="rtl" lang="he" style={{fontFamily: 'system-ui, -apple-system, sans-serif', direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
+      <Card className={`w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl shadow-2xl relative ${isDarkMode ? 'bg-gray-800/95 border-gray-600' : 'bg-white/95 border-gray-200'} backdrop-blur-sm border-2 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'right', unicodeBidi: 'embed'}}>
         <CardContent className="p-4 sm:p-6 md:p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
           {/* Header with Logo and Settings */}
           <div className="mb-4 sm:mb-8">
@@ -537,11 +570,20 @@ export default function Calculator() {
                 />
               </div>
               
-              {/* Settings button centered on mobile, left on desktop */}
-              <div className="order-2 sm:order-none">
+              {/* Dark mode and Settings buttons centered on mobile, left on desktop */}
+              <div className="order-2 sm:order-none flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`border-2 ${isDarkMode ? 'border-yellow-400 text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900' : 'border-purple-300 text-purple-600 hover:bg-purple-50'} hover:border-opacity-60 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95`}
+                  data-testid="button-theme-toggle"
+                >
+                  {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
                 <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="lg" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl" data-testid="button-settings">
+                    <Button variant="outline" size="lg" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" data-testid="button-settings">
                       <Settings className="h-4 w-4 text-red-600" />
                     </Button>
                   </DialogTrigger>
@@ -557,7 +599,7 @@ export default function Calculator() {
             
             {/* Title */}
             <div className="text-center">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="title-main">
+              <h1 className={`text-2xl sm:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-2 transition-colors duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="title-main">
                 מחירון פרויקטים
               </h1>
               <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full shadow-lg"></div>
@@ -568,14 +610,14 @@ export default function Calculator() {
           <div className="space-y-5 sm:space-y-6">
             {/* Project Type Selection */}
             <div>
-              <Label className="text-base sm:text-lg font-semibold text-gray-700 mb-4 block text-right" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
+              <Label className={`text-base sm:text-lg font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-700'} mb-4 block text-right transition-colors duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="label-project-type">
                 <div className="flex items-center gap-2 justify-start">
                   <span>סוג הפרויקט</span>
                   <Building className="h-5 w-5 text-red-500" />
                 </div>
               </Label>
               <Select value={projectType} onValueChange={setProjectType} dir="rtl">
-                <SelectTrigger className="w-full p-3 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900 min-h-[48px] sm:min-h-[44px]" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
+                <SelectTrigger className={`w-full p-3 sm:p-3 border-2 ${isDarkMode ? 'border-gray-600 bg-gray-700 text-white hover:border-gray-500' : 'border-gray-300 bg-white text-gray-900 hover:border-gray-400'} text-base sm:text-lg focus:border-gray-500 transition-all duration-300 shadow-md hover:shadow-lg min-h-[48px] sm:min-h-[44px]`} dir="rtl" style={{direction: 'rtl', textAlign: 'right'}} data-testid="select-project-type">
                   <SelectValue placeholder="בחר סוג פרויקט" className="text-sm sm:text-base text-gray-900" dir="rtl" style={{direction: 'rtl', color: '#111827'}} />
                 </SelectTrigger>
                 <SelectContent>
@@ -630,10 +672,11 @@ export default function Calculator() {
                 max="1000"
                 value={certificates}
                 onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900"
+                className="w-full p-3 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900 min-h-[48px] sm:min-h-[44px]"
                 dir="rtl"
                 style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-certificates"
+                inputMode="numeric"
               />
             </div>
 
@@ -651,24 +694,25 @@ export default function Calculator() {
                 max="100"
                 value={backupCertificates}
                 onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                className="w-full p-2 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900"
+                className="w-full p-3 sm:p-3 border-2 border-gray-300 text-base sm:text-lg focus:border-gray-500 hover:border-gray-400 transition-all duration-300 shadow-md hover:shadow-lg bg-white text-gray-900 min-h-[48px] sm:min-h-[44px]"
                 dir="rtl"
                 style={{direction: 'rtl', textAlign: 'right'}}
                 data-testid="input-backup-certificates"
+                inputMode="numeric"
               />
             </div>
           </div>
 
           {/* Price Display */}
-          <div className="mt-4 sm:mt-8 p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 shadow-xl relative overflow-hidden hover:shadow-2xl transition-all duration-300">
+          <div className={`mt-4 sm:mt-8 p-4 sm:p-6 ${isDarkMode ? 'bg-gradient-to-br from-gray-700 to-gray-800 border-gray-600' : 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200'} rounded-xl border-2 shadow-xl relative overflow-hidden hover:shadow-2xl transition-all duration-300`}>
             {/* Animated sparkles */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div className="absolute top-6 left-6 w-1 h-1 bg-gray-300 rounded-full animate-pulse" style={{animationDuration: '1.5s'}}></div>
             </div>
             <div className="text-center relative z-10">
-              <p className="text-base sm:text-lg text-gray-700 mb-2 sm:mb-3 font-bold" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
-              <div className="bg-white rounded-lg p-3 sm:p-4 shadow-xl border-2 border-gray-200 hover:border-gray-300 transition-all duration-300">
-                <p className="text-3xl sm:text-4xl font-bold text-red-600" dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="text-total-price">
+              <p className={`text-base sm:text-lg ${isDarkMode ? 'text-gray-200' : 'text-gray-700'} mb-2 sm:mb-3 font-bold transition-colors duration-300`} dir="rtl" style={{direction: 'rtl', textAlign: 'center'}} data-testid="label-final-price">מחיר סופי</p>
+              <div className={`${isDarkMode ? 'bg-gray-800 border-gray-600' : 'bg-white border-gray-200'} rounded-lg p-3 sm:p-4 shadow-xl border-2 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105 active:scale-95`}>
+                <p className="text-3xl sm:text-4xl font-bold text-red-600 animate-pulse" dir="rtl" style={{direction: 'rtl', textAlign: 'center', animationDuration: '2s'}} data-testid="text-total-price">
                   ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                 </p>
               </div>
