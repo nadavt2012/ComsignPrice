@@ -2,6 +2,13 @@
 
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
+**Recent Updates (August 2025):**
+- Converted to Progressive Web App (PWA) for mobile installation
+- Mobile-optimized layout with improved responsive design  
+- Performance optimizations including debouncing, caching, and hardware acceleration
+- Service Worker implementation for offline functionality
+- Custom Comsign logo integration with proper mobile display
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.

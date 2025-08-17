@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -33,15 +33,15 @@ export default function Calculator() {
   const { toast } = useToast();
 
 
-  const projectTypes = [
+  const projectTypes = useMemo(() => [
     { value: "lawyers", label: "עורכי דין", icon: Scale },
     { value: "architects", label: "אדריכלים", icon: Building },
     { value: "engineers", label: "מהנדסים", icon: Wrench },
     { value: "magna", label: "מגנא", icon: GraduationCap },
     { value: "regular", label: "רגיל", icon: User }
-  ];
+  ], []);
 
-  const availableIcons = [
+  const availableIcons = useMemo(() => [
     { value: "User", label: "משתמש", component: User },
     { value: "Scale", label: "משפט", component: Scale },
     { value: "Building", label: "בניין", component: Building },
@@ -60,12 +60,13 @@ export default function Calculator() {
     { value: "Calendar", label: "לוח שנה", component: Calendar },
     { value: "Award", label: "פרס", component: Award },
     { value: "Shield", label: "מגן", component: Shield }
-  ];
+  ], []);
 
   // Get available years for selected project type
   const { data: availableYears = [] } = useQuery<number[]>({
     queryKey: ["/api/pricing", projectType, "years"],
     enabled: !!projectType,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Calculate price mutation
@@ -79,19 +80,23 @@ export default function Calculator() {
     },
   });
 
-  // Auto-calculate when inputs change
+  // Auto-calculate when inputs change with debounce for better performance
   useEffect(() => {
-    if (projectType && years && certificates > 0) {
-      const data: CalculationRequest = {
-        projectType,
-        years: parseInt(years),
-        certificates,
-        backupCertificates,
-      };
-      calculateMutation.mutate(data);
-    } else {
-      setCalculationResult(null);
-    }
+    const timer = setTimeout(() => {
+      if (projectType && years && certificates > 0) {
+        const data: CalculationRequest = {
+          projectType,
+          years: parseInt(years),
+          certificates,
+          backupCertificates,
+        };
+        calculateMutation.mutate(data);
+      } else {
+        setCalculationResult(null);
+      }
+    }, 150); // Small debounce for better performance
+
+    return () => clearTimeout(timer);
   }, [projectType, years, certificates, backupCertificates]);
 
   // Reset years when project type changes
@@ -103,6 +108,7 @@ export default function Calculator() {
   const { data: allPricingConfigs = [], refetch: refetchConfigs } = useQuery<PricingConfig[]>({
     queryKey: ["/api/admin/pricing"],
     enabled: isAdminLoggedIn,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   // Admin login mutation
