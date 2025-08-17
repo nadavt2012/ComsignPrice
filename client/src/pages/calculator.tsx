@@ -550,22 +550,12 @@ export default function Calculator() {
         <CardContent className="p-4 sm:p-6 md:p-8" dir="rtl" style={{direction: 'rtl', textAlign: 'right'}}>
           {/* Header with Logo and Settings */}
           <div className="mb-4 sm:mb-8">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mb-3 sm:mb-4">
-              {/* Logo centered on mobile, right on desktop */}
-              <div className="flex-shrink-0 order-1 sm:order-none">
-                <img 
-                  src={comsignLogo} 
-                  alt="Comsign Logo" 
-                  className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto object-contain"
-                  data-testid="logo-comsign"
-                />
-              </div>
-              
-              {/* Settings button centered on mobile, left on desktop */}
-              <div className="order-2 sm:order-none flex gap-2">
+            <div className="flex flex-col items-center gap-4 mb-4">
+              {/* Settings button - top right on mobile */}
+              <div className="w-full flex justify-end">
                 <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="lg" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 sm:p-4 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" data-testid="button-settings">
+                    <Button variant="outline" size="sm" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95" data-testid="button-settings">
                       <Settings className="h-4 w-4 text-red-600" />
                     </Button>
                   </DialogTrigger>
@@ -577,14 +567,24 @@ export default function Calculator() {
                   </DialogContent>
                 </Dialog>
               </div>
+              
+              {/* Logo centered */}
+              <div className="flex-shrink-0">
+                <img 
+                  src={comsignLogo} 
+                  alt="Comsign Logo" 
+                  className="h-12 sm:h-16 md:h-20 lg:h-24 w-auto object-contain mx-auto"
+                  data-testid="logo-comsign"
+                />
+              </div>
             </div>
             
             {/* Title */}
             <div className="text-center">
-              <h1 className="text-3xl sm:text-4xl elegant-text text-gray-800 mb-2" dir="rtl" style={{direction: 'rtl', textAlign: 'center', fontWeight: '700', letterSpacing: '-0.025em'}} data-testid="title-main">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl elegant-text text-gray-800 mb-2" dir="rtl" style={{direction: 'rtl', textAlign: 'center', fontWeight: '700', letterSpacing: '-0.025em'}} data-testid="title-main">
                 מחירון פרויקטים
               </h1>
-              <div className="w-20 h-1.5 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full shadow-lg"></div>
+              <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full shadow-lg"></div>
             </div>
           </div>
 
