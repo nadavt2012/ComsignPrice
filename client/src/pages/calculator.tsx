@@ -47,8 +47,8 @@ export default function Calculator() {
   const [certificates, setCertificates] = useState(1);
   const [backupCertificates, setBackupCertificates] = useState(0);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   
   const { toast } = useToast();
@@ -136,28 +136,32 @@ export default function Calculator() {
                         <Settings className="h-8 w-8" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent 
-                      className="w-[95vw] max-w-md h-[90vh] max-h-[600px] p-4 m-2" 
-                      dir="rtl"
-                      style={{ 
-                        position: 'fixed',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        zIndex: 9999
-                      }}
-                    >
-                      <DialogHeader>
-                        <DialogTitle className="text-center text-xl font-bold mb-4" dir="rtl">פאנל ניהול מערכת</DialogTitle>
-                      </DialogHeader>
-                      <div className="text-center p-4">
-                        <p className="text-gray-600 mb-4">זהו פאנל הניהול של המערכת</p>
-                        <Button 
-                          onClick={() => setIsAdminModalOpen(false)}
-                          className="w-full bg-red-600 hover:bg-red-700 text-white"
-                        >
-                          סגור
-                        </Button>
+                    <DialogContent className="sm:max-w-md w-[95vw] max-h-[95vh] overflow-hidden" dir="rtl">
+                      <div className="flex flex-col h-full max-h-[90vh]" dir="rtl">
+                        <DialogHeader className="flex-shrink-0">
+                          <DialogTitle className="text-center text-xl font-bold" dir="rtl">פאנל ניהול מערכת</DialogTitle>
+                        </DialogHeader>
+                        
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                          {!isAdminLoggedIn ? (
+                            <AdminLogin onLoginSuccess={() => setIsAdminLoggedIn(true)} />
+                          ) : (
+                            <AdminPanel onLogout={() => setIsAdminLoggedIn(false)} />
+                          )}
+                        </div>
+                        
+                        <div className="flex-shrink-0 p-4 border-t">
+                          <Button 
+                            onClick={() => {
+                              setIsAdminModalOpen(false);
+                              setIsAdminLoggedIn(false);
+                            }}
+                            className="w-full bg-gray-600 hover:bg-gray-700 text-white"
+                            data-testid="button-close-admin"
+                          >
+                            סגור
+                          </Button>
+                        </div>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -299,6 +303,277 @@ export default function Calculator() {
 
           </CardContent>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+// Admin Login Component
+function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleLogin = async () => {
+    if (!password.trim()) {
+      toast({
+        title: "שגיאה",
+        description: "נא הזן סיסמה",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "התחברות מוצלחת",
+          description: "ברוך הבא לפאנל הניהול",
+        });
+        onLoginSuccess();
+        setPassword("");
+      } else {
+        toast({
+          title: "שגיאת התחברות",
+          description: "סיסמה לא נכונה",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "בעיה בהתחברות לשרת",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="text-center">
+        <h3 className="text-lg font-semibold text-gray-800">התחברות לפאנל הניהול</h3>
+        <p className="text-sm text-gray-600 mt-2">הזן את סיסמת המנהל</p>
+      </div>
+      
+      <div className="space-y-3">
+        <Label htmlFor="admin-password" className="text-sm font-medium">סיסמה</Label>
+        <Input
+          id="admin-password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="הזן סיסמה"
+          className="text-center"
+          onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+          data-testid="input-admin-password"
+        />
+      </div>
+      
+      <Button
+        onClick={handleLogin}
+        disabled={isLoading}
+        className="w-full bg-red-600 hover:bg-red-700 text-white"
+        data-testid="button-admin-login"
+      >
+        {isLoading ? "מתחבר..." : "התחבר"}
+      </Button>
+    </div>
+  );
+}
+
+// Admin Panel Component
+function AdminPanel({ onLogout }: { onLogout: () => void }) {
+  const [configs, setConfigs] = useState<PricingConfig[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
+  const { toast } = useToast();
+
+  // Load all pricing configurations
+  useEffect(() => {
+    loadConfigs();
+  }, []);
+
+  const loadConfigs = async () => {
+    try {
+      const response = await fetch('/api/admin/configs');
+      if (response.ok) {
+        const data = await response.json();
+        setConfigs(data);
+      }
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן לטעון את הגדרות המחירים",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateConfig = async (configId: string, updates: Partial<PricingConfig>) => {
+    try {
+      const response = await fetch(`/api/admin/configs/${configId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "עדכון מוצלח",
+          description: "המחירים עודכנו בהצלחה",
+        });
+        loadConfigs(); // Reload configs
+        setEditingConfig(null);
+      } else {
+        throw new Error('Update failed');
+      }
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן לעדכן את המחירים",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">טוען נתונים...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="text-center">
+        <h3 className="text-lg font-semibold text-gray-800">ניהול מחירים</h3>
+        <p className="text-sm text-gray-600">כל שינוי ישפיע מיד על כל המשתמשים</p>
+      </div>
+
+      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+        {configs.map((config) => (
+          <div key={config.id} className="border rounded-lg p-3 bg-gray-50">
+            <div className="flex justify-between items-center mb-2">
+              <h4 className="font-medium text-gray-800">
+                {config.projectType} - {config.years} שנים
+              </h4>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setEditingConfig(config)}
+                data-testid={`button-edit-${config.id}`}
+              >
+                ערוך
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+              <div>מחיר בסיס: ₪{config.basePrice}</div>
+              <div>תעודה נוספת: ₪{config.backupCertificatePrice}</div>
+            </div>
+
+            {editingConfig?.id === config.id && (
+              <EditConfigForm
+                config={config}
+                onSave={(updates) => updateConfig(String(config.id), updates)}
+                onCancel={() => setEditingConfig(null)}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="pt-4 border-t">
+        <Button
+          onClick={onLogout}
+          variant="outline"
+          className="w-full"
+          data-testid="button-admin-logout"
+        >
+          התנתק
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Edit Config Form Component
+function EditConfigForm({
+  config,
+  onSave,
+  onCancel
+}: {
+  config: PricingConfig;
+  onSave: (updates: Partial<PricingConfig>) => void;
+  onCancel: () => void;
+}) {
+  const [basePrice, setBasePrice] = useState(config.basePrice);
+  const [backupPrice, setBackupPrice] = useState(config.backupCertificatePrice);
+
+  const handleSave = () => {
+    onSave({
+      basePrice: Number(basePrice),
+      backupCertificatePrice: Number(backupPrice),
+    });
+  };
+
+  return (
+    <div className="mt-3 p-3 border rounded bg-white space-y-3">
+      <div>
+        <Label htmlFor={`base-price-${config.id}`} className="text-sm">מחיר בסיס</Label>
+        <Input
+          id={`base-price-${config.id}`}
+          type="number"
+          value={basePrice}
+          onChange={(e) => setBasePrice(Number(e.target.value))}
+          className="mt-1"
+          data-testid={`input-base-price-${config.id}`}
+        />
+      </div>
+      
+      <div>
+        <Label htmlFor={`backup-price-${config.id}`} className="text-sm">מחיר תעודה נוספת</Label>
+        <Input
+          id={`backup-price-${config.id}`}
+          type="number"
+          value={backupPrice}
+          onChange={(e) => setBackupPrice(Number(e.target.value))}
+          className="mt-1"
+          data-testid={`input-backup-price-${config.id}`}
+        />
+      </div>
+      
+      <div className="flex gap-2">
+        <Button
+          onClick={handleSave}
+          size="sm"
+          className="flex-1 bg-green-600 hover:bg-green-700"
+          data-testid={`button-save-${config.id}`}
+        >
+          שמור
+        </Button>
+        <Button
+          onClick={onCancel}
+          size="sm"
+          variant="outline"
+          className="flex-1"
+          data-testid={`button-cancel-${config.id}`}
+        >
+          בטל
+        </Button>
       </div>
     </div>
   );

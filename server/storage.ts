@@ -5,7 +5,7 @@ export interface IStorage {
   getPricingConfigs(): Promise<PricingConfig[]>;
   getPricingConfig(projectType: string, years: number): Promise<PricingConfig | undefined>;
   createPricingConfig(config: InsertPricingConfig): Promise<PricingConfig>;
-  updatePricingConfig(id: string, config: AdminConfigUpdate): Promise<PricingConfig | undefined>;
+  updatePricingConfig(id: string, updates: Partial<PricingConfig>): Promise<PricingConfig | undefined>;
   deletePricingConfig(id: string): Promise<boolean>;
   verifyAdminPassword(password: string): Promise<boolean>;
   updateAdminPassword(newPassword: string): Promise<void>;
@@ -67,21 +67,13 @@ export class MemStorage implements IStorage {
     return config;
   }
 
-  async updatePricingConfig(id: string, updateConfig: AdminConfigUpdate): Promise<PricingConfig | undefined> {
+  async updatePricingConfig(id: string, updates: Partial<PricingConfig>): Promise<PricingConfig | undefined> {
     const existingConfig = this.pricingConfigs.get(id);
     if (!existingConfig) {
       return undefined;
     }
-    
-    const updatedConfig: PricingConfig = {
-      ...existingConfig,
-      projectType: updateConfig.projectType,
-      years: updateConfig.years,
-      basePrice: updateConfig.basePrice,
-      backupCertificatePrice: updateConfig.backupCertificatePrice,
-      icon: updateConfig.icon || existingConfig.icon
-    };
-    
+
+    const updatedConfig = { ...existingConfig, ...updates };
     this.pricingConfigs.set(id, updatedConfig);
     return updatedConfig;
   }

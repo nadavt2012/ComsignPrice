@@ -18,6 +18,16 @@ export const insertPricingConfigSchema = createInsertSchema(pricingConfigs).omit
 export type InsertPricingConfig = z.infer<typeof insertPricingConfigSchema>;
 export type PricingConfig = typeof pricingConfigs.$inferSelect;
 
+// Manual type for now to fix TypeScript issues
+export interface PricingConfigManual {
+  id: string;
+  projectType: string;
+  years: number;
+  basePrice: number;
+  backupCertificatePrice: number;
+  icon: string;
+}
+
 // Additional types for the calculator
 export interface CalculationRequest {
   projectType: string;

@@ -30,6 +30,9 @@ const adminPasswordChangeSchema = z.object({
   newPassword: z.string(),
 });
 
+// Simple admin password - in production this should be in environment variables
+const ADMIN_PASSWORD = "admin123";
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // PWA Routes - serve manifest and service worker
   app.get("/manifest.json", (req, res) => {
@@ -223,6 +226,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true, message: "Password reset to default (795915)" });
     } catch (error) {
       res.status(500).json({ message: "Failed to reset password" });
+    }
+  });
+
+  // Admin login endpoint
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { password } = adminLoginSchema.parse(req.body);
+      
+      if (password === ADMIN_PASSWORD) {
+        res.json({ success: true, message: "Login successful" });
+      } else {
+        res.status(401).json({ success: false, message: "Invalid password" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid request data" });
+    }
+  });
+
+  // Get all pricing configurations for admin
+  app.get("/api/admin/configs", async (req, res) => {
+    try {
+      const configs = await storage.getPricingConfigs();
+      res.json(configs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch configurations" });
+    }
+  });
+
+  // Update pricing configuration
+  app.patch("/api/admin/configs/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // Update the configuration in storage
+      await storage.updatePricingConfig(id, updates);
+      
+      res.json({ success: true, message: "Configuration updated successfully" });
+    } catch (error) {
+      console.error("Error updating config:", error);
+      res.status(500).json({ message: "Failed to update configuration" });
     }
   });
 
