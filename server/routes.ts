@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate, AdminPasswordChange } from "@shared/schema";
+import path from "path";
+import fs from "fs";
 
 const calculationRequestSchema = z.object({
   projectType: z.string(),
@@ -29,6 +31,28 @@ const adminPasswordChangeSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // PWA Routes - serve manifest and service worker
+  app.get("/manifest.json", (req, res) => {
+    const manifestPath = path.resolve(import.meta.dirname, "..", "client", "public", "manifest.json");
+    res.sendFile(manifestPath);
+  });
+
+  app.get("/sw.js", (req, res) => {
+    const swPath = path.resolve(import.meta.dirname, "..", "client", "public", "sw.js");
+    res.setHeader("Content-Type", "application/javascript");
+    res.sendFile(swPath);
+  });
+
+  app.get("/icon-192.png", (req, res) => {
+    const iconPath = path.resolve(import.meta.dirname, "..", "client", "public", "icon-192.png");
+    res.sendFile(iconPath);
+  });
+
+  app.get("/icon-512.png", (req, res) => {
+    const iconPath = path.resolve(import.meta.dirname, "..", "client", "public", "icon-512.png");
+    res.sendFile(iconPath);
+  });
+
   // Get all pricing configurations
   app.get("/api/pricing", async (req, res) => {
     try {
