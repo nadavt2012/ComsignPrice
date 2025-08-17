@@ -15,6 +15,17 @@
   user-select: none;
 }
 
+/* Improve touch targets for mobile */
+button, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dialog overlay improvements for mobile */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
 input, textarea {
   -webkit-user-select: text;
   -khtml-user-select: text;

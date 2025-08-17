@@ -111,41 +111,64 @@ export default function Calculator() {
             
             {/* Header Section */}
             <div className="space-y-4">
-              {/* Top Row - Logo, Title, Settings */}
-              <div className="flex items-center justify-between">
+              {/* Top Row - Logo, Settings */}
+              <div className="flex items-center justify-between mb-3">
                 {/* Logo - Right Side */}
                 <div className="flex-shrink-0">
                   <img 
                     src={comsignLogo} 
                     alt="Comsign Logo" 
-                    className="h-16 w-16 object-contain rounded-lg"
+                    className="h-20 w-20 object-contain rounded-lg shadow-sm"
                     data-testid="logo-comsign"
                   />
-                </div>
-                
-                {/* Title - Center */}
-                <div className="flex-1 text-center px-4">
-                  <h1 className="text-xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
-                    מחירון פרויקטים
-                  </h1>
                 </div>
                 
                 {/* Settings Button - Left Side */}
                 <div className="flex-shrink-0">
                   <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="outline" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-4 h-16 w-16" data-testid="button-settings">
-                        <Settings className="h-6 w-6" />
+                      <Button 
+                        variant="outline" 
+                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-4 h-20 w-20 rounded-lg shadow-sm touch-manipulation" 
+                        data-testid="button-settings"
+                        style={{ WebkitTapHighlightColor: 'transparent' }}
+                      >
+                        <Settings className="h-8 w-8" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-[95vw] max-h-[85vh] overflow-y-auto p-4" dir="rtl">
+                    <DialogContent 
+                      className="w-[95vw] max-w-md h-[90vh] max-h-[600px] p-4 m-2" 
+                      dir="rtl"
+                      style={{ 
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        zIndex: 9999
+                      }}
+                    >
                       <DialogHeader>
-                        <DialogTitle className="text-center text-xl font-bold" dir="rtl">פאנל ניהול מערכת</DialogTitle>
+                        <DialogTitle className="text-center text-xl font-bold mb-4" dir="rtl">פאנל ניהול מערכת</DialogTitle>
                       </DialogHeader>
-                      <div>זהו פאנל הניהול</div>
+                      <div className="text-center p-4">
+                        <p className="text-gray-600 mb-4">זהו פאנל הניהול של המערכת</p>
+                        <Button 
+                          onClick={() => setIsAdminModalOpen(false)}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white"
+                        >
+                          סגור
+                        </Button>
+                      </div>
                     </DialogContent>
                   </Dialog>
                 </div>
+              </div>
+              
+              {/* Title - Center */}
+              <div className="text-center mb-2">
+                <h1 className="text-2xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
+                  מחירון פרויקטים
+                </h1>
               </div>
               
               {/* Decorative Line */}
