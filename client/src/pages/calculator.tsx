@@ -110,36 +110,47 @@ export default function Calculator() {
           <CardContent className="p-4 space-y-6" dir="rtl">
             
             {/* Header Section */}
-            <div className="relative">
-              {/* Settings Button - Top Right */}
-              <div className="absolute top-0 right-0 z-10">
-                <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2" data-testid="button-settings">
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-[95vw] max-h-[85vh] overflow-y-auto p-4" dir="rtl">
-                    <DialogHeader>
-                      <DialogTitle className="text-center text-xl font-bold" dir="rtl">פאנל ניהול מערכת</DialogTitle>
-                    </DialogHeader>
-                    <div>זהו פאנל הניהול</div>
-                  </DialogContent>
-                </Dialog>
+            <div className="space-y-4">
+              {/* Top Row - Logo, Title, Settings */}
+              <div className="flex items-center justify-between">
+                {/* Logo - Right Side */}
+                <div className="flex-shrink-0">
+                  <img 
+                    src={comsignLogo} 
+                    alt="Comsign Logo" 
+                    className="h-16 w-16 object-contain rounded-lg"
+                    data-testid="logo-comsign"
+                  />
+                </div>
+                
+                {/* Title - Center */}
+                <div className="flex-1 text-center px-4">
+                  <h1 className="text-xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
+                    מחירון פרויקטים
+                  </h1>
+                </div>
+                
+                {/* Settings Button - Left Side */}
+                <div className="flex-shrink-0">
+                  <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-4 h-16 w-16" data-testid="button-settings">
+                        <Settings className="h-6 w-6" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-[95vw] max-h-[85vh] overflow-y-auto p-4" dir="rtl">
+                      <DialogHeader>
+                        <DialogTitle className="text-center text-xl font-bold" dir="rtl">פאנל ניהול מערכת</DialogTitle>
+                      </DialogHeader>
+                      <div>זהו פאנל הניהול</div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
               
-              {/* Title and Logo Section - Centered */}
-              <div className="text-center pt-2">
-                <h1 className="text-2xl font-bold text-gray-800 mb-4" dir="rtl" data-testid="title-main">
-                  מחירון פרויקטים
-                </h1>
-                <img 
-                  src={comsignLogo} 
-                  alt="Comsign Logo" 
-                  className="h-14 w-auto object-contain mx-auto mb-3"
-                  data-testid="logo-comsign"
-                />
-                <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full"></div>
+              {/* Decorative Line */}
+              <div className="flex justify-center">
+                <div className="w-20 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg"></div>
               </div>
             </div>
 
