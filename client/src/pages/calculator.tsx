@@ -110,9 +110,9 @@ export default function Calculator() {
           <CardContent className="p-4 space-y-6" dir="rtl">
             
             {/* Header Section */}
-            <div className="space-y-4">
-              {/* Top Bar - Settings Button */}
-              <div className="flex justify-end">
+            <div className="relative">
+              {/* Settings Button - Top Right */}
+              <div className="absolute top-0 right-0 z-10">
                 <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2" data-testid="button-settings">
@@ -128,17 +128,17 @@ export default function Calculator() {
                 </Dialog>
               </div>
               
-              {/* Logo Section */}
-              <div className="text-center">
+              {/* Title and Logo Section - Centered */}
+              <div className="text-center pt-2">
+                <h1 className="text-2xl font-bold text-gray-800 mb-4" dir="rtl" data-testid="title-main">
+                  מחירון פרויקטים
+                </h1>
                 <img 
                   src={comsignLogo} 
                   alt="Comsign Logo" 
-                  className="h-16 w-auto object-contain mx-auto mb-3"
+                  className="h-14 w-auto object-contain mx-auto mb-3"
                   data-testid="logo-comsign"
                 />
-                <h1 className="text-2xl font-bold text-gray-800 mb-2" dir="rtl" data-testid="title-main">
-                  מחירון פרויקטים
-                </h1>
                 <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-red-600 mx-auto rounded-full"></div>
               </div>
             </div>
