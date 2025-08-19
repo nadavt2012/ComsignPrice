@@ -710,7 +710,7 @@ function AddConfigForm({
   onCancel: () => void;
 }) {
   const [projectType, setProjectType] = useState("");
-  const [icon, setIcon] = useState("User");
+  const [icon, setIcon] = useState("Scale");
   const [yearConfigs, setYearConfigs] = useState<{year: number; basePrice: number; backupPrice: number}[]>([
     { year: 1, basePrice: 0, backupPrice: 0 }
   ]);
@@ -852,7 +852,6 @@ function AddConfigForm({
           className="w-full p-4 border-2 border-gray-300 rounded-lg text-center min-h-[52px] text-lg font-semibold touch-manipulation active:scale-[0.98] transition-all duration-200 bg-white shadow-sm"
           data-testid="select-new-icon"
         >
-          <option value="User">👤 משתמש רגיל</option>
           <option value="Scale">עורכי דין</option>
           <option value="Building">אדריכלים</option>
           <option value="Wrench">מהנדסים</option>
