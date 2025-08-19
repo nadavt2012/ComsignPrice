@@ -552,7 +552,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white min-h-[60px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
           data-testid="button-add-project"
         >
-          {showAddForm ? "✕ ביטול הוספה" : "➕ הוסף פרויקט חדש"}
+{showAddForm ? "ביטול הוספה" : "הוסף פרויקט חדש"}
         </Button>
         
         {showAddForm && (
@@ -580,7 +580,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                   data-testid={`button-edit-${config.id}`}
                   className="flex-1 sm:flex-none min-h-[52px] px-6 font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
                 >
-                  ✏️ ערוך
+ערוך
                 </Button>
                 <Button
                   size="sm"
@@ -589,7 +589,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                   data-testid={`button-delete-${config.id}`}
                   className="flex-1 sm:flex-none min-h-[52px] px-6 font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
                 >
-                  🗑️ מחק
+מחק
                 </Button>
               </div>
             </div>
@@ -623,7 +623,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           className="w-full min-h-[60px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl"
           data-testid="button-admin-logout"
         >
-          🚪 התנתק
+התנתק
         </Button>
       </div>
     </div>
@@ -685,7 +685,7 @@ function EditConfigForm({
           className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 min-h-[52px] font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 rounded-lg shadow-md"
           data-testid={`button-save-${config.id}`}
         >
-          💾 שמור שינויים
+שמור שינויים
         </Button>
         <Button
           onClick={onCancel}
@@ -694,7 +694,7 @@ function EditConfigForm({
           className="flex-1 min-h-[52px] font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-lg"
           data-testid={`button-cancel-${config.id}`}
         >
-          ❌ בטל
+          בטל
         </Button>
       </div>
     </div>
@@ -752,11 +752,11 @@ function AddConfigForm({
 
   return (
     <div className="p-4 sm:p-6 border-2 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 space-y-4 sm:space-y-6 shadow-lg" dir="rtl">
-      <h4 className="font-bold text-center text-gray-800 text-xl">🔧 הוספת פרויקט חדש</h4>
+      <h4 className="font-bold text-center text-gray-800 text-xl">הוספת פרויקט חדש</h4>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="sm:col-span-2">
-          <Label htmlFor="new-project-type" className="text-lg font-semibold text-gray-800 mb-2 block">🏢 סוג פרויקט</Label>
+          <Label htmlFor="new-project-type" className="text-lg font-semibold text-gray-800 mb-2 block">סוג פרויקט</Label>
           <Input
             id="new-project-type"
             type="text"
@@ -772,7 +772,7 @@ function AddConfigForm({
       {/* Year Configurations */}
       <div className="space-y-4">
         <div className="flex items-center justify-between bg-white p-4 rounded-lg border-2 border-blue-200">
-          <Label className="text-base font-semibold text-gray-800">📅 הגדרות מחירים לשנים</Label>
+          <Label className="text-base font-semibold text-gray-800">הגדרות מחירים לשנים</Label>
           <Button
             type="button"
             onClick={addYearConfig}
@@ -780,7 +780,7 @@ function AddConfigForm({
             size="sm"
             className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[44px] px-4 font-semibold rounded-lg shadow-md active:scale-[0.97] transition-all duration-200"
           >
-            ➕ הוסף שנה
+הוסף שנה
           </Button>
         </div>
         
@@ -788,7 +788,7 @@ function AddConfigForm({
           {yearConfigs.map((config, index) => (
             <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-white border-2 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-1 block">📅 שנים</Label>
+                <Label className="text-sm font-medium text-gray-700 mb-1 block">שנים</Label>
                 <Input
                   type="number"
                   min="1"
@@ -801,7 +801,7 @@ function AddConfigForm({
               </div>
               
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-1 block">💰 מחיר בסיס</Label>
+                <Label className="text-sm font-medium text-gray-700 mb-1 block">מחיר בסיס</Label>
                 <Input
                   type="number"
                   min="0"
@@ -814,7 +814,7 @@ function AddConfigForm({
               </div>
               
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-1 block">🛡️ מחיר גיבוי</Label>
+                <Label className="text-sm font-medium text-gray-700 mb-1 block">מחיר גיבוי</Label>
                 <Input
                   type="number"
                   min="0"
@@ -835,7 +835,7 @@ function AddConfigForm({
                   variant="destructive"
                   className="w-full min-h-[48px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-semibold rounded-lg shadow-md active:scale-[0.97] transition-all duration-200"
                 >
-                  🗑️ הסר
+הסר
                 </Button>
               </div>
             </div>
@@ -844,7 +844,7 @@ function AddConfigForm({
       </div>
       
       <div>
-        <Label htmlFor="new-icon" className="text-lg font-semibold text-gray-800 mb-2 block">🎯 סמל</Label>
+        <Label htmlFor="new-icon" className="text-lg font-semibold text-gray-800 mb-2 block">סמל</Label>
         <select
           id="new-icon"
           value={icon}
@@ -882,7 +882,7 @@ function AddConfigForm({
           className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[56px] text-lg font-bold touch-manipulation active:scale-[0.97] transition-all duration-200 rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           data-testid="button-save-new-config"
         >
-          💾 הוסף {yearConfigs.length} הגדרות מחיר
+הוסף {yearConfigs.length} הגדרות מחיר
         </Button>
         <Button
           onClick={onCancel}
@@ -890,7 +890,7 @@ function AddConfigForm({
           className="flex-1 min-h-[56px] text-lg font-bold touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-xl"
           data-testid="button-cancel-new-config"
         >
-          ❌ בטל
+          בטל
         </Button>
       </div>
     </div>
