@@ -240,6 +240,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete pricing configuration (Admin only)
+  app.delete("/api/admin/configs/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const result = await storage.deletePricingConfig(id);
+      
+      if (result) {
+        res.json({ message: "Configuration deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Configuration not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete configuration" });
+    }
+  });
+
   // Update pricing configuration
   app.patch("/api/admin/configs/:id", async (req, res) => {
     try {

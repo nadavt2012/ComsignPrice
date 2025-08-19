@@ -417,6 +417,34 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     }
   };
 
+  const deleteConfig = async (configId: string) => {
+    try {
+      const response = await fetch(`/api/admin/configs/${configId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        toast({
+          title: "הצלחה",
+          description: "הפרויקט נמחק בהצלחה",
+        });
+        loadConfigs();
+      } else {
+        toast({
+          title: "שגיאה",
+          description: "לא ניתן למחוק את הפרויקט",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "בעיה בתקשורת עם השרת",
+        variant: "destructive",
+      });
+    }
+  };
+
   const updateConfig = async (configId: string, updates: Partial<PricingConfig>) => {
     try {
       const response = await fetch(`/api/admin/configs/${configId}`, {
@@ -514,15 +542,26 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
               <h4 className="font-medium text-gray-800 text-center sm:text-right">
                 {config.projectType} - {config.years} שנים
               </h4>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => setEditingConfig(config)}
-                data-testid={`button-edit-${config.id}`}
-                className="w-full sm:w-auto min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
-              >
-                ערוך
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEditingConfig(config)}
+                  data-testid={`button-edit-${config.id}`}
+                  className="flex-1 sm:flex-none min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
+                >
+                  ערוך
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => deleteConfig(String(config.id))}
+                  data-testid={`button-delete-${config.id}`}
+                  className="flex-1 sm:flex-none min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform bg-red-600 hover:bg-red-700"
+                >
+                  מחק
+                </Button>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
@@ -728,25 +767,25 @@ function AddConfigForm({
           data-testid="select-new-icon"
         >
           <option value="User">👤 משתמש רגיל</option>
-          <option value="Scale">⚖️ עורכי דין</option>
-          <option value="Building">🏢 אדריכלים</option>
-          <option value="Wrench">🔧 מהנדסים</option>
-          <option value="GraduationCap">🎓 מגנה</option>
-          <option value="CalcIcon">🧮 רואי חשבון</option>
-          <option value="Stethoscope">🩺 רופאים</option>
-          <option value="Briefcase">💼 עסקים</option>
-          <option value="Shield">🛡️ ביטוח</option>
-          <option value="Gavel">🔨 בית משפט</option>
-          <option value="FileText">📄 מסמכים</option>
-          <option value="Globe">🌐 יעוץ בינלאומי</option>
-          <option value="Camera">📷 צלמים</option>
-          <option value="Palette">🎨 עיצוב גרפי</option>
-          <option value="Code">💻 תכנות</option>
-          <option value="Heart">❤️ בריאות</option>
-          <option value="Car">🚗 רכב</option>
-          <option value="Home">🏠 נדלן</option>
-          <option value="Zap">⚡ חשמל</option>
-          <option value="Wrench2">🔩 שירותי תחזוקה</option>
+          <option value="Scale">עורכי דין</option>
+          <option value="Building">אדריכלים</option>
+          <option value="Wrench">מהנדסים</option>
+          <option value="GraduationCap">מגנה</option>
+          <option value="CalcIcon">רואי חשבון</option>
+          <option value="Stethoscope">רופאים</option>
+          <option value="Briefcase">עסקים</option>
+          <option value="Shield">ביטוח</option>
+          <option value="Gavel">בית משפט</option>
+          <option value="FileText">מסמכים</option>
+          <option value="Globe">יעוץ בינלאומי</option>
+          <option value="Camera">צלמים</option>
+          <option value="Palette">עיצוב גרפי</option>
+          <option value="Code">תכנות</option>
+          <option value="Heart">בריאות</option>
+          <option value="Car">רכב</option>
+          <option value="Home">נדלן</option>
+          <option value="Zap">חשמל</option>
+          <option value="Star">שירותי תחזוקה</option>
         </select>
       </div>
       
