@@ -174,11 +174,9 @@ export default function Calculator() {
                 </h1>
               </div>
               
-              {/* Decorative Line with Enhanced Design */}
-              <div className="flex justify-center items-center gap-2">
-                <div className="w-6 h-6 bg-gradient-to-r from-red-400 to-red-600 rounded-full opacity-30"></div>
+              {/* Decorative Line */}
+              <div className="flex justify-center">
                 <div className="w-20 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg"></div>
-                <div className="w-6 h-6 bg-gradient-to-r from-red-400 to-red-600 rounded-full opacity-30"></div>
               </div>
             </div>
 
@@ -186,7 +184,7 @@ export default function Calculator() {
             <div className="space-y-4">
               {/* Project Type Selection */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right bg-gradient-to-r from-gray-50 to-transparent p-2 rounded-lg border border-gray-100" dir="rtl" data-testid="label-project-type">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
                   <div className="flex items-center gap-2 justify-start">
                     <span>סוג הפרויקט</span>
                     <Building className="h-4 w-4 text-red-500" />
@@ -214,10 +212,10 @@ export default function Calculator() {
 
               {/* Years Selection */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right bg-gradient-to-r from-blue-50 to-transparent p-2 rounded-lg border border-blue-100" dir="rtl" data-testid="label-years">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
                   <div className="flex items-center gap-2 justify-start">
                     <span>כמות שנים</span>
-                    <Calendar className="h-4 w-4 text-blue-500" />
+                    <Calendar className="h-4 w-4 text-red-500" />
                   </div>
                 </Label>
                 <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
@@ -236,10 +234,10 @@ export default function Calculator() {
 
               {/* Certificate Quantity */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right bg-gradient-to-r from-green-50 to-transparent p-2 rounded-lg border border-green-100" dir="rtl" data-testid="label-certificates">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
                   <div className="flex items-center gap-2 justify-start">
                     <span>כמות תעודות</span>
-                    <Award className="h-4 w-4 text-green-500" />
+                    <Award className="h-4 w-4 text-red-500" />
                   </div>
                 </Label>
                 <Input
@@ -257,10 +255,10 @@ export default function Calculator() {
 
               {/* Backup Certificates */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right bg-gradient-to-r from-purple-50 to-transparent p-2 rounded-lg border border-purple-100" dir="rtl" data-testid="label-backup-certificates">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
                   <div className="flex items-center gap-2 justify-start">
                     <span>תעודות גיבוי</span>
-                    <Shield className="h-4 w-4 text-purple-500" />
+                    <Shield className="h-4 w-4 text-red-500" />
                   </div>
                 </Label>
                 <Input
@@ -277,28 +275,19 @@ export default function Calculator() {
               </div>
             </div>
 
-            {/* Enhanced Price Display */}
-            <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-blue-50 via-white to-gray-50 border-gray-200 rounded-xl border-2 shadow-xl">
+            {/* Price Display */}
+            <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border-2 shadow-lg">
               <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-3">
-                  <Award className="h-5 w-5 text-red-500" />
-                  <p className="text-sm sm:text-base text-gray-700 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
-                  <Award className="h-5 w-5 text-red-500" />
-                </div>
-                <div className="bg-gradient-to-r from-white to-gray-50 border-red-200 rounded-lg p-4 sm:p-6 shadow-xl border-2 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-50/30 to-transparent opacity-50"></div>
-                  <p className="text-3xl sm:text-4xl font-bold text-red-600 relative z-10" dir="rtl" data-testid="text-total-price">
+                <p className="text-sm sm:text-base text-gray-700 mb-3 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
+                <div className="bg-white border-gray-200 rounded-lg p-4 sm:p-6 shadow-lg border-2">
+                  <p className="text-3xl sm:text-4xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
                     ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                   </p>
                 </div>
                 {calculationResult?.discountInfo && (
-                  <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-xs sm:text-sm text-green-700 font-medium flex items-center justify-center gap-1" data-testid="text-discount-info">
-                      <Star className="h-3 w-3" />
-                      {calculationResult.discountInfo}
-                      <Star className="h-3 w-3" />
-                    </p>
-                  </div>
+                  <p className="text-xs text-gray-600 mt-2 font-medium" data-testid="text-discount-info">
+                    {calculationResult.discountInfo}
+                  </p>
                 )}
               </div>
             </div>
