@@ -1,10 +1,12 @@
+/* ===== FONTS IMPORT ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Heebo:wght@300;400;500;600;700;800&family=Assistant:wght@300;400;500;600;700;800&display=swap');
 
+/* ===== TAILWIND CSS ===== */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Performance optimizations for mobile */
+/* ===== MOBILE PERFORMANCE OPTIMIZATIONS ===== */
 * {
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -15,15 +17,10 @@
   user-select: none;
 }
 
-/* Improve touch targets for mobile */
+/* ===== TOUCH INTERACTIONS ===== */
 button, [role="button"] {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-}
-
-/* Dialog overlay improvements for mobile */
-[data-radix-popper-content-wrapper] {
-  z-index: 9999 !important;
 }
 
 input, textarea {
@@ -34,13 +31,17 @@ input, textarea {
   user-select: text;
 }
 
-/* Hardware acceleration for animations */
+/* ===== UI IMPROVEMENTS ===== */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
 .transition-all {
   transform: translateZ(0);
   will-change: transform, opacity;
 }
 
-/* Optimize image loading */
 img {
   image-rendering: optimizeSpeed;
   image-rendering: -moz-crisp-edges;
@@ -48,12 +49,12 @@ img {
   image-rendering: crisp-edges;
 }
 
-/* Smooth scrolling with momentum */
 body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
+/* ===== CSS VARIABLES (LIGHT THEME) ===== */
 :root {
   --background: hsl(0 0% 100%);
   --foreground: hsl(210 25% 7.8431%);

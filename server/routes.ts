@@ -1,11 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
 import { z } from "zod";
-import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate, AdminPasswordChange } from "@shared/schema";
 import path from "path";
 import fs from "fs";
 
+// Local imports
+import { storage } from "./storage";
+import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate, AdminPasswordChange } from "@shared/schema";
+
+// ===== VALIDATION SCHEMAS =====
 const calculationRequestSchema = z.object({
   projectType: z.string(),
   years: z.number(),
@@ -32,8 +35,10 @@ const adminPasswordChangeSchema = z.object({
 
 
 
+// ===== MAIN ROUTES REGISTRATION =====
 export async function registerRoutes(app: Express): Promise<Server> {
-  // PWA Routes - serve manifest and service worker
+  
+  // ===== PWA ROUTES =====
   app.get("/manifest.json", (req, res) => {
     const manifestPath = path.resolve(import.meta.dirname, "..", "client", "public", "manifest.json");
     res.sendFile(manifestPath);
@@ -55,7 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(iconPath);
   });
 
-  // Get all pricing configurations
+  // ===== PRICING API ROUTES =====
   app.get("/api/pricing", async (req, res) => {
     try {
       const configs = await storage.getPricingConfigs();
@@ -65,7 +70,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get available years for a project type
   app.get("/api/pricing/:projectType/years", async (req, res) => {
     try {
       const { projectType } = req.params;

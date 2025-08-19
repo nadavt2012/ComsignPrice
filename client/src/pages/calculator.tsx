@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+
+// UI Components
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -7,8 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Hooks & Utils
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+
+// Icons
 import { 
   Settings, Building, Calendar, Award, Shield, 
   User, Scale, Wrench, GraduationCap, Briefcase, 
@@ -16,9 +22,11 @@ import {
   Book, Coffee, Calculator as CalcIcon, Stethoscope, Gavel, 
   FileText, Globe, Palette, Code, Zap
 } from "lucide-react";
+
+// Assets
 import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
 
-// Types
+// ===== TYPES =====
 interface CalculationRequest {
   projectType: string;
   years: number;
@@ -40,7 +48,9 @@ interface PricingConfig {
   icon: string;
 }
 
+// ===== MAIN COMPONENT =====
 export default function Calculator() {
+  // ===== STATE =====
   const [projectType, setProjectType] = useState("");
   const [years, setYears] = useState("");
   const [certificates, setCertificates] = useState(1);
@@ -50,8 +60,10 @@ export default function Calculator() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   
+  // ===== HOOKS =====
   const { toast } = useToast();
 
+  // ===== PROJECT TYPES CONFIGURATION =====
   const projectTypes = useMemo(() => [
     { value: "lawyers", label: "עורכי דין", icon: Scale },
     { value: "architects", label: "אדריכלים", icon: Building },
@@ -60,14 +72,14 @@ export default function Calculator() {
     { value: "regular", label: "רגיל", icon: User }
   ], []);
 
-  // Get available years for selected project type
+  // ===== DATA FETCHING =====
   const { data: availableYears = [] } = useQuery<number[]>({
     queryKey: ["/api/pricing", projectType, "years"],
     enabled: !!projectType,
     staleTime: 5 * 60 * 1000,
   });
 
-  // Calculate price mutation
+  // ===== MUTATIONS =====
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationRequest): Promise<CalculationResult> => {
       const res = await apiRequest("POST", "/api/calculate", data);
@@ -169,8 +181,8 @@ export default function Calculator() {
               
               {/* Title - Center */}
               <div className="text-center mb-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-red-600 animate-pulse" dir="rtl" data-testid="title-main">
-                  ⚡ מחירון פרויקטים - גרסה חדשה פועלת! ⚡
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
+                  מחירון פרויקטים
                 </h1>
               </div>
               
@@ -294,8 +306,8 @@ export default function Calculator() {
 
             {/* Footer */}
             <div className="mt-4 sm:mt-6 text-center">
-              <p className="font-medium text-red-600 text-sm sm:text-base animate-bounce" dir="rtl" data-testid="text-company">🚀 Comsign 2025 - מערכת חדשה פועלת! 🚀</p>
-              <p className="text-xs sm:text-sm text-red-500 animate-pulse" data-testid="text-developer">🔥 הפריסה החדשה הושלמה בהצלחה!</p>
+              <p className="font-medium text-gray-700 text-sm sm:text-base" dir="rtl" data-testid="text-company">Comsign 2025</p>
+              <p className="text-xs sm:text-sm text-gray-600" data-testid="text-developer">Developed By NadavT</p>
             </div>
 
           </CardContent>

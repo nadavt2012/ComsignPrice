@@ -2,6 +2,7 @@ import { pgTable, text, varchar, integer, real } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// ===== DATABASE SCHEMA =====
 export const pricingConfigs = pgTable("pricing_configs", {
   id: varchar("id").primaryKey(),
   projectType: text("project_type").notNull(),
@@ -11,14 +12,16 @@ export const pricingConfigs = pgTable("pricing_configs", {
   icon: text("icon").notNull().default("User"),
 });
 
+// ===== ZOD SCHEMAS =====
 export const insertPricingConfigSchema = createInsertSchema(pricingConfigs).omit({
   id: true,
 });
 
+// ===== DRIZZLE TYPES =====
 export type InsertPricingConfig = z.infer<typeof insertPricingConfigSchema>;
 export type PricingConfig = typeof pricingConfigs.$inferSelect;
 
-// Manual type for now to fix TypeScript issues
+// ===== MANUAL TYPES =====
 export interface PricingConfigManual {
   id: string;
   projectType: string;
@@ -28,7 +31,7 @@ export interface PricingConfigManual {
   icon: string;
 }
 
-// Additional types for the calculator
+// ===== CALCULATION TYPES =====
 export interface CalculationRequest {
   projectType: string;
   years: number;
@@ -44,7 +47,7 @@ export interface CalculationResult {
   discountInfo: string;
 }
 
-// Admin management types
+// ===== ADMIN MANAGEMENT TYPES =====
 export interface AdminLoginRequest {
   password: string;
 }
