@@ -199,7 +199,7 @@ export default function Calculator() {
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
                   <div className="flex items-center gap-2 justify-start">
                     <span>סוג הפרויקט</span>
-                    <Building className="h-4 w-4 text-red-500" />
+                    <Building className="h-4 w-4 text-red-600" />
                   </div>
                 </Label>
                 <Select value={projectType} onValueChange={setProjectType} dir="rtl">
@@ -213,7 +213,7 @@ export default function Calculator() {
                         <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
                           <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
                             <span className="text-base">{type.label}</span>
-                            <IconComponent className="h-4 w-4 text-red-500" />
+                            <IconComponent className="h-4 w-4 text-red-600" />
                           </div>
                         </SelectItem>
                       );
@@ -227,7 +227,7 @@ export default function Calculator() {
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
                   <div className="flex items-center gap-2 justify-start">
                     <span>כמות שנים</span>
-                    <Calendar className="h-4 w-4 text-red-500" />
+                    <Calendar className="h-4 w-4 text-red-600" />
                   </div>
                 </Label>
                 <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
@@ -249,7 +249,7 @@ export default function Calculator() {
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
                   <div className="flex items-center gap-2 justify-start">
                     <span>כמות תעודות</span>
-                    <Award className="h-4 w-4 text-red-500" />
+                    <Award className="h-4 w-4 text-red-600" />
                   </div>
                 </Label>
                 <Input
@@ -270,7 +270,7 @@ export default function Calculator() {
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
                   <div className="flex items-center gap-2 justify-start">
                     <span>תעודות גיבוי</span>
-                    <Shield className="h-4 w-4 text-red-500" />
+                    <Shield className="h-4 w-4 text-red-600" />
                   </div>
                 </Label>
                 <Input
