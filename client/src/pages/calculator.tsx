@@ -65,11 +65,11 @@ export default function Calculator() {
 
   // ===== PROJECT TYPES CONFIGURATION =====
   const projectTypes = useMemo(() => [
-    { value: "lawyers", label: "עורכי דין", icon: Scale },
-    { value: "architects", label: "אדריכלים", icon: Building },
-    { value: "engineers", label: "מהנדסים", icon: Wrench },
-    { value: "magna", label: "מגנא", icon: GraduationCap },
-    { value: "regular", label: "רגיל", icon: User }
+    { value: "lawyers", label: "עורכי דין" },
+    { value: "architects", label: "אדריכלים" },
+    { value: "engineers", label: "מהנדסים" },
+    { value: "magna", label: "מגנא" },
+    { value: "regular", label: "רגיל" }
   ], []);
 
   // ===== DATA FETCHING =====
@@ -144,7 +144,7 @@ export default function Calculator() {
                         data-testid="button-settings"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-                        ⚙
+הגדרות
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
@@ -205,13 +205,9 @@ export default function Calculator() {
                   </SelectTrigger>
                   <SelectContent>
                     {projectTypes.map((type) => {
-                      const IconComponent = type.icon;
                       return (
                         <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
-                          <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
-                            <span className="text-base">{type.label}</span>
-                            <IconComponent className="h-4 w-4 text-red-600" />
-                          </div>
+                          <span className="text-base">{type.label}</span>
                         </SelectItem>
                       );
                     })}
@@ -472,7 +468,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     }
   };
 
-  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => {
+  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number }[]) => {
     try {
       // Create each configuration separately
       let successCount = 0;
@@ -694,11 +690,11 @@ function AddConfigForm({
   onSave,
   onCancel
 }: {
-  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => void;
+  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number }[]) => void;
   onCancel: () => void;
 }) {
   const [projectType, setProjectType] = useState("");
-  const [icon, setIcon] = useState("Scale");
+
   const [yearConfigs, setYearConfigs] = useState<{year: number; basePrice: number; backupPrice: number}[]>([
     { year: 1, basePrice: 0, backupPrice: 0 }
   ]);
@@ -731,8 +727,7 @@ function AddConfigForm({
       projectType: projectType.trim(),
       years: config.year,
       basePrice: config.basePrice,
-      backupCertificatePrice: config.backupPrice,
-      icon: icon
+      backupCertificatePrice: config.backupPrice
     }));
     
     onSave(configs);
