@@ -140,11 +140,11 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-3 h-16 w-16 sm:p-4 sm:h-20 sm:w-20 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform" 
+                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-3 h-16 w-16 sm:p-4 sm:h-20 sm:w-20 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform text-lg font-bold" 
                         data-testid="button-settings"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-                        <Settings className="h-6 w-6 sm:h-8 sm:w-8" />
+                        ⚙
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
@@ -197,10 +197,7 @@ export default function Calculator() {
               {/* Project Type Selection */}
               <div>
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
-                  <div className="flex items-center gap-2 justify-start">
-                    <span>סוג הפרויקט</span>
-                    <Building className="h-4 w-4 text-red-600" />
-                  </div>
+                  <span>סוג הפרויקט</span>
                 </Label>
                 <Select value={projectType} onValueChange={setProjectType} dir="rtl">
                   <SelectTrigger className="w-full p-4 border-2 border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-base focus:border-gray-500 min-h-[56px] touch-manipulation active:scale-[0.98] transition-transform" dir="rtl" data-testid="select-project-type">
@@ -225,10 +222,7 @@ export default function Calculator() {
               {/* Years Selection */}
               <div>
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
-                  <div className="flex items-center gap-2 justify-start">
-                    <span>כמות שנים</span>
-                    <Calendar className="h-4 w-4 text-red-600" />
-                  </div>
+                  <span>כמות שנים</span>
                 </Label>
                 <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
                   <SelectTrigger className="w-full p-4 border-2 border-gray-300 text-base focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] touch-manipulation active:scale-[0.98] transition-transform" dir="rtl" data-testid="select-years">
@@ -247,10 +241,7 @@ export default function Calculator() {
               {/* Certificate Quantity */}
               <div>
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
-                  <div className="flex items-center gap-2 justify-start">
-                    <span>כמות תעודות</span>
-                    <Award className="h-4 w-4 text-red-600" />
-                  </div>
+                  <span>כמות תעודות</span>
                 </Label>
                 <Input
                   type="number"
@@ -268,10 +259,7 @@ export default function Calculator() {
               {/* Backup Certificates */}
               <div>
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
-                  <div className="flex items-center gap-2 justify-start">
-                    <span>תעודות גיבוי</span>
-                    <Shield className="h-4 w-4 text-red-600" />
-                  </div>
+                  <span>תעודות גיבוי</span>
                 </Label>
                 <Input
                   type="number"
@@ -843,36 +831,7 @@ function AddConfigForm({
         </div>
       </div>
       
-      <div>
-        <Label htmlFor="new-icon" className="text-lg font-semibold text-gray-800 mb-2 block">סמל</Label>
-        <select
-          id="new-icon"
-          value={icon}
-          onChange={(e) => setIcon(e.target.value)}
-          className="w-full p-4 border-2 border-gray-300 rounded-lg text-center min-h-[52px] text-lg font-semibold touch-manipulation active:scale-[0.98] transition-all duration-200 bg-white shadow-sm"
-          data-testid="select-new-icon"
-        >
-          <option value="Scale">עורכי דין</option>
-          <option value="Building">אדריכלים</option>
-          <option value="Wrench">מהנדסים</option>
-          <option value="GraduationCap">מגנה</option>
-          <option value="CalcIcon">רואי חשבון</option>
-          <option value="Stethoscope">רופאים</option>
-          <option value="Briefcase">עסקים</option>
-          <option value="Shield">ביטוח</option>
-          <option value="Gavel">בית משפט</option>
-          <option value="FileText">מסמכים</option>
-          <option value="Globe">יעוץ בינלאומי</option>
-          <option value="Camera">צלמים</option>
-          <option value="Palette">עיצוב גרפי</option>
-          <option value="Code">תכנות</option>
-          <option value="Heart">בריאות</option>
-          <option value="Car">רכב</option>
-          <option value="Home">נדלן</option>
-          <option value="Zap">חשמל</option>
-          <option value="Star">שירותי תחזוקה</option>
-        </select>
-      </div>
+
       
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t-2 border-blue-200">
         <Button
