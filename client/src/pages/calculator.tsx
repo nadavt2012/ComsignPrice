@@ -365,7 +365,6 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
       </div>
       
       <div className="space-y-3">
-        <Label htmlFor="admin-password" className="text-sm font-medium">סיסמה</Label>
         <Input
           id="admin-password"
           type="password"
