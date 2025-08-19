@@ -14,7 +14,7 @@ export interface IStorage {
 
 export class MemStorage implements IStorage {
   private pricingConfigs: Map<string, PricingConfig>;
-  private adminPassword: string = "795915"; // Default password
+  private adminPassword: string = process.env.ADMIN_PASSWORD || "795915"; // Get from env or use default for development
 
   constructor() {
     this.pricingConfigs = new Map();
@@ -91,7 +91,7 @@ export class MemStorage implements IStorage {
   }
 
   async resetAdminPassword(): Promise<void> {
-    this.adminPassword = "795915";
+    this.adminPassword = process.env.ADMIN_PASSWORD || "795915";
   }
 }
 

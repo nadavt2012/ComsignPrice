@@ -30,8 +30,7 @@ const adminPasswordChangeSchema = z.object({
   newPassword: z.string(),
 });
 
-// Simple admin password - in production this should be in environment variables
-const ADMIN_PASSWORD = "admin123";
+
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // PWA Routes - serve manifest and service worker
@@ -223,26 +222,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/reset-password", async (req, res) => {
     try {
       await storage.resetAdminPassword();
-      res.json({ success: true, message: "Password reset to default (795915)" });
+      res.json({ success: true, message: "Password reset to default" });
     } catch (error) {
       res.status(500).json({ message: "Failed to reset password" });
     }
   });
 
-  // Admin login endpoint
-  app.post("/api/admin/login", async (req, res) => {
-    try {
-      const { password } = adminLoginSchema.parse(req.body);
-      
-      if (password === ADMIN_PASSWORD) {
-        res.json({ success: true, message: "Login successful" });
-      } else {
-        res.status(401).json({ success: false, message: "Invalid password" });
-      }
-    } catch (error) {
-      res.status(400).json({ message: "Invalid request data" });
-    }
-  });
+
 
   // Get all pricing configurations for admin
   app.get("/api/admin/configs", async (req, res) => {
