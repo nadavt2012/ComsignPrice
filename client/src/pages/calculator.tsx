@@ -140,7 +140,7 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-3 h-16 w-16 sm:p-4 sm:h-20 sm:w-20 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform text-lg font-bold" 
+                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform text-sm font-bold" 
                         data-testid="button-settings"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
