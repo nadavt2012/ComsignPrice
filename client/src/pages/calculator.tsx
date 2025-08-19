@@ -31,13 +31,11 @@ interface CalculationResult {
 }
 
 interface PricingConfig {
-  id: number;
+  id: string;
   projectType: string;
   years: number;
-  certificates: number;
   basePrice: number;
-  backupPrice: number;
-  discountRate: number;
+  backupCertificatePrice: number;
   icon: string;
 }
 
@@ -394,6 +392,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
   const [configs, setConfigs] = useState<PricingConfig[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
 
   // Load all pricing configurations
@@ -446,6 +445,33 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     }
   };
 
+  const createConfig = async (newConfig: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }) => {
+    try {
+      const response = await fetch('/api/admin/pricing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newConfig),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "נוצר בהצלחה",
+          description: "פרויקט חדש נוסף למערכת",
+        });
+        loadConfigs(); // Reload configs
+        setShowAddForm(false);
+      } else {
+        throw new Error('Create failed');
+      }
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "לא ניתן ליצור פרויקט חדש",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="text-center py-8">
@@ -462,11 +488,31 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
         <p className="text-sm text-gray-600">כל שינוי ישפיע מיד על כל המשתמשים</p>
       </div>
 
-      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+      {/* Add New Project Button */}
+      <div className="border-b pb-4">
+        <Button
+          onClick={() => setShowAddForm(!showAddForm)}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          data-testid="button-add-project"
+        >
+          {showAddForm ? "ביטול הוספה" : "הוסף פרויקט חדש"}
+        </Button>
+        
+        {showAddForm && (
+          <div className="mt-4">
+            <AddConfigForm
+              onSave={createConfig}
+              onCancel={() => setShowAddForm(false)}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
         {configs.map((config) => (
-          <div key={config.id} className="border rounded-lg p-3 bg-gray-50">
-            <div className="flex justify-between items-center mb-2">
-              <h4 className="font-medium text-gray-800">
+          <div key={config.id} className="border rounded-lg p-3 sm:p-4 bg-gray-50">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2 gap-2">
+              <h4 className="font-medium text-gray-800 text-center sm:text-right">
                 {config.projectType} - {config.years} שנים
               </h4>
               <Button
@@ -474,14 +520,15 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                 variant="outline"
                 onClick={() => setEditingConfig(config)}
                 data-testid={`button-edit-${config.id}`}
+                className="w-full sm:w-auto"
               >
                 ערוך
               </Button>
             </div>
             
-            <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-              <div>מחיר בסיס: ₪{config.basePrice}</div>
-              <div>תעודה נוספת: ₪{config.backupCertificatePrice}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
+              <div className="text-center sm:text-right">מחיר בסיס: ₪{config.basePrice}</div>
+              <div className="text-center sm:text-right">תעודה נוספת: ₪{config.backupCertificatePrice}</div>
             </div>
 
             {editingConfig?.id === config.id && (
@@ -530,32 +577,34 @@ function EditConfigForm({
   };
 
   return (
-    <div className="mt-3 p-3 border rounded bg-white space-y-3">
-      <div>
-        <Label htmlFor={`base-price-${config.id}`} className="text-sm">מחיר בסיס</Label>
-        <Input
-          id={`base-price-${config.id}`}
-          type="number"
-          value={basePrice}
-          onChange={(e) => setBasePrice(Number(e.target.value))}
-          className="mt-1"
-          data-testid={`input-base-price-${config.id}`}
-        />
+    <div className="mt-3 p-3 sm:p-4 border rounded bg-white space-y-3 sm:space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div>
+          <Label htmlFor={`base-price-${config.id}`} className="text-sm font-medium">מחיר בסיס</Label>
+          <Input
+            id={`base-price-${config.id}`}
+            type="number"
+            value={basePrice}
+            onChange={(e) => setBasePrice(Number(e.target.value))}
+            className="mt-1 text-center"
+            data-testid={`input-base-price-${config.id}`}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor={`backup-price-${config.id}`} className="text-sm font-medium">מחיר תעודה נוספת</Label>
+          <Input
+            id={`backup-price-${config.id}`}
+            type="number"
+            value={backupPrice}
+            onChange={(e) => setBackupPrice(Number(e.target.value))}
+            className="mt-1 text-center"
+            data-testid={`input-backup-price-${config.id}`}
+          />
+        </div>
       </div>
       
-      <div>
-        <Label htmlFor={`backup-price-${config.id}`} className="text-sm">מחיר תעודה נוספת</Label>
-        <Input
-          id={`backup-price-${config.id}`}
-          type="number"
-          value={backupPrice}
-          onChange={(e) => setBackupPrice(Number(e.target.value))}
-          className="mt-1"
-          data-testid={`input-backup-price-${config.id}`}
-        />
-      </div>
-      
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <Button
           onClick={handleSave}
           size="sm"
@@ -570,6 +619,131 @@ function EditConfigForm({
           variant="outline"
           className="flex-1"
           data-testid={`button-cancel-${config.id}`}
+        >
+          בטל
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Add Config Form Component
+function AddConfigForm({
+  onSave,
+  onCancel
+}: {
+  onSave: (config: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }) => void;
+  onCancel: () => void;
+}) {
+  const [projectType, setProjectType] = useState("");
+  const [years, setYears] = useState(1);
+  const [basePrice, setBasePrice] = useState(0);
+  const [backupPrice, setBackupPrice] = useState(0);
+  const [icon, setIcon] = useState("User");
+
+  const handleSave = () => {
+    if (!projectType.trim()) {
+      return;
+    }
+    
+    onSave({
+      projectType: projectType.trim(),
+      years: Number(years),
+      basePrice: Number(basePrice),
+      backupCertificatePrice: Number(backupPrice),
+      icon: icon
+    });
+  };
+
+  return (
+    <div className="p-3 sm:p-4 border rounded-lg bg-blue-50 space-y-3 sm:space-y-4" dir="rtl">
+      <h4 className="font-semibold text-center text-gray-800">הוספת פרויקט חדש</h4>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="new-project-type" className="text-sm font-medium">סוג פרויקט</Label>
+          <Input
+            id="new-project-type"
+            type="text"
+            value={projectType}
+            onChange={(e) => setProjectType(e.target.value)}
+            placeholder="למשל: עורכי דין"
+            className="mt-1 text-center sm:text-right"
+            data-testid="input-new-project-type"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="new-years" className="text-sm font-medium">מספר שנים</Label>
+          <Input
+            id="new-years"
+            type="number"
+            min="1"
+            value={years}
+            onChange={(e) => setYears(Number(e.target.value))}
+            className="mt-1 text-center"
+            data-testid="input-new-years"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="new-base-price" className="text-sm font-medium">מחיר בסיס</Label>
+          <Input
+            id="new-base-price"
+            type="number"
+            min="0"
+            value={basePrice}
+            onChange={(e) => setBasePrice(Number(e.target.value))}
+            className="mt-1 text-center"
+            data-testid="input-new-base-price"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="new-backup-price" className="text-sm font-medium">מחיר תעודה נוספת</Label>
+          <Input
+            id="new-backup-price"
+            type="number"
+            min="0"
+            value={backupPrice}
+            onChange={(e) => setBackupPrice(Number(e.target.value))}
+            className="mt-1 text-center"
+            data-testid="input-new-backup-price"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <Label htmlFor="new-icon" className="text-sm font-medium">סמל</Label>
+        <select
+          id="new-icon"
+          value={icon}
+          onChange={(e) => setIcon(e.target.value)}
+          className="w-full mt-1 p-2 border rounded-md text-center"
+          data-testid="select-new-icon"
+        >
+          <option value="User">משתמש רגיל</option>
+          <option value="Scale">עורכי דין</option>
+          <option value="Building">אדריכלים</option>
+          <option value="Wrench">מהנדסים</option>
+          <option value="GraduationCap">מגנה</option>
+        </select>
+      </div>
+      
+      <div className="flex flex-col sm:flex-row gap-2 pt-2">
+        <Button
+          onClick={handleSave}
+          disabled={!projectType.trim()}
+          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+          data-testid="button-save-new-config"
+        >
+          הוסף פרויקט
+        </Button>
+        <Button
+          onClick={onCancel}
+          variant="outline"
+          className="flex-1"
+          data-testid="button-cancel-new-config"
         >
           בטל
         </Button>
