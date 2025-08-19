@@ -472,28 +472,46 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     }
   };
 
-  const createConfig = async (newConfig: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }) => {
+  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => {
     try {
-      const response = await fetch('/api/admin/pricing', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newConfig),
-      });
-
-      if (response.ok) {
-        toast({
-          title: "נוצר בהצלחה",
-          description: "פרויקט חדש נוסף למערכת",
+      // Create each configuration separately
+      let successCount = 0;
+      for (const config of configs) {
+        const response = await fetch('/api/admin/pricing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config),
         });
-        loadConfigs(); // Reload configs
+        
+        if (response.ok) {
+          successCount++;
+        }
+      }
+
+      if (successCount === configs.length) {
+        toast({
+          title: "הצלחה",
+          description: `${configs.length} הגדרות מחיר נוספו בהצלחה`,
+        });
+        loadConfigs();
         setShowAddForm(false);
+      } else if (successCount > 0) {
+        toast({
+          title: "הצלחה חלקית",
+          description: `${successCount} מתוך ${configs.length} הגדרות נוספו`,
+        });
+        loadConfigs();
       } else {
-        throw new Error('Create failed');
+        toast({
+          title: "שגיאה",
+          description: "לא ניתן להוסיף את ההגדרות",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
         title: "שגיאה",
-        description: "לא ניתן ליצור פרויקט חדש",
+        description: "בעיה בתקשורת עם השרת",
         variant: "destructive",
       });
     }
@@ -670,27 +688,48 @@ function AddConfigForm({
   onSave,
   onCancel
 }: {
-  onSave: (config: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }) => void;
+  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => void;
   onCancel: () => void;
 }) {
   const [projectType, setProjectType] = useState("");
-  const [years, setYears] = useState(1);
-  const [basePrice, setBasePrice] = useState(0);
-  const [backupPrice, setBackupPrice] = useState(0);
   const [icon, setIcon] = useState("User");
+  const [yearConfigs, setYearConfigs] = useState<{year: number; basePrice: number; backupPrice: number}[]>([
+    { year: 1, basePrice: 0, backupPrice: 0 }
+  ]);
+
+  const addYearConfig = () => {
+    if (yearConfigs.length < 10) {
+      const nextYear = Math.max(...yearConfigs.map(c => c.year)) + 1;
+      setYearConfigs([...yearConfigs, { year: nextYear, basePrice: 0, backupPrice: 0 }]);
+    }
+  };
+
+  const removeYearConfig = (index: number) => {
+    if (yearConfigs.length > 1) {
+      setYearConfigs(yearConfigs.filter((_, i) => i !== index));
+    }
+  };
+
+  const updateYearConfig = (index: number, field: 'year' | 'basePrice' | 'backupPrice', value: number) => {
+    const updated = [...yearConfigs];
+    updated[index][field] = value;
+    setYearConfigs(updated);
+  };
 
   const handleSave = () => {
-    if (!projectType.trim()) {
+    if (!projectType.trim() || yearConfigs.length === 0) {
       return;
     }
     
-    onSave({
+    const configs = yearConfigs.map(config => ({
       projectType: projectType.trim(),
-      years: Number(years),
-      basePrice: Number(basePrice),
-      backupCertificatePrice: Number(backupPrice),
+      years: config.year,
+      basePrice: config.basePrice,
+      backupCertificatePrice: config.backupPrice,
       icon: icon
-    });
+    }));
+    
+    onSave(configs);
   };
 
   return (
@@ -698,7 +737,7 @@ function AddConfigForm({
       <h4 className="font-semibold text-center text-gray-800">הוספת פרויקט חדש</h4>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
+        <div className="sm:col-span-2">
           <Label htmlFor="new-project-type" className="text-sm font-medium">סוג פרויקט</Label>
           <Input
             id="new-project-type"
@@ -710,50 +749,79 @@ function AddConfigForm({
             data-testid="input-new-project-type"
           />
         </div>
-        
-        <div>
-          <Label htmlFor="new-years" className="text-sm font-medium">מספר שנים</Label>
-          <Input
-            id="new-years"
-            type="number"
-            min="1"
-            value={years}
-            onChange={(e) => setYears(Number(e.target.value))}
-            className="mt-1 text-center min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
-            placeholder="מספר שנים"
-            data-testid="input-new-years"
-            inputMode="numeric"
-          />
+      </div>
+
+      {/* Year Configurations */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-medium">הגדרות מחירים לשנים</Label>
+          <Button
+            type="button"
+            onClick={addYearConfig}
+            disabled={yearConfigs.length >= 10}
+            size="sm"
+            className="bg-green-600 hover:bg-green-700 text-white min-h-[40px]"
+          >
+            הוסף שנה
+          </Button>
         </div>
         
-        <div>
-          <Label htmlFor="new-base-price" className="text-sm font-medium">מחיר בסיס</Label>
-          <Input
-            id="new-base-price"
-            type="number"
-            min="0"
-            value={basePrice}
-            onChange={(e) => setBasePrice(Number(e.target.value))}
-            className="mt-1 text-center min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
-            placeholder="מחיר בסיס"
-            data-testid="input-new-base-price"
-            inputMode="numeric"
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor="new-backup-price" className="text-sm font-medium">מחיר תעודה נוספת</Label>
-          <Input
-            id="new-backup-price"
-            type="number"
-            min="0"
-            value={backupPrice}
-            onChange={(e) => setBackupPrice(Number(e.target.value))}
-            className="mt-1 text-center min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
-            placeholder="מחיר תעודה נוספת"
-            data-testid="input-new-backup-price"
-            inputMode="numeric"
-          />
+        <div className="space-y-3 max-h-[300px] overflow-y-auto">
+          {yearConfigs.map((config, index) => (
+            <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-3 p-3 bg-white border rounded-lg">
+              <div>
+                <Label className="text-xs text-gray-600">שנים</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={config.year}
+                  onChange={(e) => updateYearConfig(index, 'year', Number(e.target.value))}
+                  className="text-center min-h-[40px]"
+                  inputMode="numeric"
+                />
+              </div>
+              
+              <div>
+                <Label className="text-xs text-gray-600">מחיר בסיס</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={config.basePrice}
+                  onChange={(e) => updateYearConfig(index, 'basePrice', Number(e.target.value))}
+                  className="text-center min-h-[40px]"
+                  placeholder="₪"
+                  inputMode="numeric"
+                />
+              </div>
+              
+              <div>
+                <Label className="text-xs text-gray-600">מחיר גיבוי</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={config.backupPrice}
+                  onChange={(e) => updateYearConfig(index, 'backupPrice', Number(e.target.value))}
+                  className="text-center min-h-[40px]"
+                  placeholder="₪"
+                  inputMode="numeric"
+                />
+              </div>
+              
+              <div className="flex items-end">
+                <Button
+                  type="button"
+                  onClick={() => removeYearConfig(index)}
+                  disabled={yearConfigs.length <= 1}
+                  size="sm"
+                  variant="destructive"
+                  className="w-full min-h-[40px] bg-red-600 hover:bg-red-700"
+                >
+                  הסר
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       
@@ -792,11 +860,11 @@ function AddConfigForm({
       <div className="flex flex-col sm:flex-row gap-2 pt-2">
         <Button
           onClick={handleSave}
-          disabled={!projectType.trim()}
+          disabled={!projectType.trim() || yearConfigs.length === 0}
           className="flex-1 bg-green-600 hover:bg-green-700 text-white min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
           data-testid="button-save-new-config"
         >
-          הוסף פרויקט
+          הוסף {yearConfigs.length} הגדרות מחיר
         </Button>
         <Button
           onClick={onCancel}
