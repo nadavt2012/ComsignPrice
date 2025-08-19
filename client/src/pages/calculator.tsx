@@ -169,8 +169,8 @@ export default function Calculator() {
               
               {/* Title - Center */}
               <div className="text-center mb-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
-                  מחירון פרויקטים
+                <h1 className="text-xl sm:text-2xl font-bold text-red-600" dir="rtl" data-testid="title-main">
+                  🔥 מחירון פרויקטים - עדכון חדש! 🔥
                 </h1>
               </div>
               
@@ -294,8 +294,8 @@ export default function Calculator() {
 
             {/* Footer */}
             <div className="mt-4 sm:mt-6 text-center">
-              <p className="font-medium text-gray-700 text-sm sm:text-base" dir="rtl" data-testid="text-company">Comsign 2025</p>
-              <p className="text-xs sm:text-sm text-gray-600" data-testid="text-developer">Developed By NadavT</p>
+              <p className="font-medium text-red-600 text-sm sm:text-base" dir="rtl" data-testid="text-company">⭐ Comsign 2025 - מערכת מעודכנת ⭐</p>
+              <p className="text-xs sm:text-sm text-red-500" data-testid="text-developer">✨ פיצ'רים חדשים נוספו!</p>
             </div>
 
           </CardContent>
