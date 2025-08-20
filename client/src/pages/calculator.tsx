@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 // Hooks & Utils
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 // Icons
 import { 
@@ -645,34 +645,15 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
 // Admin Panel Component
 function AdminPanel({ onLogout }: { onLogout: () => void }) {
-  const [configs, setConfigs] = useState<PricingConfig[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
 
-  // Load all pricing configurations
-  useEffect(() => {
-    loadConfigs();
-  }, []);
-
-  const loadConfigs = async () => {
-    try {
-      const response = await fetch('/api/admin/configs');
-      if (response.ok) {
-        const data = await response.json();
-        setConfigs(data);
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "לא ניתן לטעון את הגדרות המחירים",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Use React Query for admin configs to sync with main screen
+  const { data: configs = [], isLoading, refetch: loadConfigs } = useQuery<PricingConfig[]>({
+    queryKey: ["/api/admin/configs"],
+    staleTime: 0, // Always fetch fresh data in admin panel
+  });
 
   const deleteConfig = async (configId: string) => {
     try {
@@ -685,7 +666,9 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           title: "הצלחה",
           description: "הפרויקט נמחק בהצלחה",
         });
-        loadConfigs();
+        // Invalidate all related queries to refresh main screen immediately
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
           title: "שגיאה",
@@ -715,7 +698,9 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           title: "עדכון מוצלח",
           description: "המחירים עודכנו בהצלחה",
         });
-        loadConfigs(); // Reload configs
+        // Invalidate all related queries to refresh main screen immediately
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setEditingConfig(null);
       } else {
         throw new Error('Update failed');
@@ -754,14 +739,18 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           title: "הצלחה",
           description: `${configs.length} הגדרות מחיר נוספו בהצלחה`,
         });
-        loadConfigs();
+        // Invalidate all related queries to refresh main screen immediately
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setShowAddForm(false);
       } else if (successCount > 0) {
         toast({
           title: "הצלחה חלקית",
           description: `${successCount} מתוך ${configs.length} הגדרות נוספו`,
         });
-        loadConfigs();
+        // Invalidate all related queries to refresh main screen immediately
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
           title: "שגיאה",

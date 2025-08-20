@@ -11,6 +11,10 @@ This is a pricing calculator application built with a full-stack TypeScript arch
 - **Multi-Year Pricing Forms**: Advanced forms supporting up to 10 years with different base and backup certificate prices
 - **Advanced Calculation System**: Date-based validity offset calculations for certificate refunds/credits based on remaining days
 - **Refined UX/UI**: Clean professional design with red-themed settings gear icon, symmetric layouts, gradient buttons with shadows
+- **Desktop Compatibility**: Enhanced responsive design for large screens (lg: 1024px+, xl: 1280px+) with larger fonts and improved spacing
+- **Dynamic Project Management**: Complete database integration with PostgreSQL for persistent data storage
+- **Real-time Synchronization**: Admin panel changes instantly reflect in main calculator interface using React Query cache invalidation
+- **Grouped Project Display**: Projects with same names are grouped together showing sub-projects by years in organized view
 - Performance optimizations including debouncing, caching, and hardware acceleration
 - Service Worker implementation for offline functionality
 - Custom Comsign logo integration with proper mobile display
