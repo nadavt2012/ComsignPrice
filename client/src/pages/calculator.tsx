@@ -114,10 +114,11 @@ export default function Calculator() {
   ], []);
 
   // ===== DATA FETCHING =====
-  const { data: availableYears = [] } = useQuery<number[]>({
+  const { data: availableYears = [], isLoading: yearsLoading, error: yearsError } = useQuery<number[]>({
     queryKey: ["/api/pricing", projectType, "years"],
     enabled: !!projectType,
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
   // ===== MUTATIONS =====
@@ -299,7 +300,13 @@ export default function Calculator() {
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
                   <span>סוג הפרויקט</span>
                 </Label>
-                <Select value={projectType} onValueChange={setProjectType} dir="rtl">
+                <Select value={projectType} onValueChange={(value) => {
+                  try {
+                    setProjectType(value);
+                  } catch (error) {
+                    console.error('Error setting project type:', error);
+                  }
+                }} dir="rtl">
                   <SelectTrigger className="w-full p-4 border-2 border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-base focus:border-gray-500 min-h-[56px] touch-manipulation active:scale-[0.98] transition-transform" dir="rtl" data-testid="select-project-type">
                     <SelectValue placeholder="בחר סוג פרויקט" className="text-base text-gray-900" dir="rtl" />
                   </SelectTrigger>
@@ -324,9 +331,15 @@ export default function Calculator() {
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
                   <span>כמות שנים</span>
                 </Label>
-                <Select value={years} onValueChange={setYears} disabled={!projectType} dir="rtl">
+                <Select value={years} onValueChange={(value) => {
+                  try {
+                    setYears(value);
+                  } catch (error) {
+                    console.error('Error setting years:', error);
+                  }
+                }} disabled={!projectType || yearsLoading} dir="rtl">
                   <SelectTrigger className="w-full p-4 border-2 border-gray-300 text-base focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] touch-manipulation active:scale-[0.98] transition-transform" dir="rtl" data-testid="select-years">
-                    <SelectValue placeholder="בחר כמות שנים" className="text-base text-gray-900" dir="rtl" />
+                    <SelectValue placeholder={yearsLoading ? "טוען..." : yearsError ? "שגיאה בטעינה" : "בחר כמות שנים"} className="text-base text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableYears.map((year) => (
