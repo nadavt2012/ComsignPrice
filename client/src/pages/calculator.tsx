@@ -248,7 +248,7 @@ export default function Calculator() {
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
                       <div className="flex flex-col h-full max-h-[95vh]" dir="rtl">
                         <DialogHeader className="flex-shrink-0 pb-2">
-                          <DialogTitle className="text-center text-lg sm:text-xl font-bold" dir="rtl">פאנל ניהול מערכת</DialogTitle>
+                          <DialogTitle className="text-center text-lg sm:text-xl font-bold" dir="rtl">פאנל ניהול המערכת</DialogTitle>
                           <DialogDescription className="text-center text-sm text-gray-600">
                             ניהול תצורת מחירים ופרמטרים
                           </DialogDescription>
@@ -603,11 +603,6 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-800">התחברות לפאנל הניהול</h3>
-        <p className="text-sm text-gray-600 mt-2">הזן את סיסמת המנהל</p>
-      </div>
-      
       <div className="space-y-3">
         <Input
           id="admin-password"
