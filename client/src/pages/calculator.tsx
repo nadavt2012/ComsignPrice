@@ -424,14 +424,6 @@ export default function Calculator() {
                           </p>
                         </div>
                       )}
-                      
-                      {startDate && endDate && dayOffset === 0 && (
-                        <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-                          <p className="text-center text-red-800 font-medium">
-                            הכרטיס פג תוקף - אין זכאות לזיכוי
-                          </p>
-                        </div>
-                      )}
                     </div>
                     
                     <div className="flex gap-3">
