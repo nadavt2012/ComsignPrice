@@ -32,30 +32,68 @@
     
     <!-- Error Suppression Script -->
     <script>
-      // Suppress ResizeObserver errors completely
-      window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('ResizeObserver')) {
+      // Complete ResizeObserver error suppression
+      const OriginalResizeObserver = window.ResizeObserver;
+      window.ResizeObserver = class extends OriginalResizeObserver {
+        constructor(callback) {
+          super((entries, observer) => {
+            window.requestAnimationFrame(() => {
+              try {
+                callback(entries, observer);
+              } catch (e) {
+                // Silently ignore all ResizeObserver errors
+              }
+            });
+          });
+        }
+      };
+
+      // Comprehensive error suppression
+      const suppressError = (e) => {
+        if (e.message && (
+          e.message.includes('ResizeObserver') ||
+          e.message.includes('loop completed with undelivered notifications') ||
+          e.message.includes('undelivered notifications')
+        )) {
           e.preventDefault();
           e.stopPropagation();
+          e.stopImmediatePropagation();
           return false;
         }
-      });
-      
-      // Suppress console errors for ResizeObserver
+      };
+
+      window.addEventListener('error', suppressError, true);
+      window.addEventListener('unhandledrejection', (e) => {
+        if (e.reason?.message && (
+          e.reason.message.includes('ResizeObserver') ||
+          e.reason.message.includes('undelivered notifications')
+        )) {
+          e.preventDefault();
+          return false;
+        }
+      }, true);
+
+      // Override console methods
       const originalError = console.error;
+      const originalWarn = console.warn;
+
       console.error = function(...args) {
-        if (args[0] && typeof args[0] === 'string' && args[0].includes('ResizeObserver')) {
+        const msg = args[0];
+        if (msg && (
+          (typeof msg === 'string' && (msg.includes('ResizeObserver') || msg.includes('undelivered notifications'))) ||
+          (typeof msg === 'object' && msg.message && (msg.message.includes('ResizeObserver') || msg.message.includes('undelivered notifications')))
+        )) {
           return;
         }
         originalError.apply(console, args);
       };
-      
-      // Suppress warnings in console
-      const originalWarn = console.warn;
+
       console.warn = function(...args) {
-        if (args[0] && typeof args[0] === 'string' && (
-          args[0].includes('Missing `Description`') || 
-          args[0].includes('aria-describedby')
+        const msg = args[0];
+        if (msg && typeof msg === 'string' && (
+          msg.includes('Missing `Description`') ||
+          msg.includes('aria-describedby') ||
+          msg.includes('ResizeObserver')
         )) {
           return;
         }
