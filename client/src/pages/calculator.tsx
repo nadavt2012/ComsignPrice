@@ -800,71 +800,102 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
       </div>
 
       <div className="space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
-        {configs.map((config) => (
-          <div key={config.id} className="border-2 rounded-xl p-4 sm:p-5 bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-lg transition-all duration-200">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-3">
-              <div className="flex items-center gap-2 justify-center sm:justify-start">
-                {config.icon && (() => {
-                  const IconComponent = getIconComponent(config.icon);
-                  return <IconComponent className="h-5 w-5 text-red-600" />;
-                })()}
-                <h4 className="font-semibold text-gray-800 text-lg">
-                  {config.projectType} - {config.years} שנים
-                </h4>
-              </div>
-              <div className="flex gap-3 justify-center sm:justify-end">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setEditingConfig(config)}
-                  data-testid={`button-edit-${config.id}`}
-                  className="flex-1 sm:flex-none min-h-[52px] px-6 font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
-                >
-ערוך
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => deleteConfig(String(config.id))}
-                  data-testid={`button-delete-${config.id}`}
-                  className="flex-1 sm:flex-none min-h-[52px] px-6 font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
-                >
-מחק
-                </Button>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-base text-gray-700">
-              <div className="text-center sm:text-right bg-blue-50 p-3 rounded-lg border border-blue-200">
-                <span className="font-medium">מחיר בסיס:</span>
-                <span className="font-bold text-blue-700 mr-2">₪{config.basePrice}</span>
-              </div>
-              <div className="text-center sm:text-right bg-green-50 p-3 rounded-lg border border-green-200">
-                <span className="font-medium">תעודה נוספת:</span>
-                <span className="font-bold text-green-700 mr-2">₪{config.backupCertificatePrice}</span>
-              </div>
-              <div className="text-center sm:text-right bg-red-50 p-3 rounded-lg border border-red-200">
-                <span className="font-medium">טוקן:</span>
-                <span className="font-bold text-red-700 mr-2">₪{config.tokenPrice || 120}</span>
-              </div>
-              <div className="text-center sm:text-right bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                <span className="font-medium">סטטוס טוקן:</span>
-                <span className="font-bold text-yellow-700 mr-2">
-                  {config.tokenIncluded === "true" ? "כלול" : 
-                   config.tokenIncluded === "optional" ? "אופציונלי" : "לא זמין"}
-                </span>
-              </div>
-            </div>
+        {(() => {
+          // Group configs by project type
+          const groupedConfigs = configs.reduce((groups, config) => {
+            const projectType = config.projectType;
+            if (!groups[projectType]) {
+              groups[projectType] = [];
+            }
+            groups[projectType].push(config);
+            return groups;
+          }, {} as Record<string, typeof configs>);
 
-            {editingConfig?.id === config.id && (
-              <EditConfigForm
-                config={config}
-                onSave={(updates) => updateConfig(String(config.id), updates)}
-                onCancel={() => setEditingConfig(null)}
-              />
-            )}
-          </div>
-        ))}
+          return Object.entries(groupedConfigs).map(([projectType, projectConfigs]) => (
+            <div key={projectType} className="border-2 rounded-xl bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-lg transition-all duration-200">
+              {/* Project Header */}
+              <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-red-100">
+                <div className="flex items-center gap-2 justify-center">
+                  {projectConfigs[0]?.icon && (() => {
+                    const IconComponent = getIconComponent(projectConfigs[0].icon);
+                    return <IconComponent className="h-6 w-6 text-red-600" />;
+                  })()}
+                  <h3 className="font-bold text-gray-800 text-xl">{projectType}</h3>
+                  <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded-full">
+                    {projectConfigs.length} שנים
+                  </span>
+                </div>
+              </div>
+              
+              {/* Sub-projects */}
+              <div className="p-4 space-y-3">
+                {projectConfigs
+                  .sort((a, b) => a.years - b.years)
+                  .map((config) => (
+                    <div key={config.id} className="border rounded-lg p-3 bg-white">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-3">
+                        <div className="text-center sm:text-right">
+                          <h4 className="font-semibold text-gray-800 text-lg">
+                            {config.years} שנים
+                          </h4>
+                        </div>
+                        <div className="flex gap-2 justify-center sm:justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingConfig(config)}
+                            data-testid={`button-edit-${config.id}`}
+                            className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
+                          >
+                            ערוך
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => deleteConfig(String(config.id))}
+                            data-testid={`button-delete-${config.id}`}
+                            className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
+                          >
+                            מחק
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-gray-700">
+                        <div className="text-center bg-blue-50 p-2 rounded border border-blue-200">
+                          <div className="font-medium text-xs">מחיר בסיס</div>
+                          <div className="font-bold text-blue-700">₪{config.basePrice}</div>
+                        </div>
+                        <div className="text-center bg-green-50 p-2 rounded border border-green-200">
+                          <div className="font-medium text-xs">תעודה נוספת</div>
+                          <div className="font-bold text-green-700">₪{config.backupCertificatePrice}</div>
+                        </div>
+                        <div className="text-center bg-red-50 p-2 rounded border border-red-200">
+                          <div className="font-medium text-xs">טוקן</div>
+                          <div className="font-bold text-red-700">₪{config.tokenPrice || 120}</div>
+                        </div>
+                        <div className="text-center bg-yellow-50 p-2 rounded border border-yellow-200">
+                          <div className="font-medium text-xs">סטטוס טוקן</div>
+                          <div className="font-bold text-yellow-700 text-xs">
+                            {config.tokenIncluded === "true" ? "כלול" : 
+                             config.tokenIncluded === "optional" ? "אופציונלי" : "לא זמין"}
+                          </div>
+                        </div>
+                      </div>
+
+                      {editingConfig?.id === config.id && (
+                        <EditConfigForm
+                          config={config}
+                          onSave={(updates) => updateConfig(String(config.id), updates)}
+                          onCancel={() => setEditingConfig(null)}
+                        />
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ));
+        })()}
       </div>
 
       <div className="pt-6 border-t-2 mt-6">
