@@ -21,7 +21,7 @@ import {
   User, Scale, Wrench, GraduationCap, Briefcase, 
   Star, Heart, Home, Car, Plane, Camera, Music, 
   Book, Coffee, Calculator as CalcIcon, Stethoscope, Gavel, 
-  FileText, Globe, Palette, Code, Zap
+  FileText, Globe, Palette, Code, Zap, TrendingUp
 } from "lucide-react";
 
 // Assets
@@ -49,6 +49,7 @@ const getIconComponent = (iconName: string) => {
     case 'Home': return Home;
     case 'Zap': return Zap;
     case 'Star': return Star;
+    case 'TrendingUp': return TrendingUp;
     default: return User;
   }
 };
@@ -1235,6 +1236,7 @@ function AddConfigForm({
           <option value="Home">נדלן</option>
           <option value="Zap">חשמל</option>
           <option value="Star">שירותי תחזוקה</option>
+          <option value="TrendingUp">ניירות ערך</option>
         </select>
       </div>
 
