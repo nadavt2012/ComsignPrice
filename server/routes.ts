@@ -14,6 +14,7 @@ const calculationRequestSchema = z.object({
   years: z.number(),
   certificates: z.number().min(1),
   backupCertificates: z.number().min(0),
+  includeToken: z.boolean().optional(),
 });
 
 const adminLoginSchema = z.object({
@@ -26,6 +27,8 @@ const adminConfigUpdateSchema = z.object({
   basePrice: z.number(),
   backupCertificatePrice: z.number(),
   icon: z.string().optional(),
+  tokenPrice: z.number().optional(),
+  tokenIncluded: z.string().optional(),
 });
 
 const adminPasswordChangeSchema = z.object({
@@ -98,11 +101,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const backupCertificates = data.backupCertificates;
       const basePrice = pricingConfig.basePrice;
       const backupPrice = pricingConfig.backupCertificatePrice;
+      const tokenPrice = pricingConfig.tokenPrice || 120;
       
       // Calculate total price: regular certificates + backup certificates
       const regularCertificatesCost = regularCertificates * basePrice;
       const backupCertificatesCost = backupCertificates * backupPrice;
-      const totalPrice = regularCertificatesCost + backupCertificatesCost;
+      let totalPrice = regularCertificatesCost + backupCertificatesCost;
+      
+      // Token logic
+      let tokenIncluded = false;
+      let tokenDisclaimer = "";
+      
+      if (pricingConfig.tokenIncluded === "true") {
+        // Token is included in the price
+        tokenIncluded = true;
+        tokenDisclaimer = "עלות טוקן כלולה במחיר";
+      } else if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
+        // Token is optional and user chose to include it
+        totalPrice += tokenPrice;
+        tokenIncluded = true;
+        tokenDisclaimer = `נוסף טוקן בעלות ₪${tokenPrice}`;
+      } else if (pricingConfig.tokenIncluded === "optional") {
+        // Token is optional but not included
+        tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
+      }
       
       const totalCertificates = regularCertificates + backupCertificates;
       
@@ -111,7 +133,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         basePrice,
         totalCertificates,
         discountedCertificates: backupCertificates,
-        discountInfo: backupCertificates > 0 ? `${backupCertificates} תעודות גיבוי (₪${backupPrice} לכל אחת)` : ""
+        discountInfo: backupCertificates > 0 ? `${backupCertificates} תעודות גיבוי (₪${backupPrice} לכל אחת)` : "",
+        tokenPrice,
+        tokenIncluded,
+        tokenDisclaimer
       };
 
       res.json(result);

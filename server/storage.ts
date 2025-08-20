@@ -24,28 +24,34 @@ export class MemStorage implements IStorage {
   private initializeDefaultPricing() {
     // Initialize with default pricing data
     const defaultConfigs: InsertPricingConfig[] = [
-      { projectType: "lawyers", years: 1, basePrice: 100, backupCertificatePrice: 50, icon: "Scale" },
-      { projectType: "lawyers", years: 2, basePrice: 150, backupCertificatePrice: 75, icon: "Scale" },
-      { projectType: "lawyers", years: 4, basePrice: 250, backupCertificatePrice: 125, icon: "Scale" },
-      { projectType: "lawyers", years: 5, basePrice: 300, backupCertificatePrice: 150, icon: "Scale" },
-      { projectType: "architects", years: 1, basePrice: 120, backupCertificatePrice: 60, icon: "Building" },
-      { projectType: "architects", years: 2, basePrice: 180, backupCertificatePrice: 90, icon: "Building" },
-      { projectType: "architects", years: 4, basePrice: 280, backupCertificatePrice: 140, icon: "Building" },
-      { projectType: "architects", years: 5, basePrice: 350, backupCertificatePrice: 175, icon: "Building" },
-      { projectType: "engineers", years: 1, basePrice: 110, backupCertificatePrice: 55, icon: "Wrench" },
-      { projectType: "engineers", years: 2, basePrice: 160, backupCertificatePrice: 80, icon: "Wrench" },
-      { projectType: "engineers", years: 4, basePrice: 260, backupCertificatePrice: 130, icon: "Wrench" },
-      { projectType: "engineers", years: 5, basePrice: 320, backupCertificatePrice: 160, icon: "Wrench" },
-      { projectType: "magna", years: 3, basePrice: 200, backupCertificatePrice: 100, icon: "GraduationCap" },
-      { projectType: "regular", years: 1, basePrice: 80, backupCertificatePrice: 40, icon: "User" },
-      { projectType: "regular", years: 2, basePrice: 120, backupCertificatePrice: 60, icon: "User" },
-      { projectType: "regular", years: 4, basePrice: 200, backupCertificatePrice: 100, icon: "User" },
-      { projectType: "regular", years: 5, basePrice: 250, backupCertificatePrice: 125, icon: "User" },
+      { projectType: "lawyers", years: 1, basePrice: 100, backupCertificatePrice: 50, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { projectType: "lawyers", years: 2, basePrice: 150, backupCertificatePrice: 75, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { projectType: "lawyers", years: 4, basePrice: 250, backupCertificatePrice: 125, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { projectType: "lawyers", years: 5, basePrice: 300, backupCertificatePrice: 150, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { projectType: "architects", years: 1, basePrice: 120, backupCertificatePrice: 60, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "architects", years: 2, basePrice: 180, backupCertificatePrice: 90, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "architects", years: 4, basePrice: 280, backupCertificatePrice: 140, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "architects", years: 5, basePrice: 350, backupCertificatePrice: 175, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "engineers", years: 1, basePrice: 110, backupCertificatePrice: 55, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "engineers", years: 2, basePrice: 160, backupCertificatePrice: 80, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "engineers", years: 4, basePrice: 260, backupCertificatePrice: 130, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "engineers", years: 5, basePrice: 320, backupCertificatePrice: 160, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "magna", years: 3, basePrice: 200, backupCertificatePrice: 100, icon: "GraduationCap", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "regular", years: 1, basePrice: 80, backupCertificatePrice: 40, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "regular", years: 2, basePrice: 120, backupCertificatePrice: 60, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "regular", years: 4, basePrice: 200, backupCertificatePrice: 100, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { projectType: "regular", years: 5, basePrice: 250, backupCertificatePrice: 125, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
     ];
 
     defaultConfigs.forEach(config => {
       const id = randomUUID();
-      const fullConfig: PricingConfig = { ...config, id, icon: config.icon || "User" };
+      const fullConfig: PricingConfig = { 
+        ...config, 
+        id, 
+        icon: config.icon || "User",
+        tokenPrice: config.tokenPrice || 120,
+        tokenIncluded: config.tokenIncluded || "optional"
+      };
       this.pricingConfigs.set(id, fullConfig);
     });
   }
@@ -62,7 +68,13 @@ export class MemStorage implements IStorage {
 
   async createPricingConfig(insertConfig: InsertPricingConfig): Promise<PricingConfig> {
     const id = randomUUID();
-    const config: PricingConfig = { ...insertConfig, id, icon: insertConfig.icon || "User" };
+    const config: PricingConfig = { 
+      ...insertConfig, 
+      id, 
+      icon: insertConfig.icon || "User",
+      tokenPrice: insertConfig.tokenPrice || 120,
+      tokenIncluded: insertConfig.tokenIncluded || "optional"
+    };
     this.pricingConfigs.set(id, config);
     return config;
   }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Hooks & Utils
 import { useToast } from "@/hooks/use-toast";
@@ -58,11 +59,15 @@ interface CalculationRequest {
   years: number;
   certificates: number;
   backupCertificates: number;
+  includeToken?: boolean;
 }
 
 interface CalculationResult {
   totalPrice: number;
   discountInfo?: string;
+  tokenPrice?: number;
+  tokenIncluded?: boolean;
+  tokenDisclaimer?: string;
 }
 
 interface PricingConfig {
@@ -72,6 +77,8 @@ interface PricingConfig {
   basePrice: number;
   backupCertificatePrice: number;
   icon: string;
+  tokenPrice: number;
+  tokenIncluded: string;
 }
 
 // ===== MAIN COMPONENT =====
@@ -81,6 +88,7 @@ export default function Calculator() {
   const [years, setYears] = useState("");
   const [certificates, setCertificates] = useState(1);
   const [backupCertificates, setBackupCertificates] = useState(0);
+  const [includeToken, setIncludeToken] = useState(false);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
@@ -125,6 +133,7 @@ export default function Calculator() {
           years: parseInt(years),
           certificates,
           backupCertificates,
+          includeToken,
         };
         calculateMutation.mutate(data);
       } else {
@@ -133,7 +142,7 @@ export default function Calculator() {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [projectType, years, certificates, backupCertificates]);
+  }, [projectType, years, certificates, backupCertificates, includeToken]);
 
   // Reset years when project type changes
   useEffect(() => {
@@ -299,6 +308,28 @@ export default function Calculator() {
                   inputMode="numeric"
                 />
               </div>
+
+              {/* Token Selection - Show only if project has optional token */}
+              {calculationResult && calculationResult.tokenPrice && (
+                <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+                  <div className="flex items-center space-x-2 space-x-reverse" dir="rtl">
+                    <Checkbox
+                      id="include-token"
+                      checked={includeToken}
+                      onCheckedChange={(checked) => setIncludeToken(checked as boolean)}
+                      className="data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                      data-testid="checkbox-include-token"
+                    />
+                    <Label 
+                      htmlFor="include-token" 
+                      className="text-sm font-medium text-red-800 cursor-pointer select-none"
+                      data-testid="label-include-token"
+                    >
+                      הוסף טוקן (₪{calculationResult.tokenPrice})
+                    </Label>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Price Display */}
@@ -313,6 +344,11 @@ export default function Calculator() {
                 {calculationResult?.discountInfo && (
                   <p className="text-xs text-gray-600 mt-2 font-medium" data-testid="text-discount-info">
                     {calculationResult.discountInfo}
+                  </p>
+                )}
+                {calculationResult?.tokenDisclaimer && (
+                  <p className="text-xs text-red-600 mt-2 font-medium" data-testid="text-token-disclaimer">
+                    *{calculationResult.tokenDisclaimer}
                   </p>
                 )}
               </div>
@@ -498,7 +534,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     }
   };
 
-  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => {
+  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string; tokenPrice?: number; tokenIncluded?: string }[]) => {
     try {
       // Create each configuration separately
       let successCount = 0;
@@ -506,7 +542,11 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
         const response = await fetch('/api/admin/pricing', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(config),
+          body: JSON.stringify({
+            ...config,
+            tokenPrice: config.tokenPrice || 120,
+            tokenIncluded: config.tokenIncluded || "optional"
+          }),
         });
         
         if (response.ok) {
@@ -623,6 +663,17 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                 <span className="font-medium">תעודה נוספת:</span>
                 <span className="font-bold text-green-700 mr-2">₪{config.backupCertificatePrice}</span>
               </div>
+              <div className="text-center sm:text-right bg-red-50 p-3 rounded-lg border border-red-200">
+                <span className="font-medium">טוקן:</span>
+                <span className="font-bold text-red-700 mr-2">₪{config.tokenPrice || 120}</span>
+              </div>
+              <div className="text-center sm:text-right bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                <span className="font-medium">סטטוס טוקן:</span>
+                <span className="font-bold text-yellow-700 mr-2">
+                  {config.tokenIncluded === "true" ? "כלול" : 
+                   config.tokenIncluded === "optional" ? "אופציונלי" : "לא זמין"}
+                </span>
+              </div>
             </div>
 
             {editingConfig?.id === config.id && (
@@ -662,11 +713,15 @@ function EditConfigForm({
 }) {
   const [basePrice, setBasePrice] = useState(config.basePrice);
   const [backupPrice, setBackupPrice] = useState(config.backupCertificatePrice);
+  const [tokenPrice, setTokenPrice] = useState(config.tokenPrice || 120);
+  const [tokenIncluded, setTokenIncluded] = useState(config.tokenIncluded || "optional");
 
   const handleSave = () => {
     onSave({
       basePrice: Number(basePrice),
       backupCertificatePrice: Number(backupPrice),
+      tokenPrice: Number(tokenPrice),
+      tokenIncluded: tokenIncluded,
     });
   };
 
@@ -698,6 +753,36 @@ function EditConfigForm({
         </div>
       </div>
       
+      {/* Token Configuration */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <div>
+          <Label htmlFor={`token-price-${config.id}`} className="text-sm font-medium">מחיר טוקן</Label>
+          <Input
+            id={`token-price-${config.id}`}
+            type="number"
+            value={tokenPrice}
+            onChange={(e) => setTokenPrice(Number(e.target.value))}
+            className="mt-1 text-center"
+            data-testid={`input-token-price-${config.id}`}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor={`token-included-${config.id}`} className="text-sm font-medium">טוקן במחיר</Label>
+          <select
+            id={`token-included-${config.id}`}
+            value={tokenIncluded}
+            onChange={(e) => setTokenIncluded(e.target.value)}
+            className="w-full p-2 border-2 border-gray-300 rounded-lg text-center min-h-[40px] font-medium touch-manipulation bg-white shadow-sm mt-1"
+            data-testid={`select-token-included-${config.id}`}
+          >
+            <option value="optional">אופציונלי</option>
+            <option value="true">כלול במחיר</option>
+            <option value="false">לא זמין</option>
+          </select>
+        </div>
+      </div>
+      
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         <Button
           onClick={handleSave}
@@ -726,10 +811,12 @@ function AddConfigForm({
   onSave,
   onCancel
 }: {
-  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => void;
+  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string; tokenPrice?: number; tokenIncluded?: string }[]) => void;
   onCancel: () => void;
 }) {
   const [projectType, setProjectType] = useState("");
+  const [tokenPrice, setTokenPrice] = useState(120);
+  const [tokenIncluded, setTokenIncluded] = useState("optional");
   const [icon, setIcon] = useState("User");
   const [yearConfigs, setYearConfigs] = useState<{year: number; basePrice: number; backupPrice: number}[]>([
     { year: 1, basePrice: 0, backupPrice: 0 }
@@ -764,7 +851,9 @@ function AddConfigForm({
       years: config.year,
       basePrice: config.basePrice,
       backupCertificatePrice: config.backupPrice,
-      icon: icon
+      icon: icon,
+      tokenPrice: tokenPrice,
+      tokenIncluded: tokenIncluded
     }));
     
     onSave(configs);
@@ -860,6 +949,43 @@ function AddConfigForm({
               </div>
             </div>
           ))}
+        </div>
+      </div>
+      
+      {/* Token Configuration */}
+      <div className="space-y-4 bg-white p-4 rounded-lg border-2 border-red-200">
+        <Label className="text-lg font-semibold text-gray-800 mb-2 block">הגדרות טוקן</Label>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="token-price" className="text-sm font-medium text-gray-700 mb-1 block">מחיר טוקן</Label>
+            <Input
+              id="token-price"
+              type="number"
+              min="0"
+              value={tokenPrice}
+              onChange={(e) => setTokenPrice(Number(e.target.value))}
+              className="text-center min-h-[48px] font-semibold border-2 rounded-lg"
+              placeholder="₪"
+              inputMode="numeric"
+              data-testid="input-token-price"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="token-included" className="text-sm font-medium text-gray-700 mb-1 block">טוקן במחיר</Label>
+            <select
+              id="token-included"
+              value={tokenIncluded}
+              onChange={(e) => setTokenIncluded(e.target.value)}
+              className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px] font-semibold touch-manipulation bg-white shadow-sm"
+              data-testid="select-token-included"
+            >
+              <option value="optional">אופציונלי</option>
+              <option value="true">כלול במחיר</option>
+              <option value="false">לא זמין</option>
+            </select>
+          </div>
         </div>
       </div>
       

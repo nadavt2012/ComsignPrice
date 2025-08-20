@@ -10,6 +10,8 @@ export const pricingConfigs = pgTable("pricing_configs", {
   basePrice: real("base_price").notNull(),
   backupCertificatePrice: real("backup_certificate_price").notNull(),
   icon: text("icon").notNull().default("User"),
+  tokenPrice: real("token_price").notNull().default(120),
+  tokenIncluded: text("token_included").notNull().default("false"), // "true", "false", "optional"
 });
 
 // ===== ZOD SCHEMAS =====
@@ -29,6 +31,8 @@ export interface PricingConfigManual {
   basePrice: number;
   backupCertificatePrice: number;
   icon: string;
+  tokenPrice: number;
+  tokenIncluded: string;
 }
 
 // ===== CALCULATION TYPES =====
@@ -37,6 +41,7 @@ export interface CalculationRequest {
   years: number;
   certificates: number;
   backupCertificates: number;
+  includeToken?: boolean;
 }
 
 export interface CalculationResult {
@@ -45,6 +50,9 @@ export interface CalculationResult {
   totalCertificates: number;
   discountedCertificates: number;
   discountInfo: string;
+  tokenPrice?: number;
+  tokenIncluded?: boolean;
+  tokenDisclaimer?: string;
 }
 
 // ===== ADMIN MANAGEMENT TYPES =====
@@ -58,6 +66,8 @@ export interface AdminConfigUpdate {
   basePrice: number;
   backupCertificatePrice: number;
   icon?: string;
+  tokenPrice?: number;
+  tokenIncluded?: string;
 }
 
 export interface AdminPasswordChange {
