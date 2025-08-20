@@ -51,6 +51,46 @@ input, textarea {
   z-index: 9999 !important;
 }
 
+/* ===== SELECT ANIMATIONS ===== */
+/* Fix select dropdown animation to appear naturally from button position */
+[data-radix-select-content] {
+  animation: none !important;
+  transform-origin: center center !important;
+  animation-duration: 0.15s !important;
+  animation-timing-function: ease-out !important;
+  animation-fill-mode: forwards !important;
+}
+
+[data-radix-select-content][data-state="open"] {
+  animation: selectOpen 0.15s ease-out forwards !important;
+}
+
+[data-radix-select-content][data-state="closed"] {
+  animation: selectClose 0.1s ease-in forwards !important;
+}
+
+@keyframes selectOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes selectClose {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-2px);
+  }
+}
+
 /* ===== PERFORMANCE OPTIMIZATIONS ===== */
 .transition-all {
   transform: translateZ(0);
