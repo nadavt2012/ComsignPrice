@@ -144,7 +144,7 @@ export default function Calculator() {
                         data-testid="button-settings"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-הגדרות
+⚙️
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
