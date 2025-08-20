@@ -7,6 +7,9 @@ This is a pricing calculator application built with a full-stack TypeScript arch
 - **MAXIMIZED Mobile UX/UI Experience**: Complete mobile optimization with 56px touch targets, scale animations, improved responsive design across all components
 - **Enhanced Admin Panel**: Full mobile optimization with larger buttons, improved dialogs, and better touch interaction
 - **Advanced Mobile Features**: Prevented zoom on input focus, improved font rendering, webkit optimizations, and smooth touch animations
+- **Professional Icon System**: Added customizable icon selection for each project type with clean red-themed design
+- **Multi-Year Pricing Forms**: Advanced forms supporting up to 10 years with different base and backup certificate prices
+- **Refined UX/UI**: Clean professional design without unnecessary emojis, symmetric layouts, gradient buttons with shadows
 - Performance optimizations including debouncing, caching, and hardware acceleration
 - Service Worker implementation for offline functionality
 - Custom Comsign logo integration with proper mobile display
