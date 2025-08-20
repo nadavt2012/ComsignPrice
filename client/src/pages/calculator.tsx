@@ -60,6 +60,7 @@ interface CalculationRequest {
   certificates: number;
   backupCertificates: number;
   includeToken?: boolean;
+  dayOffset?: number;
 }
 
 interface CalculationResult {
@@ -68,6 +69,8 @@ interface CalculationResult {
   tokenPrice?: number;
   tokenIncluded?: boolean;
   tokenDisclaimer?: string;
+  dayOffsetInfo?: string;
+  originalPrice?: number;
 }
 
 interface PricingConfig {
@@ -90,6 +93,10 @@ export default function Calculator() {
   const [backupCertificates, setBackupCertificates] = useState(0);
   const [includeToken, setIncludeToken] = useState(false);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
+  const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [dayOffset, setDayOffset] = useState(0);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
@@ -134,6 +141,7 @@ export default function Calculator() {
           certificates,
           backupCertificates,
           includeToken,
+          dayOffset,
         };
         calculateMutation.mutate(data);
       } else {
@@ -142,12 +150,25 @@ export default function Calculator() {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [projectType, years, certificates, backupCertificates, includeToken]);
+  }, [projectType, years, certificates, backupCertificates, includeToken, dayOffset]);
 
   // Reset years when project type changes
   useEffect(() => {
     setYears("");
   }, [projectType]);
+
+  // Calculate day offset when dates change
+  useEffect(() => {
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = end.getTime() - start.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      setDayOffset(diffDays > 0 ? diffDays : 0);
+    } else {
+      setDayOffset(0);
+    }
+  }, [startDate, endDate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-2 sm:p-4 lg:p-6" dir="rtl" lang="he">
@@ -332,6 +353,91 @@ export default function Calculator() {
               )}
             </div>
 
+            {/* Advanced Calculation Button */}
+            <div className="mt-4 text-center">
+              <Dialog open={isAdvancedModalOpen} onOpenChange={setIsAdvancedModalOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 py-2 rounded-lg font-semibold touch-manipulation active:scale-95 transition-all duration-200" 
+                    data-testid="button-advanced-calculation"
+                  >
+                    חישוב מתקדם
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-hidden" dir="rtl">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold text-center text-red-600" dir="rtl">
+                      חישוב מתקדם - קיזוז ימי תוקף
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  <div className="space-y-6 p-4" dir="rtl">
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="start-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
+                          תאריך התחלה
+                        </Label>
+                        <Input
+                          id="start-date"
+                          type="date"
+                          value={startDate}
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px]"
+                          data-testid="input-start-date"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="end-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
+                          תאריך סיום
+                        </Label>
+                        <Input
+                          id="end-date"
+                          type="date"
+                          value={endDate}
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px]"
+                          data-testid="input-end-date"
+                        />
+                      </div>
+                      
+                      {dayOffset > 0 && (
+                        <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                          <p className="text-center text-blue-800 font-medium">
+                            ימי קיזוז: {dayOffset} ימים
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => setIsAdvancedModalOpen(false)}
+                        className="flex-1 bg-red-600 hover:bg-red-700 text-white min-h-[48px] font-semibold rounded-lg"
+                        data-testid="button-apply-advanced"
+                      >
+                        החל חישוב
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setStartDate("");
+                          setEndDate("");
+                          setDayOffset(0);
+                          setIsAdvancedModalOpen(false);
+                        }}
+                        variant="outline"
+                        className="flex-1 min-h-[48px] font-semibold border-2 border-gray-300 hover:border-gray-400 rounded-lg"
+                        data-testid="button-reset-advanced"
+                      >
+                        איפוס
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
             {/* Price Display */}
             <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border-2 shadow-lg">
               <div className="text-center">
@@ -349,6 +455,16 @@ export default function Calculator() {
                 {calculationResult?.tokenDisclaimer && (
                   <p className="text-xs text-red-600 mt-2 font-medium" data-testid="text-token-disclaimer">
                     *{calculationResult.tokenDisclaimer}
+                  </p>
+                )}
+                {calculationResult?.dayOffsetInfo && (
+                  <p className="text-xs text-blue-600 mt-2 font-medium" data-testid="text-day-offset-info">
+                    *{calculationResult.dayOffsetInfo}
+                  </p>
+                )}
+                {calculationResult?.originalPrice && calculationResult.originalPrice !== calculationResult.totalPrice && (
+                  <p className="text-xs text-gray-500 mt-1 line-through" data-testid="text-original-price">
+                    מחיר מקורי: ₪{calculationResult.originalPrice.toLocaleString()}
                   </p>
                 )}
               </div>

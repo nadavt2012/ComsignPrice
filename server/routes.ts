@@ -15,6 +15,7 @@ const calculationRequestSchema = z.object({
   certificates: z.number().min(1),
   backupCertificates: z.number().min(0),
   includeToken: z.boolean().optional(),
+  dayOffset: z.number().optional(),
 });
 
 const adminLoginSchema = z.object({
@@ -107,6 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const regularCertificatesCost = regularCertificates * basePrice;
       const backupCertificatesCost = backupCertificates * backupPrice;
       let totalPrice = regularCertificatesCost + backupCertificatesCost;
+      const originalPrice = totalPrice;
       
       // Token logic
       let tokenIncluded = false;
@@ -125,6 +127,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Token is optional but not included
         tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
       }
+
+      // Day offset logic
+      let dayOffsetInfo = "";
+      if (data.dayOffset && data.dayOffset > 0) {
+        // Calculate discount based on day offset
+        // For example: 1% discount per 30 days offset, max 20% discount
+        const discountPercentage = Math.min((data.dayOffset / 30) * 1, 20);
+        const discountAmount = Math.round(totalPrice * (discountPercentage / 100));
+        totalPrice -= discountAmount;
+        dayOffsetInfo = `הנחה של ${discountPercentage.toFixed(1)}% עבור ${data.dayOffset} ימי קיזוז (₪${discountAmount})`;
+      }
       
       const totalCertificates = regularCertificates + backupCertificates;
       
@@ -136,7 +149,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         discountInfo: backupCertificates > 0 ? `${backupCertificates} תעודות גיבוי (₪${backupPrice} לכל אחת)` : "",
         tokenPrice,
         tokenIncluded,
-        tokenDisclaimer
+        tokenDisclaimer,
+        dayOffsetInfo,
+        originalPrice
       };
 
       res.json(result);
