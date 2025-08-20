@@ -104,14 +104,29 @@ export default function Calculator() {
   // ===== HOOKS =====
   const { toast } = useToast();
 
-  // ===== PROJECT TYPES CONFIGURATION =====
-  const projectTypes = useMemo(() => [
-    { value: "lawyers", label: "עורכי דין", icon: Scale },
-    { value: "architects", label: "אדריכלים", icon: Building },
-    { value: "engineers", label: "מהנדסים", icon: Wrench },
-    { value: "magna", label: "מגנא", icon: GraduationCap },
-    { value: "regular", label: "רגיל", icon: User }
-  ], []);
+  // ===== DYNAMIC PROJECT TYPES FROM DATABASE =====
+  const { data: allConfigs = [] } = useQuery<PricingConfig[]>({
+    queryKey: ["/api/admin/configs"],
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+  });
+
+  // Create unique project types from database
+  const projectTypes = useMemo(() => {
+    const uniqueProjects = new Map();
+    
+    allConfigs.forEach(config => {
+      if (!uniqueProjects.has(config.projectType)) {
+        const IconComponent = getIconComponent(config.icon);
+        uniqueProjects.set(config.projectType, {
+          value: config.projectType,
+          label: config.projectType,
+          icon: IconComponent
+        });
+      }
+    });
+    
+    return Array.from(uniqueProjects.values());
+  }, [allConfigs]);
 
   // ===== DATA FETCHING =====
   const { data: availableYears = [], isLoading: yearsLoading, error: yearsError } = useQuery<number[]>({
