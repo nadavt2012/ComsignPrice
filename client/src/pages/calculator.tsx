@@ -26,6 +26,32 @@ import {
 // Assets
 import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
 
+// Icon mapping function
+const getIconComponent = (iconName: string) => {
+  switch (iconName) {
+    case 'Scale': return Scale;
+    case 'Building': return Building;
+    case 'Wrench': return Wrench;
+    case 'GraduationCap': return GraduationCap;
+    case 'CalcIcon': return CalcIcon;
+    case 'Stethoscope': return Stethoscope;
+    case 'Briefcase': return Briefcase;
+    case 'Shield': return Shield;
+    case 'Gavel': return Gavel;
+    case 'FileText': return FileText;
+    case 'Globe': return Globe;
+    case 'Camera': return Camera;
+    case 'Palette': return Palette;
+    case 'Code': return Code;
+    case 'Heart': return Heart;
+    case 'Car': return Car;
+    case 'Home': return Home;
+    case 'Zap': return Zap;
+    case 'Star': return Star;
+    default: return User;
+  }
+};
+
 // ===== TYPES =====
 interface CalculationRequest {
   projectType: string;
@@ -65,11 +91,11 @@ export default function Calculator() {
 
   // ===== PROJECT TYPES CONFIGURATION =====
   const projectTypes = useMemo(() => [
-    { value: "lawyers", label: "עורכי דין" },
-    { value: "architects", label: "אדריכלים" },
-    { value: "engineers", label: "מהנדסים" },
-    { value: "magna", label: "מגנא" },
-    { value: "regular", label: "רגיל" }
+    { value: "lawyers", label: "עורכי דין", icon: Scale },
+    { value: "architects", label: "אדריכלים", icon: Building },
+    { value: "engineers", label: "מהנדסים", icon: Wrench },
+    { value: "magna", label: "מגנא", icon: GraduationCap },
+    { value: "regular", label: "רגיל", icon: User }
   ], []);
 
   // ===== DATA FETCHING =====
@@ -205,9 +231,13 @@ export default function Calculator() {
                   </SelectTrigger>
                   <SelectContent>
                     {projectTypes.map((type) => {
+                      const IconComponent = type.icon;
                       return (
                         <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
-                          <span className="text-base">{type.label}</span>
+                          <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
+                            <span className="text-base">{type.label}</span>
+                            <IconComponent className="h-4 w-4 text-red-600" />
+                          </div>
                         </SelectItem>
                       );
                     })}
@@ -468,7 +498,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     }
   };
 
-  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number }[]) => {
+  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => {
     try {
       // Create each configuration separately
       let successCount = 0;
@@ -553,9 +583,15 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
         {configs.map((config) => (
           <div key={config.id} className="border-2 rounded-xl p-4 sm:p-5 bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-lg transition-all duration-200">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-3">
-              <h4 className="font-semibold text-gray-800 text-center sm:text-right text-lg">
-                {config.projectType} - {config.years} שנים
-              </h4>
+              <div className="flex items-center gap-2 justify-center sm:justify-start">
+                {config.icon && (() => {
+                  const IconComponent = getIconComponent(config.icon);
+                  return <IconComponent className="h-5 w-5 text-red-600" />;
+                })()}
+                <h4 className="font-semibold text-gray-800 text-lg">
+                  {config.projectType} - {config.years} שנים
+                </h4>
+              </div>
               <div className="flex gap-3 justify-center sm:justify-end">
                 <Button
                   size="sm"
@@ -690,11 +726,11 @@ function AddConfigForm({
   onSave,
   onCancel
 }: {
-  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number }[]) => void;
+  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string }[]) => void;
   onCancel: () => void;
 }) {
   const [projectType, setProjectType] = useState("");
-
+  const [icon, setIcon] = useState("User");
   const [yearConfigs, setYearConfigs] = useState<{year: number; basePrice: number; backupPrice: number}[]>([
     { year: 1, basePrice: 0, backupPrice: 0 }
   ]);
@@ -727,7 +763,8 @@ function AddConfigForm({
       projectType: projectType.trim(),
       years: config.year,
       basePrice: config.basePrice,
-      backupCertificatePrice: config.backupPrice
+      backupCertificatePrice: config.backupPrice,
+      icon: icon
     }));
     
     onSave(configs);
@@ -826,8 +863,38 @@ function AddConfigForm({
         </div>
       </div>
       
+      <div>
+        <Label htmlFor="new-icon" className="text-lg font-semibold text-gray-800 mb-2 block">סמל</Label>
+        <select
+          id="new-icon"
+          value={icon}
+          onChange={(e) => setIcon(e.target.value)}
+          className="w-full p-4 border-2 border-gray-300 rounded-lg text-center min-h-[52px] text-lg font-semibold touch-manipulation active:scale-[0.98] transition-all duration-200 bg-white shadow-sm"
+          data-testid="select-new-icon"
+        >
+          <option value="User">משתמש רגיל</option>
+          <option value="Scale">עורכי דין</option>
+          <option value="Building">אדריכלים</option>
+          <option value="Wrench">מהנדסים</option>
+          <option value="GraduationCap">מגנה</option>
+          <option value="CalcIcon">רואי חשבון</option>
+          <option value="Stethoscope">רופאים</option>
+          <option value="Briefcase">עסקים</option>
+          <option value="Shield">ביטוח</option>
+          <option value="Gavel">בית משפט</option>
+          <option value="FileText">מסמכים</option>
+          <option value="Globe">יעוץ בינלאומי</option>
+          <option value="Camera">צלמים</option>
+          <option value="Palette">עיצוב גרפי</option>
+          <option value="Code">תכנות</option>
+          <option value="Heart">בריאות</option>
+          <option value="Car">רכב</option>
+          <option value="Home">נדלן</option>
+          <option value="Zap">חשמל</option>
+          <option value="Star">שירותי תחזוקה</option>
+        </select>
+      </div>
 
-      
       <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t-2 border-blue-200">
         <Button
           onClick={handleSave}
