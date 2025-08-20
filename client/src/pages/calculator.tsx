@@ -164,16 +164,12 @@ export default function Calculator() {
       const end = new Date(endDate);
       const today = new Date();
       
-      // If the card is still valid (end date hasn't passed)
-      if (end > today) {
-        // Calculate remaining days from today to end date
-        const diffTime = end.getTime() - today.getTime();
-        const remainingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        setDayOffset(remainingDays > 0 ? remainingDays : 0);
-      } else {
-        // Card has expired
-        setDayOffset(0);
-      }
+      // Calculate remaining days from today to end date
+      const diffTime = end.getTime() - today.getTime();
+      const remainingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Set the remaining days (can be negative if expired, zero, or positive)
+      setDayOffset(remainingDays > 0 ? remainingDays : 0);
     } else {
       setDayOffset(0);
     }
@@ -380,7 +376,7 @@ export default function Calculator() {
                       חישוב מתקדם - קיזוז ימי תוקף
                     </DialogTitle>
                     <p className="text-sm text-gray-600 text-center mt-2">
-                      חישוב מחיר חדש על בסיס ימי תוקף שנותרו
+                      הזן תאריכי הנפקה ותום תוקף לחישוב זיכוי לפי ימים שנותרו
                     </p>
                   </DialogHeader>
                   
@@ -397,12 +393,13 @@ export default function Calculator() {
                           onChange={(e) => setStartDate(e.target.value)}
                           className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px]"
                           data-testid="input-start-date"
+                          placeholder="לדוגמה: 12/06/2021"
                         />
                       </div>
                       
                       <div>
                         <Label htmlFor="end-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
-                          תאריך תום תוקף
+                          תאריך תום תוקף המקורי
                         </Label>
                         <Input
                           id="end-date"
@@ -411,16 +408,21 @@ export default function Calculator() {
                           onChange={(e) => setEndDate(e.target.value)}
                           className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px]"
                           data-testid="input-end-date"
+                          placeholder="לדוגמה: 12/06/2025"
                         />
                       </div>
                       
-                      {dayOffset > 0 && (
+                      {startDate && endDate && (
                         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
                           <p className="text-center text-blue-800 font-medium">
-                            ימים שנותרו לתוקף: {dayOffset} ימים
+                            {dayOffset > 0 ? (
+                              <>ימים שנותרו לתוקף: {dayOffset} ימים</>
+                            ) : (
+                              <>הכרטיס פג תוקף אך ניתן לבצע חישוב</>
+                            )}
                           </p>
                           <p className="text-center text-blue-600 text-sm mt-1">
-                            המחיר יחושב לפי הימים שנותרו בלבד
+                            המחיר יחושב לפי הימים שנותרו מתאריך היום
                           </p>
                         </div>
                       )}

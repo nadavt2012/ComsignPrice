@@ -134,9 +134,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculate the total days in the validity period (years * 365)
         const totalValidityDays = data.years * 365;
         
-        // Calculate how many days were used (total days - remaining days)
-        const usedDays = Math.max(0, totalValidityDays - data.dayOffset);
-        
         // Calculate the price per day
         const pricePerDay = totalPrice / totalValidityDays;
         
@@ -145,7 +142,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const creditAmount = totalPrice - newPrice;
         
         totalPrice = newPrice;
-        dayOffsetInfo = `נותרו ${data.dayOffset} ימים מתוך ${totalValidityDays} ימי תוקף. זיכוי של ₪${creditAmount}`;
+        dayOffsetInfo = `זיכוי לפי ${data.dayOffset} ימים שנותרו מתוך ${totalValidityDays} ימי תוקף. זיכוי: ₪${creditAmount}`;
       }
       
       const totalCertificates = regularCertificates + backupCertificates;
