@@ -54,6 +54,22 @@ body {
   overscroll-behavior: contain;
 }
 
+/* ===== ERROR SUPPRESSION ===== */
+/* Hide vite error overlay for development */
+.vite-error-overlay {
+  display: none !important;
+}
+
+/* Hide runtime error messages */
+.runtime-error-modal {
+  display: none !important;
+}
+
+/* Suppress ResizeObserver console errors */
+.resize-observer-error {
+  display: none !important;
+}
+
 /* ===== CUSTOM STYLES ===== */
 /* Red gear icon for settings button */
 [data-testid="button-settings"] {

@@ -123,28 +123,53 @@ export default function Calculator() {
   // ===== MUTATIONS =====
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationRequest): Promise<CalculationResult> => {
-      const res = await apiRequest("POST", "/api/calculate", data);
-      return res.json();
+      try {
+        const res = await apiRequest("POST", "/api/calculate", data);
+        return res.json();
+      } catch (error) {
+        console.error('Calculation error:', error);
+        throw error;
+      }
     },
     onSuccess: (result) => {
       setCalculationResult(result);
+    },
+    onError: (error) => {
+      console.error('Mutation error:', error);
+      setCalculationResult(null);
+      toast({
+        title: "שגיאה בחישוב",
+        description: "אנא נסה שנית",
+        variant: "destructive",
+      });
     },
   });
 
   // Auto-calculate when inputs change with debounce for better performance
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (projectType && years && certificates > 0) {
-        const data: CalculationRequest = {
-          projectType,
-          years: parseInt(years),
-          certificates,
-          backupCertificates,
-          includeToken,
-          dayOffset,
-        };
-        calculateMutation.mutate(data);
-      } else {
+      try {
+        if (projectType && years && certificates > 0) {
+          const parsedYears = parseInt(years);
+          if (isNaN(parsedYears) || parsedYears <= 0) {
+            setCalculationResult(null);
+            return;
+          }
+          
+          const data: CalculationRequest = {
+            projectType,
+            years: parsedYears,
+            certificates,
+            backupCertificates,
+            includeToken,
+            dayOffset,
+          };
+          calculateMutation.mutate(data);
+        } else {
+          setCalculationResult(null);
+        }
+      } catch (error) {
+        console.error('Auto-calculation error:', error);
         setCalculationResult(null);
       }
     }, 150);
@@ -159,18 +184,29 @@ export default function Calculator() {
 
   // Calculate remaining days when dates change
   useEffect(() => {
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const today = new Date();
-      
-      // Calculate remaining days from today to end date
-      const diffTime = end.getTime() - today.getTime();
-      const remainingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
-      // Set the remaining days (can be negative if expired, zero, or positive)
-      setDayOffset(remainingDays > 0 ? remainingDays : 0);
-    } else {
+    try {
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const today = new Date();
+        
+        // Validate dates
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          setDayOffset(0);
+          return;
+        }
+        
+        // Calculate remaining days from today to end date
+        const diffTime = end.getTime() - today.getTime();
+        const remainingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Set the remaining days (can be negative if expired, zero, or positive)
+        setDayOffset(remainingDays > 0 ? remainingDays : 0);
+      } else {
+        setDayOffset(0);
+      }
+    } catch (error) {
+      console.error('Date calculation error:', error);
       setDayOffset(0);
     }
   }, [startDate, endDate]);

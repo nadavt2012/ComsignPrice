@@ -93,9 +93,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const data = calculationRequestSchema.parse(req.body) as CalculationRequest;
       
+      // Additional validation
+      if (!data.projectType || typeof data.projectType !== 'string') {
+        return res.status(400).json({ 
+          message: "Invalid project type",
+          error: "Project type is required and must be a string" 
+        });
+      }
+      
+      if (!Number.isInteger(data.years) || data.years <= 0) {
+        return res.status(400).json({ 
+          message: "Invalid years",
+          error: "Years must be a positive integer" 
+        });
+      }
+      
+      if (!Number.isInteger(data.certificates) || data.certificates <= 0) {
+        return res.status(400).json({ 
+          message: "Invalid certificates",
+          error: "Certificates must be a positive integer" 
+        });
+      }
+      
       const pricingConfig = await storage.getPricingConfig(data.projectType, data.years);
       if (!pricingConfig) {
-        return res.status(404).json({ message: "Pricing configuration not found" });
+        return res.status(404).json({ 
+          message: "Pricing configuration not found",
+          details: `No configuration found for project type '${data.projectType}' with ${data.years} years`
+        });
       }
 
       const regularCertificates = data.certificates;
@@ -162,10 +187,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(result);
     } catch (error) {
+      console.error('Calculate price error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid request data", errors: error.errors });
       }
-      res.status(500).json({ message: "Failed to calculate price" });
+      res.status(500).json({ 
+        message: "Failed to calculate price",
+        error: process.env.NODE_ENV === 'development' ? String(error) : 'Internal server error'
+      });
     }
   });
 
