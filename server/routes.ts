@@ -128,15 +128,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
       }
 
-      // Day offset logic
+      // Day offset logic - calculate price based on unused days
       let dayOffsetInfo = "";
       if (data.dayOffset && data.dayOffset > 0) {
-        // Calculate discount based on day offset
-        // For example: 1% discount per 30 days offset, max 20% discount
-        const discountPercentage = Math.min((data.dayOffset / 30) * 1, 20);
-        const discountAmount = Math.round(totalPrice * (discountPercentage / 100));
-        totalPrice -= discountAmount;
-        dayOffsetInfo = `הנחה של ${discountPercentage.toFixed(1)}% עבור ${data.dayOffset} ימי קיזוז (₪${discountAmount})`;
+        // Calculate the total days in the validity period (years * 365)
+        const totalValidityDays = data.years * 365;
+        
+        // Calculate how many days were used (total days - remaining days)
+        const usedDays = Math.max(0, totalValidityDays - data.dayOffset);
+        
+        // Calculate the price per day
+        const pricePerDay = totalPrice / totalValidityDays;
+        
+        // New price = price per day * remaining days
+        const newPrice = Math.round(pricePerDay * data.dayOffset);
+        const creditAmount = totalPrice - newPrice;
+        
+        totalPrice = newPrice;
+        dayOffsetInfo = `נותרו ${data.dayOffset} ימים מתוך ${totalValidityDays} ימי תוקף. זיכוי של ₪${creditAmount}`;
       }
       
       const totalCertificates = regularCertificates + backupCertificates;

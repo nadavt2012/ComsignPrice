@@ -157,14 +157,23 @@ export default function Calculator() {
     setYears("");
   }, [projectType]);
 
-  // Calculate day offset when dates change
+  // Calculate remaining days when dates change
   useEffect(() => {
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      const diffTime = end.getTime() - start.getTime();
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      setDayOffset(diffDays > 0 ? diffDays : 0);
+      const today = new Date();
+      
+      // If the card is still valid (end date hasn't passed)
+      if (end > today) {
+        // Calculate remaining days from today to end date
+        const diffTime = end.getTime() - today.getTime();
+        const remainingDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        setDayOffset(remainingDays > 0 ? remainingDays : 0);
+      } else {
+        // Card has expired
+        setDayOffset(0);
+      }
     } else {
       setDayOffset(0);
     }
@@ -370,13 +379,16 @@ export default function Calculator() {
                     <DialogTitle className="text-xl font-bold text-center text-red-600" dir="rtl">
                       חישוב מתקדם - קיזוז ימי תוקף
                     </DialogTitle>
+                    <p className="text-sm text-gray-600 text-center mt-2">
+                      חישוב מחיר חדש על בסיס ימי תוקף שנותרו
+                    </p>
                   </DialogHeader>
                   
                   <div className="space-y-6 p-4" dir="rtl">
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="start-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
-                          תאריך התחלה
+                          תאריך הנפקת הכרטיס
                         </Label>
                         <Input
                           id="start-date"
@@ -390,7 +402,7 @@ export default function Calculator() {
                       
                       <div>
                         <Label htmlFor="end-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
-                          תאריך סיום
+                          תאריך תום תוקף
                         </Label>
                         <Input
                           id="end-date"
@@ -405,7 +417,18 @@ export default function Calculator() {
                       {dayOffset > 0 && (
                         <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
                           <p className="text-center text-blue-800 font-medium">
-                            ימי קיזוז: {dayOffset} ימים
+                            ימים שנותרו לתוקף: {dayOffset} ימים
+                          </p>
+                          <p className="text-center text-blue-600 text-sm mt-1">
+                            המחיר יחושב לפי הימים שנותרו בלבד
+                          </p>
+                        </div>
+                      )}
+                      
+                      {startDate && endDate && dayOffset === 0 && (
+                        <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
+                          <p className="text-center text-red-800 font-medium">
+                            הכרטיס פג תוקף - אין זכאות לזיכוי
                           </p>
                         </div>
                       )}

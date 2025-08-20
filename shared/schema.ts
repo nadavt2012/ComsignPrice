@@ -42,6 +42,7 @@ export interface CalculationRequest {
   certificates: number;
   backupCertificates: number;
   includeToken?: boolean;
+  dayOffset?: number;
 }
 
 export interface CalculationResult {
@@ -53,6 +54,8 @@ export interface CalculationResult {
   tokenPrice?: number;
   tokenIncluded?: boolean;
   tokenDisclaimer?: string;
+  dayOffsetInfo?: string;
+  originalPrice?: number;
 }
 
 // ===== ADMIN MANAGEMENT TYPES =====
