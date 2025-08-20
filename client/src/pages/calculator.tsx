@@ -542,7 +542,7 @@ export default function Calculator() {
             {/* Footer */}
             <div className="mt-4 sm:mt-6 text-center">
               <p className="font-medium text-gray-700 text-sm sm:text-base" dir="rtl" data-testid="text-company">Comsign 2025</p>
-              <p className="text-xs sm:text-sm text-gray-600" data-testid="text-developer">Developed By NadavT</p>
+              <p className="text-xs sm:text-sm text-gray-600" data-testid="text-developer">© Powered by NadavT</p>
             </div>
 
           </CardContent>
