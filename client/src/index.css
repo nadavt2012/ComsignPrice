@@ -52,43 +52,46 @@ input, textarea {
 }
 
 /* ===== SELECT ANIMATIONS ===== */
-/* Fix select dropdown animation to appear naturally from button position */
+/* Disable all Radix UI Select animations completely */
 [data-radix-select-content] {
+  animation-duration: 0s !important;
   animation: none !important;
-  transform-origin: center center !important;
-  animation-duration: 0.15s !important;
-  animation-timing-function: ease-out !important;
-  animation-fill-mode: forwards !important;
+  transition: opacity 0.15s ease-out !important;
 }
 
+/* Force immediate appearance without sliding animation */
 [data-radix-select-content][data-state="open"] {
-  animation: selectOpen 0.15s ease-out forwards !important;
+  animation: fadeIn 0.15s ease-out !important;
+  transform: none !important;
 }
 
 [data-radix-select-content][data-state="closed"] {
-  animation: selectClose 0.1s ease-in forwards !important;
+  animation: fadeOut 0.1s ease-in !important;
+  transform: none !important;
 }
 
-@keyframes selectOpen {
+/* Simple fade animations only */
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-2px);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
 }
 
-@keyframes selectClose {
+@keyframes fadeOut {
   from {
     opacity: 1;
-    transform: scale(1) translateY(0);
   }
   to {
     opacity: 0;
-    transform: scale(0.95) translateY(-2px);
   }
+}
+
+/* Override any transform animations from Radix */
+[data-radix-select-content] * {
+  transform: none !important;
 }
 
 /* ===== PERFORMANCE OPTIMIZATIONS ===== */
