@@ -166,11 +166,11 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform text-sm font-bold" 
+                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform text-2xl" 
                         data-testid="button-settings"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-⚙️
+⚙
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
@@ -876,7 +876,7 @@ function AddConfigForm({
           <option value="Scale">עורכי דין</option>
           <option value="Building">אדריכלים</option>
           <option value="Wrench">מהנדסים</option>
-          <option value="GraduationCap">מגנה</option>
+          <option value="GraduationCap">מגנא</option>
           <option value="CalcIcon">רואי חשבון</option>
           <option value="Stethoscope">רופאים</option>
           <option value="Briefcase">עסקים</option>

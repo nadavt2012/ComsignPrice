@@ -54,6 +54,12 @@ body {
   overscroll-behavior: contain;
 }
 
+/* ===== CUSTOM STYLES ===== */
+/* Red gear icon for settings button */
+[data-testid="button-settings"] {
+  color: #dc2626 !important;
+}
+
 /* ===== CSS VARIABLES (LIGHT THEME) ===== */
 :root {
   --background: hsl(0 0% 100%);
