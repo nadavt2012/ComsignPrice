@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -201,11 +201,11 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform text-2xl" 
+                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform" 
                         data-testid="button-settings"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-⚙
+                        <Settings className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
@@ -375,9 +375,9 @@ export default function Calculator() {
                     <DialogTitle className="text-xl font-bold text-center text-red-600" dir="rtl">
                       חישוב מתקדם - קיזוז ימי תוקף
                     </DialogTitle>
-                    <p className="text-sm text-gray-600 text-center mt-2">
+                    <DialogDescription className="text-sm text-gray-600 text-center mt-2">
                       הזן תאריכי הנפקה ותום תוקף לחישוב זיכוי לפי ימים שנותרו
-                    </p>
+                    </DialogDescription>
                   </DialogHeader>
                   
                   <div className="space-y-6 p-4" dir="rtl">
