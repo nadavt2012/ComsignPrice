@@ -822,7 +822,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                   })()}
                   <h3 className="font-bold text-gray-800 text-xl">{projectType}</h3>
                   <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded-full">
-                    {projectConfigs.length} שנים
+                    {projectConfigs.length} אופציות
                   </span>
                 </div>
               </div>
