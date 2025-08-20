@@ -248,6 +248,9 @@ export default function Calculator() {
                       <div className="flex flex-col h-full max-h-[95vh]" dir="rtl">
                         <DialogHeader className="flex-shrink-0 pb-2">
                           <DialogTitle className="text-center text-lg sm:text-xl font-bold" dir="rtl">פאנל ניהול מערכת</DialogTitle>
+                          <DialogDescription className="text-center text-sm text-gray-600">
+                            ניהול תצורת מחירים ופרמטרים
+                          </DialogDescription>
                         </DialogHeader>
                         
                         <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">

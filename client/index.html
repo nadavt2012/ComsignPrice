@@ -29,6 +29,40 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Error Suppression Script -->
+    <script>
+      // Suppress ResizeObserver errors completely
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('ResizeObserver')) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      });
+      
+      // Suppress console errors for ResizeObserver
+      const originalError = console.error;
+      console.error = function(...args) {
+        if (args[0] && typeof args[0] === 'string' && args[0].includes('ResizeObserver')) {
+          return;
+        }
+        originalError.apply(console, args);
+      };
+      
+      // Suppress warnings in console
+      const originalWarn = console.warn;
+      console.warn = function(...args) {
+        if (args[0] && typeof args[0] === 'string' && (
+          args[0].includes('Missing `Description`') || 
+          args[0].includes('aria-describedby')
+        )) {
+          return;
+        }
+        originalWarn.apply(console, args);
+      };
+    </script>
+    
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- PWA Service Worker Registration -->
