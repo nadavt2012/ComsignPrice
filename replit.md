@@ -9,7 +9,8 @@ This is a pricing calculator application built with a full-stack TypeScript arch
 - **Advanced Mobile Features**: Prevented zoom on input focus, improved font rendering, webkit optimizations, and smooth touch animations
 - **Professional Icon System**: Added customizable icon selection for each project type with clean red-themed design
 - **Multi-Year Pricing Forms**: Advanced forms supporting up to 10 years with different base and backup certificate prices
-- **Refined UX/UI**: Clean professional design without unnecessary emojis, symmetric layouts, gradient buttons with shadows
+- **Advanced Calculation System**: Date-based validity offset calculations for certificate refunds/credits based on remaining days
+- **Refined UX/UI**: Clean professional design with red-themed settings gear icon, symmetric layouts, gradient buttons with shadows
 - Performance optimizations including debouncing, caching, and hardware acceleration
 - Service Worker implementation for offline functionality
 - Custom Comsign logo integration with proper mobile display
