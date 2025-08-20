@@ -134,6 +134,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const backupCertificatesCost = backupCertificates * backupPrice;
       let totalPrice = regularCertificatesCost + backupCertificatesCost;
       const originalPrice = totalPrice;
+      const totalCertificates = regularCertificates + backupCertificates;
       
       // Token logic
       let tokenIncluded = false;
@@ -144,10 +145,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tokenIncluded = true;
         tokenDisclaimer = "עלות טוקן כלולה במחיר";
       } else if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
-        // Token is optional and user chose to include it
-        totalPrice += tokenPrice;
+        // Token is optional and user chose to include it - calculate per certificate
+        const totalTokenCost = tokenPrice * totalCertificates;
+        totalPrice += totalTokenCost;
         tokenIncluded = true;
-        tokenDisclaimer = `נוסף טוקן בעלות ₪${tokenPrice}`;
+        tokenDisclaimer = totalCertificates === 1 
+          ? `נוסף טוקן בעלות ₪${tokenPrice}` 
+          : `נוסף ${totalCertificates} טוקנים בעלות ₪${totalTokenCost} (₪${tokenPrice} לכל תעודה)`;
       } else if (pricingConfig.tokenIncluded === "optional") {
         // Token is optional but not included
         tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
@@ -169,8 +173,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPrice = newPrice;
         dayOffsetInfo = `זיכוי לפי ${data.dayOffset} ימים שנותרו מתוך ${totalValidityDays} ימי תוקף. זיכוי: ₪${creditAmount}`;
       }
-      
-      const totalCertificates = regularCertificates + backupCertificates;
       
       const result: CalculationResult = {
         totalPrice: Math.round(totalPrice),

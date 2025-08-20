@@ -9,7 +9,7 @@ This is a pricing calculator application built with a full-stack TypeScript arch
 - **Advanced Mobile Features**: Prevented zoom on input focus, improved font rendering, webkit optimizations, and smooth touch animations
 - **Professional Icon System**: Added customizable icon selection for each project type with clean red-themed design
 - **Multi-Year Pricing Forms**: Advanced forms supporting up to 10 years with different base and backup certificate prices
-- **Advanced Calculation System**: Date-based validity offset calculations for certificate refunds/credits based on remaining days
+- **Advanced Calculation System**: Date-based validity offset calculations for certificate refunds/credits based on remaining days, with accurate token pricing per certificate (not per project)
 - **Refined UX/UI**: Clean professional design with red-themed settings gear icon, symmetric layouts, gradient buttons with shadows
 - **Desktop Compatibility**: Enhanced responsive design for large screens (lg: 1024px+, xl: 1280px+) with larger fonts and improved spacing
 - **Dynamic Project Management**: Complete database integration with PostgreSQL for persistent data storage
