@@ -213,10 +213,10 @@ export default function Calculator() {
   }, [startDate, endDate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-2 sm:p-4 lg:p-6" dir="rtl" lang="he">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-2 sm:p-4 lg:p-6 xl:p-8" dir="rtl" lang="he">
       <div className="flex flex-col min-h-screen">
-        <Card className="w-full max-w-md mx-auto shadow-2xl bg-white border-gray-200 border-2 rounded-2xl" dir="rtl">
-          <CardContent className="p-3 sm:p-4 space-y-4 sm:space-y-6" dir="rtl">
+        <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto shadow-2xl bg-white border-gray-200 border-2 rounded-2xl" dir="rtl">
+          <CardContent className="p-3 sm:p-4 lg:p-6 xl:p-8 space-y-4 sm:space-y-6 lg:space-y-8" dir="rtl">
             
             {/* Header Section */}
             <div className="space-y-4">
@@ -227,7 +227,7 @@ export default function Calculator() {
                   <img 
                     src={comsignLogo} 
                     alt="Comsign Logo" 
-                    className="h-16 w-16 sm:h-20 sm:w-20 object-contain rounded-lg shadow-sm"
+                    className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 xl:h-28 xl:w-28 object-contain rounded-lg shadow-sm"
                     data-testid="logo-comsign"
                   />
                 </div>
@@ -238,11 +238,11 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 rounded-lg shadow-sm touch-manipulation active:scale-95 transition-transform" 
+                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 lg:h-24 lg:px-8 xl:h-28 xl:px-10 rounded-lg shadow-sm touch-manipulation hover:scale-105 active:scale-95 transition-transform cursor-pointer" 
                         data-testid="button-settings"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-                        <Settings className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
+                        <Settings className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 xl:h-12 xl:w-12 text-red-600" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
@@ -282,22 +282,22 @@ export default function Calculator() {
               
               {/* Title - Center */}
               <div className="text-center mb-2">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
                   מחירון פרויקטים
                 </h1>
               </div>
               
               {/* Decorative Line */}
               <div className="flex justify-center">
-                <div className="w-20 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg"></div>
+                <div className="w-20 sm:w-24 lg:w-32 xl:w-40 h-1 lg:h-2 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg"></div>
               </div>
             </div>
 
             {/* Calculator Form */}
-            <div className="space-y-4">
+            <div className="space-y-4 lg:space-y-6 xl:space-y-8">
               {/* Project Type Selection */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
+                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-project-type">
                   <span>סוג הפרויקט</span>
                 </Label>
                 <Select value={projectType} onValueChange={(value) => {
@@ -307,17 +307,17 @@ export default function Calculator() {
                     console.error('Error setting project type:', error);
                   }
                 }} dir="rtl">
-                  <SelectTrigger className="w-full p-4 border-2 border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-base focus:border-gray-500 min-h-[56px] touch-manipulation active:scale-[0.98] transition-transform" dir="rtl" data-testid="select-project-type">
+                  <SelectTrigger className="w-full p-4 lg:p-6 xl:p-8 border-2 border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-base lg:text-lg xl:text-xl focus:border-gray-500 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer" dir="rtl" data-testid="select-project-type">
                     <SelectValue placeholder="בחר סוג פרויקט" className="text-base text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent>
                     {projectTypes.map((type) => {
                       const IconComponent = type.icon;
                       return (
-                        <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`}>
-                          <div className="flex items-center gap-2 justify-end" style={{direction: 'rtl'}}>
-                            <span className="text-base">{type.label}</span>
-                            <IconComponent className="h-4 w-4 text-red-600" />
+                        <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`} className="lg:py-3 xl:py-4">
+                          <div className="flex items-center gap-2 lg:gap-3 justify-end" style={{direction: 'rtl'}}>
+                            <span className="text-base lg:text-lg xl:text-xl">{type.label}</span>
+                            <IconComponent className="h-4 w-4 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
                           </div>
                         </SelectItem>
                       );
@@ -328,7 +328,7 @@ export default function Calculator() {
 
               {/* Years Selection */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
+                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-years">
                   <span>כמות שנים</span>
                 </Label>
                 <Select value={years} onValueChange={(value) => {
@@ -338,12 +338,12 @@ export default function Calculator() {
                     console.error('Error setting years:', error);
                   }
                 }} disabled={!projectType || yearsLoading} dir="rtl">
-                  <SelectTrigger className="w-full p-4 border-2 border-gray-300 text-base focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] touch-manipulation active:scale-[0.98] transition-transform" dir="rtl" data-testid="select-years">
+                  <SelectTrigger className="w-full p-4 lg:p-6 xl:p-8 border-2 border-gray-300 text-base lg:text-lg xl:text-xl focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer" dir="rtl" data-testid="select-years">
                     <SelectValue placeholder={yearsLoading ? "טוען..." : yearsError ? "שגיאה בטעינה" : "בחר כמות שנים"} className="text-base text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableYears.map((year) => (
-                      <SelectItem key={year} value={year.toString()} className="text-base" data-testid={`option-years-${year}`}>
+                      <SelectItem key={year} value={year.toString()} className="text-base lg:text-lg xl:text-xl lg:py-3 xl:py-4" data-testid={`option-years-${year}`}>
                         {year} שנים
                       </SelectItem>
                     ))}
@@ -353,7 +353,7 @@ export default function Calculator() {
 
               {/* Certificate Quantity */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
+                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-certificates">
                   <span>כמות תעודות</span>
                 </Label>
                 <Input
@@ -362,7 +362,7 @@ export default function Calculator() {
                   max="1000"
                   value={certificates}
                   onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                  className="w-full p-4 border-2 border-gray-300 text-base focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] text-center touch-manipulation active:scale-[0.98] transition-transform"
+                  className="w-full p-4 lg:p-6 xl:p-8 border-2 border-gray-300 text-base lg:text-lg xl:text-xl focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] text-center touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer"
                   placeholder="כמות תעודות"
                   data-testid="input-certificates"
                   inputMode="numeric"
@@ -371,7 +371,7 @@ export default function Calculator() {
 
               {/* Backup Certificates */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
+                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-backup-certificates">
                   <span>תעודות גיבוי</span>
                 </Label>
                 <Input
@@ -380,7 +380,7 @@ export default function Calculator() {
                   max="100"
                   value={backupCertificates}
                   onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                  className="w-full p-4 border-2 border-gray-300 text-base focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] text-center touch-manipulation active:scale-[0.98] transition-transform"
+                  className="w-full p-4 lg:p-6 xl:p-8 border-2 border-gray-300 text-base lg:text-lg xl:text-xl focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] text-center touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer"
                   placeholder="תעודות גיבוי"
                   data-testid="input-backup-certificates"
                   inputMode="numeric"
@@ -389,7 +389,7 @@ export default function Calculator() {
 
               {/* Token Selection - Show only if project has optional token */}
               {calculationResult && calculationResult.tokenPrice && (
-                <div className="mt-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+                <div className="mt-4 lg:mt-6 xl:mt-8 p-4 lg:p-6 xl:p-8 bg-red-50 border-2 border-red-200 rounded-xl">
                   <div className="flex items-center space-x-2 space-x-reverse" dir="rtl">
                     <Checkbox
                       id="include-token"
@@ -400,7 +400,7 @@ export default function Calculator() {
                     />
                     <Label 
                       htmlFor="include-token" 
-                      className="text-sm font-medium text-red-800 cursor-pointer select-none"
+                      className="text-sm lg:text-base xl:text-lg font-medium text-red-800 cursor-pointer select-none"
                       data-testid="label-include-token"
                     >
                       הוסף טוקן (₪{calculationResult.tokenPrice})
@@ -416,7 +416,7 @@ export default function Calculator() {
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 py-2 rounded-lg font-semibold touch-manipulation active:scale-95 transition-all duration-200" 
+                    className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 lg:px-8 xl:px-10 py-2 lg:py-3 xl:py-4 rounded-lg font-semibold text-base lg:text-lg xl:text-xl min-h-[48px] lg:min-h-[56px] xl:min-h-[64px] touch-manipulation hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer" 
                     data-testid="button-advanced-calculation"
                   >
                     חישוב מתקדם
@@ -508,31 +508,31 @@ export default function Calculator() {
             </div>
 
             {/* Price Display */}
-            <div className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border-2 shadow-lg">
+            <div className="mt-4 sm:mt-6 lg:mt-8 xl:mt-10 p-4 sm:p-6 lg:p-8 xl:p-10 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border-2 shadow-lg">
               <div className="text-center">
-                <p className="text-sm sm:text-base text-gray-700 mb-3 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
-                <div className="bg-white border-gray-200 rounded-lg p-4 sm:p-6 shadow-lg border-2">
-                  <p className="text-3xl sm:text-4xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
+                <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-gray-700 mb-3 lg:mb-4 xl:mb-5 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
+                <div className="bg-white border-gray-200 rounded-lg p-4 sm:p-6 lg:p-8 xl:p-10 shadow-lg border-2">
+                  <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
                     ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                   </p>
                 </div>
                 {calculationResult?.discountInfo && (
-                  <p className="text-xs text-gray-600 mt-2 font-medium" data-testid="text-discount-info">
+                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-600 mt-2 lg:mt-3 font-medium" data-testid="text-discount-info">
                     {calculationResult.discountInfo}
                   </p>
                 )}
                 {calculationResult?.tokenDisclaimer && (
-                  <p className="text-xs text-red-600 mt-2 font-medium" data-testid="text-token-disclaimer">
+                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-red-600 mt-2 lg:mt-3 font-medium" data-testid="text-token-disclaimer">
                     *{calculationResult.tokenDisclaimer}
                   </p>
                 )}
                 {calculationResult?.dayOffsetInfo && (
-                  <p className="text-xs text-blue-600 mt-2 font-medium" data-testid="text-day-offset-info">
+                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-blue-600 mt-2 lg:mt-3 font-medium" data-testid="text-day-offset-info">
                     *{calculationResult.dayOffsetInfo}
                   </p>
                 )}
                 {calculationResult?.originalPrice && calculationResult.originalPrice !== calculationResult.totalPrice && (
-                  <p className="text-xs text-gray-500 mt-1 line-through" data-testid="text-original-price">
+                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-500 mt-1 lg:mt-2 line-through" data-testid="text-original-price">
                     מחיר מקורי: ₪{calculationResult.originalPrice.toLocaleString()}
                   </p>
                 )}
@@ -540,9 +540,9 @@ export default function Calculator() {
             </div>
 
             {/* Footer */}
-            <div className="mt-4 sm:mt-6 text-center">
-              <p className="font-medium text-gray-700 text-sm sm:text-base" dir="rtl" data-testid="text-company">Comsign 2025</p>
-              <p className="text-xs sm:text-sm text-gray-600" data-testid="text-developer">© Powered By NadavT</p>
+            <div className="mt-4 sm:mt-6 lg:mt-8 xl:mt-10 text-center">
+              <p className="font-medium text-gray-700 text-sm sm:text-base lg:text-lg xl:text-xl" dir="rtl" data-testid="text-company">Comsign 2025</p>
+              <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-600" data-testid="text-developer">© Powered By NadavT</p>
             </div>
 
           </CardContent>
