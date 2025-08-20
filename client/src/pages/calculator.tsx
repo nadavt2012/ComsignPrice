@@ -933,6 +933,7 @@ function EditConfigForm({
   const [backupPrice, setBackupPrice] = useState(config.backupCertificatePrice);
   const [tokenPrice, setTokenPrice] = useState(config.tokenPrice || 120);
   const [tokenIncluded, setTokenIncluded] = useState(config.tokenIncluded || "optional");
+  const [icon, setIcon] = useState(config.icon || "User");
 
   const handleSave = () => {
     onSave({
@@ -940,6 +941,7 @@ function EditConfigForm({
       backupCertificatePrice: Number(backupPrice),
       tokenPrice: Number(tokenPrice),
       tokenIncluded: tokenIncluded,
+      icon: icon,
     });
   };
 
@@ -999,6 +1001,40 @@ function EditConfigForm({
             <option value="false">לא זמין</option>
           </select>
         </div>
+      </div>
+      
+      {/* Icon Selection */}
+      <div>
+        <Label htmlFor={`icon-${config.id}`} className="text-sm font-medium">סמל</Label>
+        <select
+          id={`icon-${config.id}`}
+          value={icon}
+          onChange={(e) => setIcon(e.target.value)}
+          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px] text-base font-semibold touch-manipulation active:scale-[0.98] transition-all duration-200 bg-white shadow-sm mt-1"
+          data-testid={`select-edit-icon-${config.id}`}
+        >
+          <option value="User">משתמש רגיל</option>
+          <option value="Scale">עורכי דין</option>
+          <option value="Building">אדריכלים</option>
+          <option value="Wrench">מהנדסים</option>
+          <option value="GraduationCap">מגנא</option>
+          <option value="CalcIcon">רואי חשבון</option>
+          <option value="Stethoscope">רופאים</option>
+          <option value="Briefcase">עסקים</option>
+          <option value="Shield">ביטוח</option>
+          <option value="Gavel">בית משפט</option>
+          <option value="FileText">מסמכים</option>
+          <option value="Globe">יעוץ בינלאומי</option>
+          <option value="Camera">צלמים</option>
+          <option value="Palette">עיצוב גרפי</option>
+          <option value="Code">תכנות</option>
+          <option value="Heart">בריאות</option>
+          <option value="Car">רכב</option>
+          <option value="Home">נדלן</option>
+          <option value="Zap">חשמל</option>
+          <option value="Star">שירותי תחזוקה</option>
+          <option value="TrendingUp">ניירות ערך</option>
+        </select>
       </div>
       
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
