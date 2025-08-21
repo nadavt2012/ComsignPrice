@@ -10,14 +10,16 @@ export interface IStorage {
   createPricingConfig(config: InsertPricingConfig): Promise<PricingConfig>;
   updatePricingConfig(id: string, updates: Partial<PricingConfig>): Promise<PricingConfig | undefined>;
   deletePricingConfig(id: string): Promise<boolean>;
-  verifyAdminPassword(password: string): Promise<boolean>;
+  verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }>;
   updateAdminPassword(newPassword: string): Promise<void>;
   resetAdminPassword(): Promise<void>;
+  changeSubAdminPassword(currentPassword: string, newPassword: string, targetRole: string): Promise<boolean>;
 }
 
 class DatabaseStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
   private adminPassword: string = process.env.ADMIN_PASSWORD || "795915";
+  private managerPassword: string = process.env.MANAGER_PASSWORD || "manager123";
 
   constructor() {
     const sql = neon(process.env.DATABASE_URL!);
@@ -141,8 +143,50 @@ class DatabaseStorage implements IStorage {
     }
   }
 
-  async verifyAdminPassword(password: string): Promise<boolean> {
-    return password === this.adminPassword;
+  // Admin password validation with role detection
+  async verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }> {
+    // Check Super Admin password (main admin password)
+    const superAdminPassword = process.env.ADMIN_PASSWORD || this.adminPassword;
+    if (password === superAdminPassword) {
+      await this.updateLoginStats('super_admin');
+      return { valid: true, role: 'super_admin' };
+    }
+    
+    // Check Manager password (can edit pricing only)
+    const managerPassword = process.env.MANAGER_PASSWORD;
+    if (managerPassword && password === managerPassword) {
+      await this.updateLoginStats('manager');
+      return { valid: true, role: 'manager' };
+    }
+    
+
+    
+    return { valid: false };
+  }
+
+  // Update login statistics
+  async updateLoginStats(role: string): Promise<void> {
+    try {
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] Admin login: ${role}`);
+    } catch (error) {
+      console.error('Failed to update login stats:', error);
+    }
+  }
+
+  // Change manager/viewer passwords (only super admin can do this)
+  async changeSubAdminPassword(currentPassword: string, newPassword: string, targetRole: string): Promise<boolean> {
+    const verification = await this.verifyAdminPassword(currentPassword);
+    
+    // Only super admin can change passwords
+    if (!verification.valid || verification.role !== 'super_admin') {
+      return false;
+    }
+    
+    // In production, you would update environment variables or database
+    console.log(`Password change requested for role: ${targetRole} - New password: ${newPassword}`);
+    console.log(`You need to update ${targetRole.toUpperCase()}_PASSWORD in your Secrets panel`);
+    return true;
   }
 
   async updateAdminPassword(newPassword: string): Promise<void> {

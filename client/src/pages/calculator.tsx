@@ -100,6 +100,7 @@ export default function Calculator() {
   const [dayOffset, setDayOffset] = useState(0);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminRole, setAdminRole] = useState<string>("");
   const [adminPassword, setAdminPassword] = useState("");
   
   // ===== HOOKS =====
@@ -276,9 +277,18 @@ export default function Calculator() {
                         
                         <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
                           {!isAdminLoggedIn ? (
-                            <AdminLogin onLoginSuccess={() => setIsAdminLoggedIn(true)} />
+                            <AdminLogin onLoginSuccess={(role: string) => {
+                              setIsAdminLoggedIn(true);
+                              setAdminRole(role);
+                            }} />
                           ) : (
-                            <AdminPanel onLogout={() => setIsAdminLoggedIn(false)} />
+                            <AdminPanel 
+                              role={adminRole}
+                              onLogout={() => {
+                                setIsAdminLoggedIn(false);
+                                setAdminRole("");
+                              }} 
+                            />
                           )}
                         </div>
                         
@@ -287,6 +297,7 @@ export default function Calculator() {
                             onClick={() => {
                               setIsAdminModalOpen(false);
                               setIsAdminLoggedIn(false);
+                              setAdminRole("");
                             }}
                             className="w-full bg-gray-600 hover:bg-gray-700 text-white min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
                             data-testid="button-close-admin"
@@ -648,8 +659,120 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
   );
 }
 
-// Admin Panel Component
-function AdminPanel({ onLogout }: { onLogout: () => void }) {
+// Password Management Component (only for super admin)
+function PasswordManager({ adminRole }: { adminRole: string }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [targetRole, setTargetRole] = useState("manager");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handlePasswordChange = async () => {
+    if (!currentPassword || !newPassword) {
+      toast({
+        title: "שגיאה",
+        description: "נא למלא את כל השדות",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/admin/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword, targetRole: "manager" }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "הצלחה",
+          description: data.message,
+        });
+        
+        // Show instructions
+        toast({
+          title: "הוראות",
+          description: data.instruction,
+          variant: "default",
+        });
+        
+        setCurrentPassword("");
+        setNewPassword("");
+      } else {
+        toast({
+          title: "שגיאה",
+          description: data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "בעיה בשינוי סיסמה",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (adminRole !== 'super_admin') {
+    return null; // Only super admin can manage passwords
+  }
+
+  return (
+    <div className="space-y-4 p-4 border rounded-lg bg-yellow-50" dir="rtl">
+      <h3 className="text-lg font-semibold text-center">ניהול סיסמאות</h3>
+      
+      <div className="space-y-3">
+        <Input
+          type="password"
+          placeholder="הסיסמה הנוכחית שלך"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          className="text-center"
+        />
+        
+        <Input
+          type="text"
+          placeholder="סיסמה חדשה"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="text-center"
+        />
+        
+        <div className="text-center p-3 bg-blue-50 rounded-lg border">
+          <p className="text-sm text-blue-700 font-medium">
+            יוצר סיסמה חדשה למנהל מחירים
+          </p>
+          <p className="text-xs text-blue-600">
+            (יכול לערוך מחירים אבל לא למחוק או לשנות סיסמאות)
+          </p>
+        </div>
+        
+        <Button
+          onClick={handlePasswordChange}
+          disabled={isLoading}
+          className="w-full bg-yellow-600 hover:bg-yellow-700"
+        >
+          {isLoading ? "משנה סיסמה..." : "צור סיסמה חדשה"}
+        </Button>
+      </div>
+      
+      <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
+        💡 לאחר יצירת סיסמה חדשה, עדכן את ה-Secret המתאים בפאנל הגדרות של Replit
+      </div>
+    </div>
+  );
+}
+
+// Admin Panel Component with role support
+function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) {
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
@@ -782,22 +905,46 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
     );
   }
 
+  // Role-based access control - only 2 levels now
+  const canEdit = role === 'super_admin' || role === 'manager';
+  const canDelete = role === 'super_admin';
+
+  const getRoleDisplay = () => {
+    switch (role) {
+      case 'super_admin': return '🔑 מנהל ראשי';
+      case 'manager': return '⚙️ מנהל מחירים';
+      default: return '👤 משתמש';
+    }
+  };
+
   return (
     <div className="space-y-4" dir="rtl">
       <div className="text-center">
         <h3 className="text-lg font-semibold text-gray-800">ניהול מחירים</h3>
+        <p className="text-sm text-blue-600 font-medium">{getRoleDisplay()}</p>
         <p className="text-sm text-gray-600">כל שינוי ישפיע מיד על כל המשתמשים</p>
       </div>
 
+      {/* Password Management - Only for super admin */}
+      <PasswordManager adminRole={role} />
+
       {/* Add New Project Button */}
       <div className="border-b pb-6 mb-6">
-        <Button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white min-h-[60px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
-          data-testid="button-add-project"
-        >
-{showAddForm ? "ביטול הוספה" : "הוסף פרויקט חדש"}
-        </Button>
+        {canEdit && (
+          <Button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white min-h-[60px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
+            data-testid="button-add-project"
+          >
+            {showAddForm ? "ביטול הוספה" : "הוסף פרויקט חדש"}
+          </Button>
+        )}
+        
+        {!canEdit && (
+          <div className="text-center text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
+            אין הרשאה להוסיף פרויקטים
+          </div>
+        )}
         
         {showAddForm && (
           <div className="mt-4">
@@ -850,24 +997,33 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
                           </h4>
                         </div>
                         <div className="flex gap-2 justify-center sm:justify-end">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setEditingConfig(config)}
-                            data-testid={`button-edit-${config.id}`}
-                            className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
-                          >
-                            ערוך
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteConfig(String(config.id))}
-                            data-testid={`button-delete-${config.id}`}
-                            className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
-                          >
-                            מחק
-                          </Button>
+                          {canEdit && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditingConfig(config)}
+                              data-testid={`button-edit-${config.id}`}
+                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
+                            >
+                              ערוך
+                            </Button>
+                          )}
+                          {canDelete && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => deleteConfig(String(config.id))}
+                              data-testid={`button-delete-${config.id}`}
+                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
+                            >
+                              מחק
+                            </Button>
+                          )}
+                          {!canEdit && !canDelete && (
+                            <div className="flex-1 sm:flex-none text-center text-xs text-gray-500 italic p-3 bg-gray-100 rounded-lg">
+                              אין הרשאה
+                            </div>
+                          )}
                         </div>
                       </div>
                       

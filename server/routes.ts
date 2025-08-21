@@ -33,8 +33,9 @@ const adminConfigUpdateSchema = z.object({
 });
 
 const adminPasswordChangeSchema = z.object({
-  currentPassword: z.string(),
-  newPassword: z.string(),
+  currentPassword: z.string().min(1, "נדרשת סיסמה נוכחית"),
+  newPassword: z.string().min(1, "נדרשת סיסמה חדשה"),
+  targetRole: z.enum(["manager"], "תפקיד לא חוקי"),
 });
 
 
@@ -200,16 +201,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin authentication endpoint
+  // Admin authentication endpoint with role support
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { password } = adminLoginSchema.parse(req.body) as AdminLoginRequest;
-      const isValid = await storage.verifyAdminPassword(password);
+      const authResult = await storage.verifyAdminPassword(password);
       
-      if (isValid) {
-        res.json({ success: true, message: "Login successful" });
+      if (authResult.valid) {
+        const roleLabels = {
+          'super_admin': 'מנהל ראשי',
+          'manager': 'מנהל מחירים', 
+          'viewer': 'צפייה בלבד'
+        };
+        
+        res.json({ 
+          success: true, 
+          message: `התחברת בהצלחה כ${roleLabels[authResult.role as keyof typeof roleLabels] || authResult.role}`,
+          role: authResult.role,
+          lastLogin: new Date().toISOString()
+        });
       } else {
-        res.status(401).json({ success: false, message: "Invalid password" });
+        res.status(401).json({ success: false, message: "סיסמה שגויה" });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -351,6 +363,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating config:", error);
       res.status(500).json({ message: "Failed to update configuration" });
+    }
+  });
+
+  // Admin password change endpoint (only for super admin)
+  app.post("/api/admin/change-password", async (req, res) => {
+    try {
+      const { currentPassword, newPassword, targetRole } = adminPasswordChangeSchema.parse(req.body);
+      
+      const success = await storage.changeSubAdminPassword(currentPassword, newPassword, targetRole);
+      
+      if (success) {
+        res.json({ 
+          success: true, 
+          message: `סיסמה חדשה נוצרה עבור ${targetRole}`,
+          instruction: `עדכן את ה-Secret: ${targetRole.toUpperCase()}_PASSWORD עם: ${newPassword}`
+        });
+      } else {
+        res.status(403).json({ success: false, message: "אין הרשאה לשנות סיסמאות (רק מנהל ראשי יכול)" });
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "נתונים שגויים", errors: error.errors });
+      }
+      res.status(500).json({ message: "שגיאה בשינוי סיסמה" });
     }
   });
 
