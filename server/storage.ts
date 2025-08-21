@@ -160,7 +160,6 @@ class DatabaseStorage implements IStorage {
     }
     
 
-    
     return { valid: false };
   }
 

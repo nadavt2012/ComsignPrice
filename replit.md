@@ -19,6 +19,7 @@ This is a pricing calculator application built with a full-stack TypeScript arch
 - **Comprehensive PWA**: Complete Service Worker implementation for offline functionality and app installation
 - **Enhanced Security**: Production security headers, rate limiting, payload size limits, and comprehensive XSS/CSRF protection
 - **Professional Branding**: Custom Comsign logo integration with proper mobile display and red-themed design consistency
+- **Advanced Permission System**: 2-tier role-based access control (Super Admin + Manager) with password management capabilities
 - **Ready for Deployment**: Complete build system, security checklist, and production-ready configuration
 
 # User Preferences
@@ -49,7 +50,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Authentication & Authorization
 - **Session Management**: Express sessions with connect-pg-simple for PostgreSQL session storage
-- **Security**: No authentication currently implemented - appears to be a public calculator tool
+- **Multi-Level Access Control**: 2-tier permission system with role-based authentication
+  - **Super Admin (ADMIN_PASSWORD)**: Full control including price management, deletion, and password management for other roles
+  - **Manager (MANAGER_PASSWORD)**: Price editing capabilities only, cannot delete projects or manage passwords
+- **Password Management**: Super admins can generate new passwords for managers directly from the admin panel
+- **Security**: Environment variable based authentication with role verification and audit logging
 
 ## External Dependencies
 

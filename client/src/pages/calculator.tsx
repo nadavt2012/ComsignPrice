@@ -584,7 +584,7 @@ export default function Calculator() {
 }
 
 // Admin Login Component
-function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
+function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void }) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -608,11 +608,12 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
       });
 
       if (response.ok) {
+        const data = await response.json();
         toast({
           title: "התחברות מוצלחת",
-          description: "ברוך הבא לפאנל הניהול",
+          description: data.message || "ברוך הבא לפאנל הניהול",
         });
-        onLoginSuccess();
+        onLoginSuccess(data.role || 'super_admin');
         setPassword("");
       } else {
         toast({
@@ -663,7 +664,7 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: () => void }) {
 function PasswordManager({ adminRole }: { adminRole: string }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [targetRole, setTargetRole] = useState("manager");
+
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
