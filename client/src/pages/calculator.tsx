@@ -108,9 +108,9 @@ export default function Calculator() {
   // ===== DYNAMIC PROJECT TYPES FROM DATABASE =====
   const { data: allConfigs = [] } = useQuery<PricingConfig[]>({
     queryKey: ["/api/admin/configs"],
-    staleTime: 0, // Always fetch fresh data to show new projects immediately
-    refetchOnMount: true, // Always refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    staleTime: 60 * 1000, // Cache for 1 minute for better performance
+    refetchOnMount: false, // Don't refetch on every mount
+    refetchOnWindowFocus: false, // Don't refetch on focus for performance
   });
 
   // Create unique project types from database
@@ -135,8 +135,10 @@ export default function Calculator() {
   const { data: availableYears = [], isLoading: yearsLoading, error: yearsError } = useQuery<number[]>({
     queryKey: ["/api/pricing", projectType, "years"],
     enabled: !!projectType,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes - longer for better performance
     retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   // ===== MUTATIONS =====
@@ -164,7 +166,7 @@ export default function Calculator() {
     },
   });
 
-  // Auto-calculate when inputs change with debounce for better performance
+  // Auto-calculate when inputs change with optimized debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
@@ -191,7 +193,7 @@ export default function Calculator() {
         console.error('Auto-calculation error:', error);
         setCalculationResult(null);
       }
-    }, 150);
+    }, 150); // Faster 150ms debounce for better UX
 
     return () => clearTimeout(timer);
   }, [projectType, years, certificates, backupCertificates, includeToken, dayOffset]);
@@ -653,9 +655,10 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
   const { toast } = useToast();
 
   // Use React Query for admin configs to sync with main screen
-  const { data: configs = [], isLoading, refetch: loadConfigs } = useQuery<PricingConfig[]>({
+  const { data: configs = [], isLoading } = useQuery<PricingConfig[]>({
     queryKey: ["/api/admin/configs"],
-    staleTime: 0, // Always fetch fresh data in admin panel
+    staleTime: 30 * 1000, // 30 seconds cache for better performance
+    refetchOnWindowFocus: false,
   });
 
   const deleteConfig = async (configId: string) => {
@@ -669,8 +672,8 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           title: "הצלחה",
           description: "הפרויקט נמחק בהצלחה",
         });
-        // Invalidate all related queries to refresh main screen immediately
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        // Fast cache update - refetch specific data only
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
@@ -701,8 +704,8 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           title: "עדכון מוצלח",
           description: "המחירים עודכנו בהצלחה",
         });
-        // Invalidate all related queries to refresh main screen immediately
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        // Fast cache update for admin panel
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setEditingConfig(null);
       } else {
@@ -742,8 +745,8 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           title: "הצלחה",
           description: `${configs.length} הגדרות מחיר נוספו בהצלחה`,
         });
-        // Invalidate all related queries to refresh main screen immediately
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        // Fast cache update - better performance
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setShowAddForm(false);
       } else if (successCount > 0) {
@@ -751,8 +754,8 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           title: "הצלחה חלקית",
           description: `${successCount} מתוך ${configs.length} הגדרות נוספו`,
         });
-        // Invalidate all related queries to refresh main screen immediately
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/configs"] });
+        // Fast cache update - better performance
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
@@ -806,7 +809,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
         )}
       </div>
 
-      <div className="space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto">
+      <div className="space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto admin-scroll-container">
         {(() => {
           // Group configs by project type
           const groupedConfigs = configs.reduce((groups, config) => {

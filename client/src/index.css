@@ -36,6 +36,13 @@
 button, [role="button"] {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  /* Faster touch response */
+  transition: transform 0.1s ease-out;
+}
+
+/* Faster input response */
+input, select, textarea {
+  transition: all 0.2s ease-out;
 }
 
 input, textarea {
@@ -98,6 +105,25 @@ input, textarea {
 .transition-all {
   transform: translateZ(0);
   will-change: transform, opacity;
+}
+
+/* Hardware acceleration for smooth animations */
+button:active, [role="button"]:active {
+  transform: translateZ(0) scale(0.98);
+  will-change: transform;
+}
+
+/* Optimize keyboard input performance */
+input:focus, textarea:focus, select:focus {
+  will-change: border-color, box-shadow;
+  transform: translateZ(0);
+}
+
+/* Reduce reflow on scroll */
+.admin-scroll-container {
+  contain: layout style paint;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 img {
