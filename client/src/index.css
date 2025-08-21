@@ -40,9 +40,20 @@ button, [role="button"] {
   transition: transform 0.1s ease-out;
 }
 
-/* Faster input response */
+/* Faster input response - all devices */
 input, select, textarea {
   transition: all 0.2s ease-out;
+}
+
+/* Mobile specific optimizations */
+@media (max-width: 767px) {
+  input, select, textarea {
+    transition: all 0.15s ease-out; /* Even faster on mobile */
+  }
+  
+  button, [role="button"] {
+    transition: transform 0.08s ease-out; /* Ultra fast on mobile */
+  }
 }
 
 input, textarea {
@@ -119,11 +130,56 @@ input:focus, textarea:focus, select:focus {
   transform: translateZ(0);
 }
 
-/* Reduce reflow on scroll */
+/* Reduce reflow on scroll - all devices */
 .admin-scroll-container {
   contain: layout style paint;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  /* Better performance on desktop and tablet too */
+  scrollbar-width: thin;
+  scrollbar-color: rgb(239 68 68) transparent;
+}
+
+/* Desktop scrollbar styling */
+.admin-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-scroll-container::-webkit-scrollbar-thumb {
+  background: rgb(239 68 68);
+  border-radius: 3px;
+}
+
+/* Performance optimizations for all screen sizes */
+@media (min-width: 768px) {
+  /* Tablet optimizations - override mobile */
+  input, select, textarea {
+    transition: all 0.2s ease-out; /* Standard timing for tablet */
+  }
+  
+  button, [role="button"] {
+    transition: transform 0.1s ease-out; /* Standard timing for tablet */
+  }
+  
+  button:active, [role="button"]:active {
+    transform: translateZ(0) scale(0.99); /* Less aggressive scaling on larger screens */
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Desktop optimizations */
+  button:hover {
+    transform: translateZ(0) scale(1.02);
+    transition: transform 0.1s ease-out;
+  }
+  
+  button:active, [role="button"]:active {
+    transform: translateZ(0) scale(0.98);
+  }
 }
 
 img {

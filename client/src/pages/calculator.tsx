@@ -673,7 +673,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           description: "הפרויקט נמחק בהצלחה",
         });
         // Fast cache update - refetch specific data only
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
@@ -705,7 +705,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           description: "המחירים עודכנו בהצלחה",
         });
         // Fast cache update for admin panel
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setEditingConfig(null);
       } else {
@@ -746,7 +746,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           description: `${configs.length} הגדרות מחיר נוספו בהצלחה`,
         });
         // Fast cache update - better performance
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setShowAddForm(false);
       } else if (successCount > 0) {
@@ -755,7 +755,7 @@ function AdminPanel({ onLogout }: { onLogout: () => void }) {
           description: `${successCount} מתוך ${configs.length} הגדרות נוספו`,
         });
         // Fast cache update - better performance
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] }, { exact: true });
+        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
         queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
