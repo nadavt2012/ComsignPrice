@@ -3,8 +3,53 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Security headers for production
+app.use((req, res, next) => {
+  // Security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Only add CSP in production to avoid dev issues
+  if (app.get("env") === "production") {
+    res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https:; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;");
+  }
+  
+  next();
+});
+
+// Rate limiting for API endpoints in production
+if (process.env.NODE_ENV === 'production') {
+  const rateLimit = {
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    requests: new Map()
+  };
+  
+  app.use('/api', (req, res, next) => {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    const userRequests = rateLimit.requests.get(ip) || { count: 0, resetTime: now + rateLimit.windowMs };
+    
+    if (now > userRequests.resetTime) {
+      userRequests.count = 0;
+      userRequests.resetTime = now + rateLimit.windowMs;
+    }
+    
+    if (userRequests.count >= rateLimit.max) {
+      return res.status(429).json({ message: 'Too many requests' });
+    }
+    
+    userRequests.count++;
+    rateLimit.requests.set(ip, userRequests);
+    next();
+  });
+}
+
+app.use(express.json({ limit: '10mb' })); // Limit JSON payload size
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();
