@@ -66,7 +66,7 @@ export interface AdminLoginRequest {
 export interface AdminLoginResponse {
   success: boolean;
   message: string;
-  role?: string; // 'super_admin' | 'admin' | 'viewer'
+  role?: string; // 'super_admin' | 'manager'
   lastLogin?: string;
 }
 
@@ -83,16 +83,11 @@ export interface AdminConfigUpdate {
 export interface AdminPasswordChange {
   currentPassword: string;
   newPassword: string;
-  targetRole: 'admin' | 'viewer'; // Can't change super_admin password
+  targetRole: 'manager'; // Can't change super_admin password
 }
 
 export interface AdminUser {
   role: string;
   lastLogin?: string;
   loginCount: number;
-}
-
-export interface AdminPasswordChange {
-  currentPassword: string;
-  newPassword: string;
 }

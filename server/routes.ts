@@ -6,7 +6,7 @@ import fs from "fs";
 
 // Local imports
 import { storage } from "./storage";
-import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate, AdminPasswordChange } from "@shared/schema";
+import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate } from "@shared/schema";
 
 // ===== VALIDATION SCHEMAS =====
 const calculationRequestSchema = z.object({
@@ -35,7 +35,7 @@ const adminConfigUpdateSchema = z.object({
 const adminPasswordChangeSchema = z.object({
   currentPassword: z.string().min(1, "נדרשת סיסמה נוכחית"),
   newPassword: z.string().min(1, "נדרשת סיסמה חדשה"),
-  targetRole: z.enum(["manager"], "תפקיד לא חוקי"),
+  targetRole: z.enum(["manager"]),
 });
 
 
@@ -294,7 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin - Change password
   app.post("/api/admin/change-password", async (req, res) => {
     try {
-      const { currentPassword, newPassword } = adminPasswordChangeSchema.parse(req.body) as AdminPasswordChange;
+      const { currentPassword, newPassword } = adminPasswordChangeSchema.parse(req.body);
       
       const isValidCurrent = await storage.verifyAdminPassword(currentPassword);
       if (!isValidCurrent) {

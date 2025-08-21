@@ -747,12 +747,12 @@ function PasswordManager({ adminRole }: { adminRole: string }) {
           className="text-center"
         />
         
-        <div className="text-center p-3 bg-blue-50 rounded-lg border">
+        <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-700 font-medium">
             יוצר סיסמה חדשה למנהל מחירים
           </p>
           <p className="text-xs text-blue-600">
-            (יכול לערוך מחירים אבל לא למחוק או לשנות סיסמאות)
+            יכול לערוך מחירים אבל לא למחוק או לשנות סיסמאות
           </p>
         </div>
         
@@ -765,8 +765,8 @@ function PasswordManager({ adminRole }: { adminRole: string }) {
         </Button>
       </div>
       
-      <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded">
-        💡 לאחר יצירת סיסמה חדשה, עדכן את ה-Secret המתאים בפאנל הגדרות של Replit
+      <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded border border-blue-200">
+        <strong>הוראות:</strong> לאחר יצירת סיסמה חדשה, עדכן את ה-Secret המתאים בפאנל הגדרות של Replit
       </div>
     </div>
   );
@@ -912,9 +912,9 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
 
   const getRoleDisplay = () => {
     switch (role) {
-      case 'super_admin': return '🔑 מנהל ראשי';
-      case 'manager': return '⚙️ מנהל מחירים';
-      default: return '👤 משתמש';
+      case 'super_admin': return 'מנהל ראשי';
+      case 'manager': return 'מנהל מחירים';
+      default: return 'משתמש';
     }
   };
 
@@ -922,7 +922,9 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
     <div className="space-y-4" dir="rtl">
       <div className="text-center">
         <h3 className="text-lg font-semibold text-gray-800">ניהול מחירים</h3>
-        <p className="text-sm text-blue-600 font-medium">{getRoleDisplay()}</p>
+        <div className="text-sm text-blue-600 font-medium bg-blue-50 px-3 py-1 rounded-full border border-blue-200 inline-block">
+          {getRoleDisplay()}
+        </div>
         <p className="text-sm text-gray-600">כל שינוי ישפיע מיד על כל המשתמשים</p>
       </div>
 
