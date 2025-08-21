@@ -390,6 +390,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get login history (only for super admin)
+  app.get("/api/admin/login-history", async (req, res) => {
+    try {
+      const history = await storage.getLoginHistory();
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ message: "שגיאה בטעינת היסטוריית כניסות" });
+    }
+  });
+
+  // Clear login history (only for super admin)
+  app.delete("/api/admin/login-history", async (req, res) => {
+    try {
+      await storage.clearLoginHistory();
+      res.json({ success: true, message: "היסטוריית כניסות נמחקה" });
+    } catch (error) {
+      res.status(500).json({ message: "שגיאה במחיקת היסטוריית כניסות" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

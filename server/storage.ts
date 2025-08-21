@@ -14,12 +14,15 @@ export interface IStorage {
   updateAdminPassword(newPassword: string): Promise<void>;
   resetAdminPassword(): Promise<void>;
   changeSubAdminPassword(currentPassword: string, newPassword: string, targetRole: string): Promise<boolean>;
+  getLoginHistory(): Promise<Array<{ role: string; timestamp: string; ip?: string }>>;
+  clearLoginHistory(): Promise<void>;
 }
 
 class DatabaseStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
   private adminPassword: string = process.env.ADMIN_PASSWORD || "795915";
   private managerPassword: string = process.env.MANAGER_PASSWORD || "manager123";
+  private loginHistory: Array<{ role: string; timestamp: string; ip?: string }> = [];
 
   constructor() {
     const sql = neon(process.env.DATABASE_URL!);
@@ -163,14 +166,30 @@ class DatabaseStorage implements IStorage {
     return { valid: false };
   }
 
-  // Update login statistics
-  async updateLoginStats(role: string): Promise<void> {
+  // Update login statistics and track history
+  async updateLoginStats(role: string, ip?: string): Promise<void> {
     try {
       const timestamp = new Date().toISOString();
-      console.log(`[${timestamp}] Admin login: ${role}`);
+      console.log(`[${timestamp}] Admin login: ${role} ${ip ? `from ${ip}` : ''}`);
+      
+      // Add to login history (keep last 50 entries)
+      this.loginHistory.unshift({ role, timestamp, ip });
+      if (this.loginHistory.length > 50) {
+        this.loginHistory = this.loginHistory.slice(0, 50);
+      }
     } catch (error) {
       console.error('Failed to update login stats:', error);
     }
+  }
+
+  // Get login history for admin monitoring
+  async getLoginHistory(): Promise<Array<{ role: string; timestamp: string; ip?: string }>> {
+    return [...this.loginHistory];
+  }
+
+  // Clear login history
+  async clearLoginHistory(): Promise<void> {
+    this.loginHistory = [];
   }
 
   // Change manager/viewer passwords (only super admin can do this)
