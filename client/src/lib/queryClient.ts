@@ -47,11 +47,17 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 1000 * 30, // 30 seconds
+      gcTime: 1000 * 60 * 2, // 2 minutes cleanup
+      retry: 1,
     },
     mutations: {
-      retry: false,
+      retry: 1,
+      onSuccess: () => {
+        // Invalidate admin configs immediately on mutations
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/configs'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/configs'] });
+      },
     },
   },
 });

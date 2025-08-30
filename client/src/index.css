@@ -36,8 +36,10 @@
 button, [role="button"] {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  /* Faster touch response */
+  /* Faster touch response with hardware acceleration */
   transition: transform 0.1s ease-out;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Faster input response - all devices */

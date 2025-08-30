@@ -14,15 +14,15 @@ export interface IStorage {
   updateAdminPassword(newPassword: string): Promise<void>;
   resetAdminPassword(): Promise<void>;
   changeSubAdminPassword(currentPassword: string, newPassword: string, targetRole: string): Promise<boolean>;
-  getLoginHistory(): Promise<Array<{ role: string; timestamp: string; ip?: string }>>;
-  clearLoginHistory(): Promise<void>;
 }
 
 class DatabaseStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
   private adminPassword: string = process.env.ADMIN_PASSWORD || "795915";
   private managerPassword: string = process.env.MANAGER_PASSWORD || "manager123";
-  private loginHistory: Array<{ role: string; timestamp: string; ip?: string }> = [];
+  private configsCache: PricingConfig[] | null = null;
+  private cacheTimestamp: number = 0;
+  private readonly CACHE_DURATION = 30000; // 30 seconds
 
   constructor() {
     const sql = neon(process.env.DATABASE_URL!);
@@ -77,8 +77,15 @@ class DatabaseStorage implements IStorage {
   }
 
   async getPricingConfigs(): Promise<PricingConfig[]> {
+    if (this.isCacheValid()) {
+      return this.configsCache!;
+    }
+    
     try {
-      return await this.db.select().from(pricingConfigs);
+      const configs = await this.db.select().from(pricingConfigs);
+      this.configsCache = configs;
+      this.cacheTimestamp = Date.now();
+      return configs;
     } catch (error) {
       console.error('Error getting pricing configs:', error);
       return [];
@@ -112,6 +119,7 @@ class DatabaseStorage implements IStorage {
       };
       
       await this.db.insert(pricingConfigs).values(config);
+      this.clearCache(); // Clear cache after modification
       return config as PricingConfig;
     } catch (error) {
       console.error('Error creating pricing config:', error);
@@ -126,6 +134,7 @@ class DatabaseStorage implements IStorage {
         .where(eq(pricingConfigs.id, id))
         .returning();
       
+      this.clearCache(); // Clear cache after modification
       return results[0] || undefined;
     } catch (error) {
       console.error('Error updating pricing config:', error);
@@ -139,6 +148,7 @@ class DatabaseStorage implements IStorage {
         .where(eq(pricingConfigs.id, id))
         .returning();
       
+      this.clearCache(); // Clear cache after modification
       return results.length > 0;
     } catch (error) {
       console.error('Error deleting pricing config:', error);
@@ -151,14 +161,12 @@ class DatabaseStorage implements IStorage {
     // Check Super Admin password (main admin password)
     const superAdminPassword = process.env.ADMIN_PASSWORD || this.adminPassword;
     if (password === superAdminPassword) {
-      await this.updateLoginStats('super_admin');
       return { valid: true, role: 'super_admin' };
     }
     
     // Check Manager password (can edit pricing only)
     const managerPassword = process.env.MANAGER_PASSWORD;
     if (managerPassword && password === managerPassword) {
-      await this.updateLoginStats('manager');
       return { valid: true, role: 'manager' };
     }
     
@@ -166,30 +174,15 @@ class DatabaseStorage implements IStorage {
     return { valid: false };
   }
 
-  // Update login statistics and track history
-  async updateLoginStats(role: string, ip?: string): Promise<void> {
-    try {
-      const timestamp = new Date().toISOString();
-      console.log(`[${timestamp}] Admin login: ${role} ${ip ? `from ${ip}` : ''}`);
-      
-      // Add to login history (keep last 50 entries)
-      this.loginHistory.unshift({ role, timestamp, ip });
-      if (this.loginHistory.length > 50) {
-        this.loginHistory = this.loginHistory.slice(0, 50);
-      }
-    } catch (error) {
-      console.error('Failed to update login stats:', error);
-    }
+  // Clear cache when data changes
+  private clearCache(): void {
+    this.configsCache = null;
+    this.cacheTimestamp = 0;
   }
 
-  // Get login history for admin monitoring
-  async getLoginHistory(): Promise<Array<{ role: string; timestamp: string; ip?: string }>> {
-    return [...this.loginHistory];
-  }
-
-  // Clear login history
-  async clearLoginHistory(): Promise<void> {
-    this.loginHistory = [];
+  // Check if cache is valid
+  private isCacheValid(): boolean {
+    return this.configsCache !== null && (Date.now() - this.cacheTimestamp) < this.CACHE_DURATION;
   }
 
   // Change manager/viewer passwords (only super admin can do this)

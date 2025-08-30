@@ -48,8 +48,8 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.use(express.json({ limit: '10mb' })); // Limit JSON payload size
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+app.use(express.json({ limit: '500kb' })); // Optimized for fast processing
+app.use(express.urlencoded({ extended: false, limit: '500kb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();

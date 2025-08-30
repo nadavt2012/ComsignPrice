@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 // UI Components
@@ -109,9 +110,10 @@ export default function Calculator() {
   // ===== DYNAMIC PROJECT TYPES FROM DATABASE =====
   const { data: allConfigs = [] } = useQuery<PricingConfig[]>({
     queryKey: ["/api/admin/configs"],
-    staleTime: 60 * 1000, // Cache for 1 minute for better performance
-    refetchOnMount: false, // Don't refetch on every mount
-    refetchOnWindowFocus: false, // Don't refetch on focus for performance
+    staleTime: 1000 * 30, // 30 seconds for fast performance
+    gcTime: 1000 * 60 * 2, // 2 minutes cleanup
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   // Create unique project types from database
@@ -660,126 +662,7 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void
   );
 }
 
-// Login History Component (only for super admin)
-function LoginHistory({ adminRole }: { adminRole: string }) {
-  const [history, setHistory] = useState<Array<{ role: string; timestamp: string; ip?: string }>>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
 
-  const fetchHistory = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/admin/login-history");
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data);
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "בעיה בטעינת היסטוריית כניסות",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const clearHistory = async () => {
-    try {
-      const response = await fetch("/api/admin/login-history", { method: "DELETE" });
-      if (response.ok) {
-        setHistory([]);
-        toast({
-          title: "הצלחה",
-          description: "היסטוריית כניסות נמחקה",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "בעיה במחיקת היסטוריית כניסות",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString('he-IL', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const getRoleText = (role: string) => {
-    switch (role) {
-      case 'super_admin': return 'מנהל ראשי';
-      case 'manager': return 'מנהל מחירים';
-      default: return role;
-    }
-  };
-
-  useEffect(() => {
-    if (adminRole === 'super_admin') {
-      fetchHistory();
-    }
-  }, [adminRole]);
-
-  if (adminRole !== 'super_admin') {
-    return null;
-  }
-
-  return (
-    <div className="space-y-4 p-4 border rounded-lg bg-gray-50" dir="rtl">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-center">היסטוריית כניסות</h3>
-        <div className="flex gap-2">
-          <Button
-            onClick={fetchHistory}
-            disabled={isLoading}
-            size="sm"
-            variant="outline"
-            className="text-xs"
-          >
-            {isLoading ? "טוען..." : "רענון"}
-          </Button>
-          <Button
-            onClick={clearHistory}
-            size="sm"
-            variant="destructive"
-            className="text-xs"
-          >
-            מחק היסטוריה
-          </Button>
-        </div>
-      </div>
-      
-      <div className="max-h-40 overflow-y-auto space-y-2">
-        {history.length === 0 ? (
-          <div className="text-center text-sm text-gray-500 py-4">
-            אין היסטוריית כניסות
-          </div>
-        ) : (
-          history.map((entry, index) => (
-            <div
-              key={index}
-              className="text-xs bg-white p-2 rounded border flex justify-between items-center"
-            >
-              <div>
-                <span className="font-medium text-blue-700">{getRoleText(entry.role)}</span>
-                {entry.ip && <span className="text-gray-500 mr-2">({entry.ip})</span>}
-              </div>
-              <span className="text-gray-600">{formatDate(entry.timestamp)}</span>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
 
 // Password Management Component (only for super admin)
 function PasswordManager({ adminRole }: { adminRole: string }) {
@@ -1048,9 +931,6 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
         </div>
         <p className="text-sm text-gray-600">כל שינוי ישפיע מיד על כל המשתמשים</p>
       </div>
-
-      {/* Login History - Only for super admin */}
-      <LoginHistory adminRole={role} />
 
       {/* Password Management - Only for super admin */}
       <PasswordManager adminRole={role} />
