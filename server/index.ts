@@ -4,13 +4,22 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// Security headers for production
+// Security headers and cache control
 app.use((req, res, next) => {
   // Security headers
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Cache control for development - prevent browser caching
+  if (process.env.NODE_ENV === 'development') {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Last-Modified', new Date().toUTCString());
+    res.setHeader('ETag', Math.random().toString(36));
+  }
   
   // Only add CSP in production to avoid dev issues
   if (app.get("env") === "production") {

@@ -2,6 +2,15 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
+// Force page reload in development to prevent cache issues
+if (import.meta.env.DEV && 'serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister();
+    }
+  });
+}
+
 // Suppress ResizeObserver and Dialog warnings globally
 const originalError = window.console.error;
 const originalWarn = window.console.warn;
