@@ -56,6 +56,8 @@ export interface CalculationResult {
   tokenDisclaimer?: string;
   dayOffsetInfo?: string;
   originalPrice?: number;
+  backupCertificatePrice?: number;
+  tokenIncludedType?: string; // "true", "false", "optional"
 }
 
 // ===== ADMIN MANAGEMENT TYPES =====
