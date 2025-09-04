@@ -924,10 +924,6 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
 
   return (
     <div className="space-y-4" dir="rtl">
-      <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-800">ניהול מחירים</h3>
-        <p className="text-sm text-gray-600">כל שינוי ישפיע מיד על כל המשתמשים</p>
-      </div>
 
       {/* Password Management - Only for super admin */}
       <PasswordManager adminRole={role} />
