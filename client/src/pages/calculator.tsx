@@ -926,9 +926,6 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
     <div className="space-y-4" dir="rtl">
       <div className="text-center">
         <h3 className="text-lg font-semibold text-gray-800">ניהול מחירים</h3>
-        <div className="text-sm text-blue-600 font-medium bg-blue-50 px-3 py-1 rounded-full border border-blue-200 inline-block">
-          {getRoleDisplay()}
-        </div>
         <p className="text-sm text-gray-600">כל שינוי ישפיע מיד על כל המשתמשים</p>
       </div>
 
