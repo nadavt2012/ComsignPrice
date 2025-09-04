@@ -753,7 +753,7 @@ function PasswordManager({ adminRole }: { adminRole: string }) {
         
         <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-700 font-medium">
-            יוצר סיסמה חדשה למנהל מחירים
+            יוצר סיסמה חדשה
           </p>
           <p className="text-xs text-blue-600">
             יכול לערוך מחירים אבל לא למחוק או לשנות סיסמאות
@@ -917,7 +917,7 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
   const getRoleDisplay = () => {
     switch (role) {
       case 'super_admin': return 'מנהל ראשי';
-      case 'manager': return 'מנהל מחירים';
+      case 'manager': return '';
       default: return 'משתמש';
     }
   };
