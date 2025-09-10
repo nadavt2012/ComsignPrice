@@ -390,9 +390,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Export all data for migration
+  // Export all data for migration - PROTECTED ENDPOINT
   app.get("/api/admin/export-data", async (req, res) => {
     try {
+      // Security check - require admin authentication
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const password = authHeader.replace('Bearer ', '');
+      const authResult = await storage.verifyAdminPassword(password);
+      
+      if (!authResult.valid || authResult.role !== 'super_admin') {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+
       const configs = await storage.getPricingConfigs();
       res.json({
         success: true,
@@ -405,9 +418,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Import data for migration (replaces all existing data)
+  // Import data for migration - PROTECTED ENDPOINT (replaces all existing data)
   app.post("/api/admin/import-data", async (req, res) => {
     try {
+      // Security check - require admin authentication
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const password = authHeader.replace('Bearer ', '');
+      const authResult = await storage.verifyAdminPassword(password);
+      
+      if (!authResult.valid || authResult.role !== 'super_admin') {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+
       const { data } = req.body;
       
       if (!Array.isArray(data)) {
