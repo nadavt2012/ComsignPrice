@@ -110,14 +110,17 @@ export default function Calculator() {
   // ===== DYNAMIC PROJECT TYPES FROM DATABASE =====
   const { data: allConfigs = [] } = useQuery<PricingConfig[]>({
     queryKey: ["/api/pricing"],
-    staleTime: 1000 * 30, // 30 seconds for fast performance
-    gcTime: 1000 * 60 * 2, // 2 minutes cleanup
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
+    staleTime: 0, // No cache - always fresh
+    gcTime: 0, // No cache cleanup delay
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   // Create unique project types from database
   const projectTypes = useMemo(() => {
+    console.log('🔍 allConfigs length:', allConfigs.length);
+    console.log('🔍 first config:', allConfigs[0]);
+    
     const uniqueProjects = new Map();
     
     allConfigs.forEach(config => {
@@ -131,7 +134,9 @@ export default function Calculator() {
       }
     });
     
-    return Array.from(uniqueProjects.values());
+    const result = Array.from(uniqueProjects.values());
+    console.log('🔍 projectTypes length:', result.length);
+    return result;
   }, [allConfigs]);
 
   // ===== DATA FETCHING =====
