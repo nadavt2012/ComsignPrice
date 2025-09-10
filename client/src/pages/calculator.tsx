@@ -109,7 +109,7 @@ export default function Calculator() {
 
   // ===== DYNAMIC PROJECT TYPES FROM DATABASE =====
   const { data: allConfigs = [] } = useQuery<PricingConfig[]>({
-    queryKey: ["/api/admin/configs"],
+    queryKey: ["/api/pricing"],
     staleTime: 1000 * 30, // 30 seconds for fast performance
     gcTime: 1000 * 60 * 2, // 2 minutes cleanup
     refetchOnMount: false,
