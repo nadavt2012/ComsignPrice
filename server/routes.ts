@@ -390,6 +390,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Export all data for migration
+  app.get("/api/admin/export-data", async (req, res) => {
+    try {
+      const configs = await storage.getPricingConfigs();
+      res.json({
+        success: true,
+        data: configs,
+        count: configs.length,
+        exported_at: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to export data" });
+    }
+  });
+
+  // Import data for migration (replaces all existing data)
+  app.post("/api/admin/import-data", async (req, res) => {
+    try {
+      const { data } = req.body;
+      
+      if (!Array.isArray(data)) {
+        return res.status(400).json({ message: "Data must be an array of configurations" });
+      }
+
+      // Clear existing data first
+      await storage.clearAllPricingConfigs();
+      
+      // Import new data
+      let imported = 0;
+      for (const config of data) {
+        try {
+          await storage.createPricingConfig({
+            projectType: config.projectType,
+            years: config.years,
+            basePrice: config.basePrice,
+            backupCertificatePrice: config.backupCertificatePrice,
+            icon: config.icon || "User",
+            tokenPrice: config.tokenPrice || 120,
+            tokenIncluded: config.tokenIncluded || "optional"
+          });
+          imported++;
+        } catch (error) {
+          console.error("Failed to import config:", config, error);
+        }
+      }
+
+      res.json({
+        success: true,
+        message: `יובאו בהצלחה ${imported} פרויקטים`,
+        imported,
+        total: data.length
+      });
+    } catch (error) {
+      console.error("Import error:", error);
+      res.status(500).json({ message: "Failed to import data" });
+    }
+  });
+
 
 
   const httpServer = createServer(app);

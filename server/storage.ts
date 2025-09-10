@@ -10,6 +10,7 @@ export interface IStorage {
   createPricingConfig(config: InsertPricingConfig): Promise<PricingConfig>;
   updatePricingConfig(id: string, updates: Partial<PricingConfig>): Promise<PricingConfig | undefined>;
   deletePricingConfig(id: string): Promise<boolean>;
+  clearAllPricingConfigs(): Promise<boolean>;
   verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }>;
   updateAdminPassword(newPassword: string): Promise<void>;
   resetAdminPassword(): Promise<void>;
@@ -152,6 +153,17 @@ class DatabaseStorage implements IStorage {
       return results.length > 0;
     } catch (error) {
       console.error('Error deleting pricing config:', error);
+      return false;
+    }
+  }
+
+  async clearAllPricingConfigs(): Promise<boolean> {
+    try {
+      await this.db.delete(pricingConfigs);
+      this.clearCache(); // Clear cache after modification
+      return true;
+    } catch (error) {
+      console.error('Error clearing all pricing configs:', error);
       return false;
     }
   }
