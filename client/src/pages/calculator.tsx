@@ -451,7 +451,7 @@ export default function Calculator() {
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 lg:px-8 xl:px-10 py-2 lg:py-3 xl:py-4 rounded-lg font-semibold text-base lg:text-lg xl:text-xl min-h-[48px] lg:min-h-[56px] xl:min-h-[64px] touch-manipulation hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer" 
+                    className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 lg:px-8 xl:px-10 py-2 lg:py-3 xl:py-4 rounded-lg font-semibold text-base lg:text-lg xl:text-xl min-h-[56px] lg:min-h-[60px] xl:min-h-[64px] touch-manipulation hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer" 
                     data-testid="button-advanced-calculation"
                   >
                     חישוב מתקדם
