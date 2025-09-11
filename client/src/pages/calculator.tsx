@@ -802,8 +802,8 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
           title: "הצלחה",
           description: "הפרויקט נמחק בהצלחה",
         });
-        // Fast cache update - refetch specific data only
-        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
+        // Refresh cache after showing success message
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
           title: "שגיאה",
@@ -833,8 +833,8 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
           title: "עדכון מוצלח",
           description: "המחירים עודכנו בהצלחה",
         });
-        // Fast cache update for admin panel
-        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
+        // Refresh cache after showing success message
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setEditingConfig(null);
       } else {
         throw new Error('Update failed');
@@ -873,16 +873,16 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
           title: "הצלחה",
           description: `${configs.length} הגדרות מחיר נוספו בהצלחה`,
         });
-        // Fast cache update - better performance  
-        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
+        // Refresh cache after showing success message
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
         setShowAddForm(false);
       } else if (successCount > 0) {
         toast({
           title: "הצלחה חלקית",
           description: `${successCount} מתוך ${configs.length} הגדרות נוספו`,
         });
-        // Fast cache update - better performance  
-        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
+        // Refresh cache after showing success message
+        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
           title: "שגיאה",
@@ -927,48 +927,37 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
       {/* Password Management - Only for super admin */}
       <PasswordManager adminRole={role} />
 
-      {/* Magic Migration to Production - Only for super admin */}
+      {/* Simple Copy Instructions for Production */}
       {role === 'super_admin' && (
         <div className="border-b pb-4 mb-4">
-          <Button
-            onClick={async () => {
-              try {
-                const response = await fetch('/api/magic-migration-now', {
-                  method: 'POST',
-                  headers: {
-                    'Authorization': `Bearer ${adminPassword}`,
-                    'Content-Type': 'application/json'
-                  }
-                });
-                const result = await response.json();
-                if (result.success) {
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <h3 className="text-lg font-semibold text-blue-800 text-center">
+              📋 העברת פרויקטים לאתר המפורסם
+            </h3>
+            <div className="space-y-2 text-sm text-blue-700">
+              <p className="font-medium">שלבים פשוטים:</p>
+              <ol className="list-decimal list-inside space-y-1 text-right">
+                <li>כנס ל-comsignprice.shop</li>
+                <li>פתח פאנל אדמין עם הסיסמה שלך</li>
+                <li>הוסף כל פרויקט בנפרד מהרשימה למטה</li>
+                <li>או השתמש ב-"כפתור הירוק" שיעביר הכל אוטומטית</li>
+              </ol>
+            </div>
+            <div className="text-center">
+              <Button
+                onClick={() => {
+                  window.open('https://comsignprice.shop', '_blank');
                   toast({
-                    title: "הצלחה! 🎉",
-                    description: result.message,
+                    title: "פתיחת האתר המפורסם",
+                    description: "comsignprice.shop נפתח בטאב חדש",
                   });
-                } else {
-                  toast({
-                    title: "הודעה",
-                    description: result.message || "זה עובד רק באתר המפורסם",
-                    variant: "destructive",
-                  });
-                }
-              } catch (error) {
-                toast({
-                  title: "שגיאה",
-                  description: "בעיה בתקשורת עם השרת",
-                  variant: "destructive",
-                });
-              }
-            }}
-            className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[56px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
-            data-testid="button-magic-migration"
-          >
-            🚀 העבר פרויקטים לאתר המפורסם
-          </Button>
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            זה יעבוד רק באתר המפורסם: comsignprice.shop
-          </p>
+                }}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-medium"
+              >
+                🌐 פתח את comsignprice.shop
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
