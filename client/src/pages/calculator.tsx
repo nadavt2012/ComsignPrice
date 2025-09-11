@@ -908,7 +908,13 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
   const handleExportData = async () => {
     setIsExporting(true);
     try {
-      const response = await fetch('/api/admin/export-data');
+      const response = await fetch('/api/admin/export-data', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${adminPassword}`,
+          'Content-Type': 'application/json'
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setExportedData(data);
