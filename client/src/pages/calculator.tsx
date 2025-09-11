@@ -966,19 +966,6 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
       {/* Password Management - Only for super admin */}
       <PasswordManager adminRole={role} />
 
-      {/* Data Migration - Only for super admin */}
-      {role === 'super_admin' && (
-        <div className="border-b pb-4 mb-4">
-          <Button
-            onClick={handleExportData}
-            disabled={isExporting}
-            className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white min-h-[56px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
-            data-testid="button-export-data"
-          >
-            {isExporting ? "מכין קוד להדבקה..." : "הכן קוד לאתר המפורסם"}
-          </Button>
-        </div>
-      )}
 
       {/* Add New Project Button */}
       <div className="border-b pb-6 mb-6">
