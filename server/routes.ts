@@ -474,6 +474,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Magic migration endpoint - automatically loads all Hebrew projects in production (PROTECTED)
+  app.post("/api/magic-migration-now", async (req, res) => {
+    try {
+      // Security check - require super admin authentication
+      const authHeader = req.headers.authorization;
+      if (!authHeader) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const password = authHeader.replace('Bearer ', '');
+      const authResult = await storage.verifyAdminPassword(password);
+      
+      if (!authResult.valid || authResult.role !== 'super_admin') {
+        return res.status(403).json({ message: "Super admin access required" });
+      }
+
+      // Check if we're in production (look for deployment indicators)  
+      const isProduction = process.env.NODE_ENV === 'production' || 
+                          process.env.REPLIT_DEPLOYMENT === 'true' ||
+                          req.headers.host?.includes('comsignprice.shop');
+      
+      console.log(`Authenticated migration request from: ${req.headers.host}, isProduction: ${isProduction}`);
+      
+      if (!isProduction) {
+        return res.json({ 
+          success: false, 
+          message: "זה עובד רק באתר המפורסם! היכנס ל-comsignprice.shop",
+          current_host: req.headers.host,
+          production_url: "https://comsignprice.shop/api/magic-migration-now"
+        });
+      }
+      
+      // We're in production - do the magic migration!
+      console.log("Starting automatic Hebrew projects migration...");
+      
+      // Clear existing data first
+      await storage.clearAllPricingConfigs();
+      
+      // Add all 28 Hebrew projects
+      const hebrewProjects = [
+        { projectType: 'מע״מ (ממשל זמין)', years: 2, basePrice: 525, backupCertificatePrice: 305, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מע״מ (ממשל זמין)', years: 4, basePrice: 765, backupCertificatePrice: 420, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מע״מ (ממשל זמין)', years: 5, basePrice: 880, backupCertificatePrice: 465, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'אדריכלים (רישוי זמין)', years: 4, basePrice: 455, backupCertificatePrice: 305, icon: 'Building', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'משרד העבודה ורווחה', years: 2, basePrice: 255, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'משרד העבודה ורווחה', years: 4, basePrice: 325, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'בריאות (שקדיה)', years: 2, basePrice: 285, backupCertificatePrice: 205, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'בריאות (שקדיה)', years: 4, basePrice: 395, backupCertificatePrice: 255, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 1, basePrice: 345, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 2, basePrice: 375, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 4, basePrice: 475, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 5, basePrice: 520, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מכס (שער עולמי)', years: 2, basePrice: 290, backupCertificatePrice: 210, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מכס (שער עולמי)', years: 4, basePrice: 475, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מכס (שער עולמי)', years: 5, basePrice: 535, backupCertificatePrice: 350, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מגנא', years: 3, basePrice: 990, backupCertificatePrice: 0, icon: 'TrendingUp', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 1, basePrice: 295, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 2, basePrice: 345, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 4, basePrice: 455, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 5, basePrice: 555, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'נט המשפט (כתבים)', years: 2, basePrice: 550, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'אופטמטריסטים', years: 2, basePrice: 350, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'אופטמטריסטים', years: 4, basePrice: 515, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'אופטמטריסטים', years: 5, basePrice: 590, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'פורטל ספקים', years: 2, basePrice: 350, backupCertificatePrice: 270, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'פורטל ספקים', years: 4, basePrice: 515, backupCertificatePrice: 360, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'פורטל ספקים', years: 5, basePrice: 535, backupCertificatePrice: 390, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שמאים', years: 4, basePrice: 510, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' }
+      ];
+      
+      let migrated = 0;
+      for (const project of hebrewProjects) {
+        try {
+          await storage.createPricingConfig(project);
+          migrated++;
+        } catch (error) {
+          console.error("Failed to migrate project:", project, error);
+        }
+      }
+      
+      console.log(`Migration completed: ${migrated}/${hebrewProjects.length} projects`);
+      
+      res.json({ 
+        success: true, 
+        message: `🎉 מעולה! הועברו בהצלחה ${migrated} פרויקטים לאתר המפורסם!`,
+        migrated,
+        total: hebrewProjects.length,
+        environment: 'production',
+        next_step: "עכשיו כנס לעמוד הראשי של comsignprice.shop ותראה את כל הפרויקטים בעברית!"
+      });
+    } catch (error) {
+      console.error('Migration error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: "שגיאה בהעברת הפרויקטים",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
 
 
   const httpServer = createServer(app);

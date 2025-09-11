@@ -927,6 +927,51 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
       {/* Password Management - Only for super admin */}
       <PasswordManager adminRole={role} />
 
+      {/* Magic Migration to Production - Only for super admin */}
+      {role === 'super_admin' && (
+        <div className="border-b pb-4 mb-4">
+          <Button
+            onClick={async () => {
+              try {
+                const response = await fetch('/api/magic-migration-now', {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${adminPassword}`,
+                    'Content-Type': 'application/json'
+                  }
+                });
+                const result = await response.json();
+                if (result.success) {
+                  toast({
+                    title: "הצלחה! 🎉",
+                    description: result.message,
+                  });
+                } else {
+                  toast({
+                    title: "הודעה",
+                    description: result.message || "זה עובד רק באתר המפורסם",
+                    variant: "destructive",
+                  });
+                }
+              } catch (error) {
+                toast({
+                  title: "שגיאה",
+                  description: "בעיה בתקשורת עם השרת",
+                  variant: "destructive",
+                });
+              }
+            }}
+            className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[56px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
+            data-testid="button-magic-migration"
+          >
+            🚀 העבר פרויקטים לאתר המפורסם
+          </Button>
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            זה יעבוד רק באתר המפורסם: comsignprice.shop
+          </p>
+        </div>
+      )}
+
 
       {/* Add New Project Button */}
       <div className="border-b pb-6 mb-6">
