@@ -782,14 +782,11 @@ function PasswordManager({ adminRole }: { adminRole: string }) {
 function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPassword: string; onLogout: () => void }) {
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
-  const [exportedData, setExportedData] = useState<any>(null);
-  const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
 
   // Use React Query for admin configs to sync with main screen
   const { data: configs = [], isLoading } = useQuery<PricingConfig[]>({
-    queryKey: ["/api/admin/configs"],
+    queryKey: ["/api/pricing"],
     staleTime: 30 * 1000, // 30 seconds cache for better performance
     refetchOnWindowFocus: false,
   });
@@ -806,8 +803,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
           description: "הפרויקט נמחק בהצלחה",
         });
         // Fast cache update - refetch specific data only
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
           title: "שגיאה",
@@ -838,8 +834,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
           description: "המחירים עודכנו בהצלחה",
         });
         // Fast cache update for admin panel
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
         setEditingConfig(null);
       } else {
         throw new Error('Update failed');
@@ -878,18 +873,16 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
           title: "הצלחה",
           description: `${configs.length} הגדרות מחיר נוספו בהצלחה`,
         });
-        // Fast cache update - better performance
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+        // Fast cache update - better performance  
+        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
         setShowAddForm(false);
       } else if (successCount > 0) {
         toast({
           title: "הצלחה חלקית",
           description: `${successCount} מתוך ${configs.length} הגדרות נוספו`,
         });
-        // Fast cache update - better performance
-        await queryClient.refetchQueries({ queryKey: ["/api/admin/configs"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+        // Fast cache update - better performance  
+        await queryClient.refetchQueries({ queryKey: ["/api/pricing"] });
       } else {
         toast({
           title: "שגיאה",
@@ -906,38 +899,6 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
     }
   };
 
-  // Export data for migration
-  const handleExportData = async () => {
-    setIsExporting(true);
-    try {
-      const response = await fetch('/api/admin/export-data', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${adminPassword}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setExportedData(data);
-        setIsMigrationModalOpen(true);
-        toast({
-          title: "ייצוא מוצלח",
-          description: `יוצאו ${data.count} פרויקטים למיגרציה`,
-        });
-      } else {
-        throw new Error('Export failed');
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "לא ניתן לייצא את הנתונים",
-        variant: "destructive",
-      });
-    } finally {
-      setIsExporting(false);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -1114,81 +1075,6 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
         </Button>
       </div>
 
-      {/* Migration Modal */}
-      <Dialog open={isMigrationModalOpen} onOpenChange={setIsMigrationModalOpen}>
-        <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-hidden" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-center text-orange-600" dir="rtl">
-              הדבק נתונים באתר המפורסם
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600 text-center mt-2">
-              העתק את הקוד למטה והדבק אותו בקונסול בסיס הנתונים באתר המפורסם שלך
-            </DialogDescription>
-          </DialogHeader>
-          
-          {exportedData && (
-            <div className="space-y-4 p-4" dir="rtl">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <p className="text-sm font-medium text-green-800">
-                  ✅ יוצאו בהצלחה {exportedData.count} פרויקטים
-                </p>
-                <p className="text-xs text-green-600">
-                  תאריך הייצוא: {new Date(exportedData.exported_at).toLocaleString('he-IL')}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">הוראות פשוטות:</p>
-                <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
-                  <li>כנס לאתר המפורסם שלך</li>
-                  <li>פתח את קונסול הדאטה-בייס</li>
-                  <li>העתק את הקוד למטה</li>
-                  <li>הדבק את הקוד ולחץ הפעל</li>
-                  <li>הפעל מחדש את האתר</li>
-                  <li>כל הפרויקטים יופיעו בעברית!</li>
-                </ol>
-              </div>
-
-              <div className="bg-gray-50 border rounded-lg p-3 max-h-60 overflow-y-auto">
-                <pre className="text-xs text-gray-800 whitespace-pre-wrap">
-{`-- מחיקת נתונים ישנים
-DELETE FROM pricing_configs;
-
--- הכנסת נתונים חדשים
-${exportedData.data.map((config: any) => 
-  `INSERT INTO pricing_configs (project_type, years, base_price, backup_certificate_price, icon, token_price, token_included) VALUES ('${config.projectType}', ${config.years}, ${config.basePrice}, ${config.backupCertificatePrice}, '${config.icon}', ${config.tokenPrice}, '${config.tokenIncluded}');`
-).join('\n')}
-
--- בדיקה שהכל הוכנס
-SELECT COUNT(*) as total_projects FROM pricing_configs;`}
-                </pre>
-              </div>
-
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(`-- מחיקת נתונים ישנים
-DELETE FROM pricing_configs;
-
--- הכנסת נתונים חדשים
-${exportedData.data.map((config: any) => 
-  `INSERT INTO pricing_configs (project_type, years, base_price, backup_certificate_price, icon, token_price, token_included) VALUES ('${config.projectType}', ${config.years}, ${config.basePrice}, ${config.backupCertificatePrice}, '${config.icon}', ${config.tokenPrice}, '${config.tokenIncluded}');`
-).join('\n')}
-
--- בדיקה שהכל הוכנס
-SELECT COUNT(*) as total_projects FROM pricing_configs;`);
-                  toast({
-                    title: "הועתק ללוח!",
-                    description: "עכשיו הדבק את הקוד באתר המפורסם שלך",
-                  });
-                }}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-              >
-                העתק קוד SQL
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
