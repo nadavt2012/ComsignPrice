@@ -286,9 +286,11 @@ export default function Calculator() {
                           ) : (
                             <AdminPanel 
                               role={adminRole}
+                              adminPassword={adminPassword}
                               onLogout={() => {
                                 setIsAdminLoggedIn(false);
                                 setAdminRole("");
+                                setAdminPassword("");
                               }} 
                             />
                           )}
@@ -777,7 +779,7 @@ function PasswordManager({ adminRole }: { adminRole: string }) {
 }
 
 // Admin Panel Component with role support
-function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) {
+function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPassword: string; onLogout: () => void }) {
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
@@ -973,7 +975,7 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
             className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white min-h-[56px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
             data-testid="button-export-data"
           >
-            {isExporting ? "מייצא נתונים..." : "העבר נתונים לאתר המפורסם"}
+            {isExporting ? "מכין קוד להדבקה..." : "הכן קוד לאתר המפורסם"}
           </Button>
         </div>
       )}
@@ -1130,10 +1132,10 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
         <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-hidden" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-center text-orange-600" dir="rtl">
-              העברת נתונים לאתר המפורסם
+              הדבק נתונים באתר המפורסם
             </DialogTitle>
             <DialogDescription className="text-sm text-gray-600 text-center mt-2">
-              העתק את הקוד למטה והדבק אותו בקונסול בסיס הנתונים באתר המפורסם
+              העתק את הקוד למטה והדבק אותו בקונסול בסיס הנתונים באתר המפורסם שלך
             </DialogDescription>
           </DialogHeader>
           
@@ -1149,13 +1151,14 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700">הוראות:</p>
+                <p className="text-sm font-medium text-gray-700">הוראות פשוטות:</p>
                 <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
-                  <li>היכנס לאתר המפורסם שלך</li>
-                  <li>פתח את קונסול בסיס הנתונים (Database Console)</li>
-                  <li>העתק את הקוד SQL למטה</li>
-                  <li>הדבק ברוק את הקוד ולחץ Execute</li>
-                  <li>הפעל מחדש את האתר המפורסם</li>
+                  <li>כנס לאתר המפורסם שלך</li>
+                  <li>פתח את קונסול הדאטה-בייס</li>
+                  <li>העתק את הקוד למטה</li>
+                  <li>הדבק את הקוד ולחץ הפעל</li>
+                  <li>הפעל מחדש את האתר</li>
+                  <li>כל הפרויקטים יופיעו בעברית!</li>
                 </ol>
               </div>
 
@@ -1187,8 +1190,8 @@ ${exportedData.data.map((config: any) =>
 -- בדיקה שהכל הוכנס
 SELECT COUNT(*) as total_projects FROM pricing_configs;`);
                   toast({
-                    title: "הועתק!",
-                    description: "הקוד הועתק ללוח. הדבק אותו בקונסול בסיס הנתונים",
+                    title: "הועתק ללוח!",
+                    description: "עכשיו הדבק את הקוד באתר המפורסם שלך",
                   });
                 }}
                 className="w-full bg-orange-600 hover:bg-orange-700 text-white"
