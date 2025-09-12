@@ -171,15 +171,21 @@ class DatabaseStorage implements IStorage {
 
   async replaceAllPricingConfigsAtomic(configs: PricingConfig[]): Promise<number> {
     try {
-      // Use database transaction to ensure atomicity
-      let inserted = 0;
-      await this.db.transaction(async (tx) => {
-        // First, delete all existing configurations
-        await tx.delete(pricingConfigs);
+      // Check if we should force non-atomic sync for neon-http driver
+      const forceNonAtomic = process.env.NODE_ENV === 'production' || 
+                           process.env.REPLIT_DEPLOYMENT === 'true' || 
+                           process.env.DATABASE_URL?.includes('neon.tech');
+      
+      if (forceNonAtomic) {
+        console.log('[SYNC] Using non-atomic approach for production/neon-http driver');
         
-        // Then insert all new configurations
+        // Delete all existing configurations
+        await this.db.delete(pricingConfigs);
+        
+        // Insert all new configurations
+        let inserted = 0;
         for (const config of configs) {
-          await tx.insert(pricingConfigs).values({
+          await this.db.insert(pricingConfigs).values({
             id: config.id,
             projectType: config.projectType,
             years: config.years,
@@ -191,10 +197,62 @@ class DatabaseStorage implements IStorage {
           });
           inserted++;
         }
-      });
+        
+        this.clearCache(); // Clear cache after modification
+        return inserted;
+      }
       
-      this.clearCache(); // Clear cache after modification
-      return inserted;
+      // For development, try transaction approach
+      try {
+        let inserted = 0;
+        await this.db.transaction(async (tx) => {
+          // First, delete all existing configurations
+          await tx.delete(pricingConfigs);
+          
+          // Then insert all new configurations
+          for (const config of configs) {
+            await tx.insert(pricingConfigs).values({
+              id: config.id,
+              projectType: config.projectType,
+              years: config.years,
+              basePrice: config.basePrice,
+              backupCertificatePrice: config.backupCertificatePrice,
+              tokenPrice: config.tokenPrice,
+              tokenIncluded: config.tokenIncluded,
+              icon: config.icon
+            });
+            inserted++;
+          }
+        });
+        
+        this.clearCache(); // Clear cache after modification
+        return inserted;
+      } catch (transactionError: any) {
+        // Fallback to non-atomic if transaction fails for any reason
+        console.log('[SYNC] Transaction failed, using non-atomic fallback:', transactionError.message);
+        
+        // Delete all existing configurations
+        await this.db.delete(pricingConfigs);
+        
+        // Insert all new configurations
+        let inserted = 0;
+        for (const config of configs) {
+          await this.db.insert(pricingConfigs).values({
+            id: config.id,
+            projectType: config.projectType,
+            years: config.years,
+            basePrice: config.basePrice,
+            backupCertificatePrice: config.backupCertificatePrice,
+            tokenPrice: config.tokenPrice,
+            tokenIncluded: config.tokenIncluded,
+            icon: config.icon
+          });
+          inserted++;
+        }
+        
+        this.clearCache(); // Clear cache after modification
+        return inserted;
+      }
     } catch (error) {
       console.error('Error in atomic replace operation:', error);
       throw error; // Re-throw to allow caller to handle
