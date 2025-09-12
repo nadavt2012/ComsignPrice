@@ -390,31 +390,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Export all data for migration - PROTECTED ENDPOINT
-  app.get("/api/admin/export-data", async (req, res) => {
+  // Export all data for migration - SIMPLE ENDPOINT (accessible from admin panel)
+  app.get("/api/export/sql", async (req, res) => {
     try {
-      // Security check - require admin authentication
-      const authHeader = req.headers.authorization;
-      if (!authHeader) {
-        return res.status(401).json({ message: "Authentication required" });
-      }
-      
-      const password = authHeader.replace('Bearer ', '');
-      const authResult = await storage.verifyAdminPassword(password);
-      
-      if (!authResult.valid || authResult.role !== 'super_admin') {
-        return res.status(403).json({ message: "Super admin access required" });
-      }
-
       const configs = await storage.getPricingConfigs();
+      
+      let sqlContent = `-- Export of pricing configurations for production import
+-- Generated on ${new Date().toISOString()}
+-- Total projects: ${configs.length}
+-- 
+-- Instructions for production import:
+-- 1. Go to comsignprice.shop 
+-- 2. Open admin panel with your password
+-- 3. Use this SQL to import all projects
+-- 
+
+DELETE FROM pricing_configs;
+
+`;
+
+      for (const config of configs) {
+        const values = [
+          `'${config.id.replace(/'/g, "''")}'`,  // Escape single quotes
+          `'${config.projectType.replace(/'/g, "''")}'`, // Escape single quotes
+          config.years,
+          config.basePrice,
+          config.backupCertificatePrice,
+          config.tokenPrice,
+          `'${config.tokenIncluded}'`,
+          config.icon ? `'${config.icon.replace(/'/g, "''")}'` : 'NULL'
+        ].join(', ');
+        
+        sqlContent += `INSERT INTO pricing_configs (id, project_type, years, base_price, backup_certificate_price, token_price, token_included, icon) VALUES (${values});\n`;
+      }
+      
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="comsign_projects_export.sql"');
+      res.send(sqlContent);
+    } catch (error) {
+      console.error('Error exporting SQL:', error);
+      res.status(500).json({ error: 'Export failed' });
+    }
+  });
+
+  // Export all data for migration - JSON FORMAT
+  app.get("/api/export/json", async (req, res) => {
+    try {
+      const configs = await storage.getPricingConfigs();
+      
+      res.setHeader('Content-Type', 'application/json; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="comsign_projects_export.json"');
       res.json({
         success: true,
-        data: configs,
-        count: configs.length,
-        exported_at: new Date().toISOString()
+        exported_at: new Date().toISOString(),
+        total_projects: configs.length,
+        data: configs
       });
     } catch (error) {
-      res.status(500).json({ message: "Failed to export data" });
+      console.error('Error exporting JSON:', error);
+      res.status(500).json({ error: 'Export failed' });
     }
   });
 

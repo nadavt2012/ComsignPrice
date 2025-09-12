@@ -927,21 +927,49 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
       {/* Password Management - Only for super admin */}
       <PasswordManager adminRole={role} />
 
-      {/* Simple Copy Instructions for Production */}
+      {/* Export Projects to Production */}
       {role === 'super_admin' && (
         <div className="border-b pb-4 mb-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-            <h3 className="text-lg font-semibold text-blue-800 text-center">
-              📋 העברת פרויקטים לאתר המפורסם
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
+            <h3 className="text-lg font-semibold text-green-800 text-center">
+              📤 הורד פרויקטים לאתר המפורסם
             </h3>
-            <div className="space-y-2 text-sm text-blue-700">
-              <p className="font-medium">שלבים פשוטים:</p>
+            <div className="space-y-2 text-sm text-green-700">
+              <p className="font-medium">הוראות פשוטות:</p>
               <ol className="list-decimal list-inside space-y-1 text-right">
-                <li>כנס ל-comsignprice.shop</li>
-                <li>פתח פאנל אדמין עם הסיסמה שלך</li>
-                <li>הוסף כל פרויקט בנפרד מהרשימה למטה</li>
-                <li>או השתמש ב-"כפתור הירוק" שיעביר הכל אוטומטית</li>
+                <li>לחץ על הכפתור להורדת קובץ SQL עם כל הפרויקטים</li>
+                <li>היכנס לאתר המפורסם: comsignprice.shop</li>
+                <li>פתח פאנל אדמין שם עם הסיסמה שלך</li>
+                <li>העלה את הקובץ או הדבק את התוכן</li>
               </ol>
+            </div>
+            <div className="flex gap-2 justify-center flex-wrap">
+              <Button
+                onClick={() => {
+                  window.open('/api/export/sql', '_blank');
+                  toast({
+                    title: "הורדת קובץ SQL",
+                    description: `מוריד ${configs.length} פרויקטים`,
+                  });
+                }}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                data-testid="button-export-sql"
+              >
+                📄 הורד קובץ SQL
+              </Button>
+              <Button
+                onClick={() => {
+                  window.open('/api/export/json', '_blank');
+                  toast({
+                    title: "הורדת קובץ JSON",
+                    description: `מוריד ${configs.length} פרויקטים`,
+                  });
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                data-testid="button-export-json"
+              >
+                📊 הורד קובץ JSON
+              </Button>
             </div>
             <div className="text-center">
               <Button
@@ -952,7 +980,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
                     description: "comsignprice.shop נפתח בטאב חדש",
                   });
                 }}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-medium"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
               >
                 🌐 פתח את comsignprice.shop
               </Button>
