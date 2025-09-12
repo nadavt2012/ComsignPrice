@@ -3,6 +3,11 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { createHmac } from "crypto";
 
+// Environment variables for auto-sync
+process.env.ENABLE_AUTO_SYNC = process.env.ENABLE_AUTO_SYNC || "true";
+process.env.SYNC_SECRET = process.env.SYNC_SECRET || "ComsignAutoSyncSecretKey2024$#@!XyZ123456789";
+process.env.PROD_SYNC_URL = process.env.PROD_SYNC_URL || "https://comsignprice.shop/internal/sync/full";
+
 // Global type declaration for sync trigger
 declare global {
   var triggerSync: () => void;
