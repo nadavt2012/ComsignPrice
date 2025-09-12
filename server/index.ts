@@ -1,6 +1,12 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { createHmac } from "crypto";
+
+// Global type declaration for sync trigger
+declare global {
+  var triggerSync: () => void;
+}
 
 const app = express();
 
@@ -121,5 +127,133 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Initialize auto-sync system for development
+    if (process.env.NODE_ENV === 'development' && process.env.ENABLE_AUTO_SYNC === 'true') {
+      initializeAutoSync();
+    }
   });
 })();
+
+// Auto-sync system for pushing changes to production
+let syncInProgress = false;
+let lastSyncAttempt = 0;
+const SYNC_RETRY_DELAY = 30000; // 30 seconds
+const SYNC_INTERVAL = 10 * 60 * 1000; // 10 minutes
+const MAX_RETRIES = 3;
+
+async function publishSync(retryCount = 0): Promise<boolean> {
+  if (syncInProgress) {
+    log('[SYNC] Sync already in progress, skipping');
+    return false;
+  }
+
+  const now = Date.now();
+  if (now - lastSyncAttempt < SYNC_RETRY_DELAY) {
+    log('[SYNC] Too soon to retry, waiting');
+    return false;
+  }
+
+  const prodSyncUrl = process.env.PROD_SYNC_URL;
+  const syncSecret = process.env.SYNC_SECRET;
+
+  if (!prodSyncUrl || !syncSecret) {
+    if (retryCount === 0) {
+      log('[SYNC] Missing PROD_SYNC_URL or SYNC_SECRET environment variables');
+    }
+    return false;
+  }
+
+  syncInProgress = true;
+  lastSyncAttempt = now;
+
+  try {
+    // Get all current pricing configs
+    const { storage } = await import('./storage');
+    const configs = await storage.getPricingConfigs();
+    
+    // Always sync, even if empty (to clear production when dev is empty)
+    log(`[SYNC] Syncing ${configs.length} configs to production...`);
+    if (configs.length === 0) {
+      log('[SYNC] Empty sync - will clear production to match development');
+    }
+
+    // Create HMAC signature
+    const timestamp = Date.now().toString();
+    const payload = { configs };
+    const rawBody = JSON.stringify(payload);
+    const signature = createHmac('sha256', syncSecret)
+      .update(`${timestamp}.${rawBody}`)
+      .digest('hex');
+
+    // Send sync request
+    log(`[SYNC] Attempting to sync ${configs.length} configs to production...`);
+    
+    const response = await fetch(prodSyncUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Sync-Signature': signature,
+        'X-Sync-Timestamp': timestamp
+      },
+      body: rawBody
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      log(`[SYNC] ✅ Success: ${result.message || 'Synced successfully'}`);
+      syncInProgress = false;
+      return true;
+    } else {
+      const errorText = await response.text();
+      log(`[SYNC] ❌ Failed with status ${response.status}: ${errorText}`);
+      
+      // Retry logic
+      if (retryCount < MAX_RETRIES) {
+        log(`[SYNC] Retrying in ${SYNC_RETRY_DELAY/1000}s (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+        setTimeout(() => {
+          publishSync(retryCount + 1);
+        }, SYNC_RETRY_DELAY);
+      }
+      
+      syncInProgress = false;
+      return false;
+    }
+  } catch (error) {
+    log(`[SYNC] ❌ Network error: ${error instanceof Error ? error.message : String(error)}`);
+    
+    // Retry logic
+    if (retryCount < MAX_RETRIES) {
+      log(`[SYNC] Retrying in ${SYNC_RETRY_DELAY/1000}s (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      setTimeout(() => {
+        publishSync(retryCount + 1);
+      }, SYNC_RETRY_DELAY);
+    }
+    
+    syncInProgress = false;
+    return false;
+  }
+}
+
+function initializeAutoSync() {
+  log('[SYNC] 🚀 Auto-sync system initialized');
+  
+  // Initial sync on startup
+  setTimeout(() => {
+    log('[SYNC] Performing initial sync...');
+    publishSync();
+  }, 5000); // Wait 5 seconds for server to be fully ready
+
+  // Periodic sync every 10 minutes
+  setInterval(() => {
+    log('[SYNC] Performing periodic sync...');
+    publishSync();
+  }, SYNC_INTERVAL);
+}
+
+// Export for use in routes
+global.triggerSync = () => {
+  log('[SYNC] Triggered by data change');
+  // Add small delay to batch rapid changes
+  setTimeout(() => publishSync(), 2000);
+};

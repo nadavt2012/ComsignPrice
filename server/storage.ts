@@ -11,6 +11,7 @@ export interface IStorage {
   updatePricingConfig(id: string, updates: Partial<PricingConfig>): Promise<PricingConfig | undefined>;
   deletePricingConfig(id: string): Promise<boolean>;
   clearAllPricingConfigs(): Promise<boolean>;
+  replaceAllPricingConfigsAtomic(configs: PricingConfig[]): Promise<number>;
   verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }>;
   updateAdminPassword(newPassword: string): Promise<void>;
   resetAdminPassword(): Promise<void>;
@@ -165,6 +166,38 @@ class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error clearing all pricing configs:', error);
       return false;
+    }
+  }
+
+  async replaceAllPricingConfigsAtomic(configs: PricingConfig[]): Promise<number> {
+    try {
+      // Use database transaction to ensure atomicity
+      let inserted = 0;
+      await this.db.transaction(async (tx) => {
+        // First, delete all existing configurations
+        await tx.delete(pricingConfigs);
+        
+        // Then insert all new configurations
+        for (const config of configs) {
+          await tx.insert(pricingConfigs).values({
+            id: config.id,
+            projectType: config.projectType,
+            years: config.years,
+            basePrice: config.basePrice,
+            backupCertificatePrice: config.backupCertificatePrice,
+            tokenPrice: config.tokenPrice,
+            tokenIncluded: config.tokenIncluded,
+            icon: config.icon
+          });
+          inserted++;
+        }
+      });
+      
+      this.clearCache(); // Clear cache after modification
+      return inserted;
+    } catch (error) {
+      console.error('Error in atomic replace operation:', error);
+      throw error; // Re-throw to allow caller to handle
     }
   }
 

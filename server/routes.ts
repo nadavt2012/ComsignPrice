@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import path from "path";
 import fs from "fs";
+import { createHmac } from "crypto";
 
 // Local imports
 import { storage } from "./storage";
@@ -246,6 +247,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const data = adminConfigUpdateSchema.parse(req.body) as AdminConfigUpdate;
       const newConfig = await storage.createPricingConfig(data);
+      
+      // Trigger sync to production
+      if (typeof global.triggerSync === 'function') {
+        global.triggerSync();
+      }
+      
       res.json(newConfig);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -266,6 +273,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Pricing configuration not found" });
       }
       
+      // Trigger sync to production
+      if (typeof global.triggerSync === 'function') {
+        global.triggerSync();
+      }
+      
       res.json(updatedConfig);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -283,6 +295,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (!deleted) {
         return res.status(404).json({ message: "Pricing configuration not found" });
+      }
+      
+      // Trigger sync to production
+      if (typeof global.triggerSync === 'function') {
+        global.triggerSync();
       }
       
       res.json({ success: true, message: "Pricing configuration deleted" });
@@ -359,6 +376,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update the configuration in storage
       await storage.updatePricingConfig(id, updates);
       
+      // Trigger sync to production
+      if (typeof global.triggerSync === 'function') {
+        global.triggerSync();
+      }
+      
       res.json({ success: true, message: "Configuration updated successfully" });
     } catch (error) {
       console.error("Error updating config:", error);
@@ -390,8 +412,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Production-only sync endpoint (HMAC secured)
+  app.post("/internal/sync/full", async (req, res) => {
+    try {
+      // Security: Only allow in production environment
+      const isProduction = process.env.NODE_ENV === 'production' || 
+                          process.env.REPLIT_DEPLOYMENT === 'true' ||
+                          process.env.ACCEPT_SYNC === 'true';
+      
+      if (!isProduction) {
+        return res.status(403).json({ 
+          error: "Sync endpoint only available in production environment",
+          message: "זה זמין רק באתר המפורסם"
+        });
+      }
 
+      // Validate HMAC signature
+      const syncSecret = process.env.SYNC_SECRET;
+      if (!syncSecret) {
+        return res.status(500).json({ 
+          error: "SYNC_SECRET not configured",
+          message: "שגיאת תצורה בשרת"
+        });
+      }
 
+      const receivedSignature = req.headers['x-sync-signature'] as string;
+      const timestamp = req.headers['x-sync-timestamp'] as string;
+      
+      if (!receivedSignature || !timestamp) {
+        return res.status(401).json({ 
+          error: "Missing required headers",
+          message: "חסרים נתוני אימות"
+        });
+      }
+
+      // Check timestamp (prevent replay attacks - allow 5 minute window)
+      const timestampNum = parseInt(timestamp);
+      const now = Date.now();
+      const timeDiff = Math.abs(now - timestampNum);
+      if (timeDiff > 5 * 60 * 1000) { // 5 minutes
+        return res.status(401).json({ 
+          error: "Request too old",
+          message: "בקשה פגת תוקף"
+        });
+      }
+
+      // Verify HMAC signature
+      const rawBody = JSON.stringify(req.body);
+      const expectedSignature = createHmac('sha256', syncSecret)
+        .update(`${timestamp}.${rawBody}`)
+        .digest('hex');
+      
+      if (receivedSignature !== expectedSignature) {
+        return res.status(401).json({ 
+          error: "Invalid signature",
+          message: "חתימה דיגיטלית שגויה"
+        });
+      }
+
+      // Validate request body
+      const { configs } = req.body;
+      if (!Array.isArray(configs)) {
+        return res.status(400).json({ 
+          error: "Invalid data format",
+          message: "פורמט נתונים שגוי"
+        });
+      }
+
+      // Perform atomic replacement
+      const replacedCount = await storage.replaceAllPricingConfigsAtomic(configs);
+      
+      console.log(`[SYNC] Successfully replaced ${replacedCount} pricing configurations`);
+      
+      res.json({
+        success: true,
+        message: `עודכנו בהצלחה ${replacedCount} פרויקטים`,
+        replaced: replacedCount,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (error) {
+      console.error('[SYNC] Error in sync endpoint:', error);
+      res.status(500).json({ 
+        error: "Sync operation failed",
+        message: "שגיאה בסינכרון הנתונים",
+        details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;
