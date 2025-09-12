@@ -944,66 +944,42 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
               </ol>
             </div>
             <div className="flex gap-2 justify-center flex-wrap">
-              <Button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/export/sql');
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'comsign_projects_export.sql';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    toast({
-                      title: "הורדת קובץ SQL",
-                      description: `הורדת ${configs.length} פרויקטים בהצלחה`,
-                    });
-                  } catch (error) {
-                    toast({
-                      title: "שגיאה בהורדה",
-                      description: "נסה שוב",
-                      variant: "destructive",
-                    });
-                  }
+              <a
+                href="/api/export/sql"
+                download="comsign_projects_export.sql"
+                className="inline-block"
+                onClick={() => {
+                  toast({
+                    title: "הורדת קובץ SQL",
+                    description: `מוריד ${configs.length} פרויקטים`,
+                  });
                 }}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                data-testid="button-export-sql"
               >
-                📄 הורד קובץ SQL
-              </Button>
-              <Button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/export/json');
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'comsign_projects_export.json';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    toast({
-                      title: "הורדת קובץ JSON",
-                      description: `הורדת ${configs.length} פרויקטים בהצלחה`,
-                    });
-                  } catch (error) {
-                    toast({
-                      title: "שגיאה בהורדה",
-                      description: "נסה שוב",
-                      variant: "destructive",
-                    });
-                  }
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                  data-testid="button-export-sql"
+                >
+                  📄 הורד קובץ SQL
+                </Button>
+              </a>
+              <a
+                href="/api/export/json"
+                download="comsign_projects_export.json"
+                className="inline-block"
+                onClick={() => {
+                  toast({
+                    title: "הורדת קובץ JSON",
+                    description: `מוריד ${configs.length} פרויקטים`,
+                  });
                 }}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                data-testid="button-export-json"
               >
-                📊 הורד קובץ JSON
-              </Button>
+                <Button
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                  data-testid="button-export-json"
+                >
+                  📊 הורד קובץ JSON
+                </Button>
+              </a>
             </div>
             <div className="text-center">
               <Button
