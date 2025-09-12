@@ -394,7 +394,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/export/sql", async (req, res) => {
     try {
       // Security: Only allow in development environment
-      const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.REPLIT_DEPLOYMENT;
+      const isDevelopment = process.env.NODE_ENV === 'development' || 
+                            (!process.env.REPLIT_DEPLOYMENT && !process.env.NODE_ENV);
       
       if (!isDevelopment) {
         return res.status(403).json({ 
@@ -447,7 +448,8 @@ DELETE FROM pricing_configs;
   app.get("/api/export/json", async (req, res) => {
     try {
       // Security: Only allow in development environment
-      const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.REPLIT_DEPLOYMENT;
+      const isDevelopment = process.env.NODE_ENV === 'development' || 
+                            (!process.env.REPLIT_DEPLOYMENT && !process.env.NODE_ENV);
       
       if (!isDevelopment) {
         return res.status(403).json({ 

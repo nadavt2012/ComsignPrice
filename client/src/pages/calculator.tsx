@@ -927,8 +927,8 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
       {/* Password Management - Only for super admin */}
       <PasswordManager adminRole={role} />
 
-      {/* Export Projects to Production */}
-      {role === 'super_admin' && (
+      {/* Development: Export Projects to Production */}
+      {role === 'super_admin' && import.meta.env.DEV && (
         <div className="border-b pb-4 mb-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-3">
             <h3 className="text-lg font-semibold text-green-800 text-center">
@@ -984,6 +984,72 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
               >
                 🌐 פתח את comsignprice.shop
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Production: Import Projects Section */}
+      {role === 'super_admin' && import.meta.env.PROD && (
+        <div className="border-b pb-4 mb-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+            <h3 className="text-lg font-semibold text-blue-800 text-center">
+              📥 העלה פרויקטים מסביבת הפיתוח
+            </h3>
+            <div className="space-y-2 text-sm text-blue-700">
+              <p className="font-medium">להעברת פרויקטים:</p>
+              <ol className="list-decimal list-inside space-y-1 text-right">
+                <li>הורד קובץ SQL/JSON מסביבת הפיתוח שלך</li>
+                <li>העלה את הקובץ כאן או הדבק את התוכן</li>
+                <li>לחץ על "יבוא פרויקטים" להעברה</li>
+                <li>כל הפרויקטים הקודמים יוחלפו</li>
+              </ol>
+            </div>
+            <div className="space-y-3">
+              <div className="text-center">
+                <input
+                  type="file"
+                  accept=".sql,.json"
+                  className="hidden"
+                  id="import-file"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const content = event.target?.result as string;
+                        console.log("File content:", content);
+                        toast({
+                          title: "קובץ נטען",
+                          description: `קובץ ${file.name} נטען בהצלחה`,
+                        });
+                      };
+                      reader.readAsText(file);
+                    }
+                  }}
+                />
+                <Button
+                  onClick={() => document.getElementById('import-file')?.click()}
+                  className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                  data-testid="button-import-file"
+                >
+                  📂 בחר קובץ להעלאה
+                </Button>
+              </div>
+              <div className="text-center">
+                <Button
+                  onClick={() => {
+                    toast({
+                      title: "יבוא פרויקטים",
+                      description: "פונקציה זו תמומש בהמשך",
+                    });
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                  data-testid="button-import-projects"
+                >
+                  ⚡ יבוא פרויקטים לאתר המפורסם
+                </Button>
+              </div>
             </div>
           </div>
         </div>
