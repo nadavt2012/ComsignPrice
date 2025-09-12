@@ -390,9 +390,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Export all data for migration - SIMPLE ENDPOINT (accessible from admin panel)
+  // Export all data for migration - DEV ONLY ENDPOINT (accessible from admin panel in development)
   app.get("/api/export/sql", async (req, res) => {
     try {
+      // Security: Only allow in development environment
+      const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.REPLIT_DEPLOYMENT;
+      
+      if (!isDevelopment) {
+        return res.status(403).json({ 
+          error: "Export only available in development environment",
+          message: "זה זמין רק בסביבת פיתוח"
+        });
+      }
+      
       const configs = await storage.getPricingConfigs();
       
       let sqlContent = `-- Export of pricing configurations for production import
@@ -433,9 +443,19 @@ DELETE FROM pricing_configs;
     }
   });
 
-  // Export all data for migration - JSON FORMAT
+  // Export all data for migration - JSON FORMAT (DEV ONLY)
   app.get("/api/export/json", async (req, res) => {
     try {
+      // Security: Only allow in development environment
+      const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.REPLIT_DEPLOYMENT;
+      
+      if (!isDevelopment) {
+        return res.status(403).json({ 
+          error: "Export only available in development environment",
+          message: "זה זמין רק בסביבת פיתוח"
+        });
+      }
+      
       const configs = await storage.getPricingConfigs();
       
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
