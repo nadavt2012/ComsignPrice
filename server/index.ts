@@ -4,9 +4,15 @@ import { setupVite, serveStatic, log } from "./vite";
 import { createHmac } from "crypto";
 
 // Environment variables for auto-sync
-process.env.ENABLE_AUTO_SYNC = process.env.ENABLE_AUTO_SYNC || "true";
-process.env.SYNC_SECRET = process.env.SYNC_SECRET || "ComsignAutoSyncSecretKey2024$#@!XyZ123456789";
-process.env.PROD_SYNC_URL = process.env.PROD_SYNC_URL || "https://comsignprice.shop/internal/sync/full";
+// Only enable auto-sync in development environment by default
+const defaultAutoSync = process.env.NODE_ENV === 'development' ? "true" : "false";
+process.env.ENABLE_AUTO_SYNC = process.env.ENABLE_AUTO_SYNC || defaultAutoSync;
+
+// Set sync defaults only for development - production requires explicit configuration
+if (process.env.NODE_ENV === 'development') {
+  process.env.SYNC_SECRET = process.env.SYNC_SECRET || "ComsignAutoSyncSecretKey2024$#@!XyZ123456789";
+  process.env.PROD_SYNC_URL = process.env.PROD_SYNC_URL || "https://comsignprice.shop/internal/sync/full";
+}
 
 // Global type declaration for sync trigger
 declare global {
@@ -129,15 +135,35 @@ app.use((req, res, next) => {
   server.listen({
     port,
     host: "0.0.0.0",
-    reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
     
-    // Initialize auto-sync system for development
+    // Initialize auto-sync system only in development and when explicitly enabled
+    // This prevents background processes in production that could interfere with Autoscale
     if (process.env.NODE_ENV === 'development' && process.env.ENABLE_AUTO_SYNC === 'true') {
       initializeAutoSync();
+    } else if (process.env.NODE_ENV === 'production') {
+      log('[SYNC] Auto-sync disabled in production to prevent background processes');
     }
   });
+
+  // Graceful shutdown for deployment environments
+  const gracefulShutdown = (signal: string) => {
+    log(`Received ${signal}, shutting down gracefully`);
+    server.close(() => {
+      log('Server closed');
+      process.exit(0);
+    });
+    
+    // Force close after 10 seconds
+    setTimeout(() => {
+      log('Forced shutdown');
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 })();
 
 // Auto-sync system for pushing changes to production
@@ -256,8 +282,13 @@ function initializeAutoSync() {
   }, SYNC_INTERVAL);
 }
 
-// Export for use in routes
+// Export for use in routes - only enable in development or when explicitly allowed
 global.triggerSync = () => {
+  if (process.env.NODE_ENV === 'production' && process.env.ENABLE_PROD_SYNC !== 'true') {
+    log('[SYNC] Sync disabled in production environment');
+    return;
+  }
+  
   log('[SYNC] Triggered by data change');
   // Add small delay to batch rapid changes
   setTimeout(() => publishSync(), 2000);

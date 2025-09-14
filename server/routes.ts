@@ -44,6 +44,29 @@ const adminPasswordChangeSchema = z.object({
 // ===== MAIN ROUTES REGISTRATION =====
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // ===== HEALTH CHECK ENDPOINT =====
+  // Simple health check for deployment monitoring and autoscale requirements
+  app.get("/health", (req, res) => {
+    res.status(200).json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || "development"
+    });
+  });
+
+  // Alternative health check routes for different deployment systems
+  app.get("/healthz", (req, res) => {
+    res.status(200).send("OK");
+  });
+
+  app.get("/ready", (req, res) => {
+    res.status(200).json({
+      status: "ready",
+      timestamp: new Date().toISOString()
+    });
+  });
+  
   // ===== PWA ROUTES =====
   app.get("/manifest.json", (req, res) => {
     const manifestPath = path.resolve(import.meta.dirname, "..", "client", "public", "manifest.json");
