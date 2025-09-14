@@ -262,12 +262,12 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-1 h-10 w-auto px-2 sm:p-2 sm:h-12 sm:px-3 lg:h-12 lg:px-4 xl:h-14 xl:px-6 rounded-lg shadow-sm touch-manipulation cursor-pointer flex flex-col sm:flex-row items-center gap-1" 
+                        className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-4 py-3 min-h-[56px] lg:min-h-[48px] xl:min-h-[56px] rounded-lg shadow-sm touch-manipulation cursor-pointer flex flex-col sm:flex-row items-center gap-1" 
                         data-testid="button-admin-access"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-                        <Settings className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
-                        <span className="text-xs sm:text-xs lg:text-sm xl:text-base font-semibold">ניהול</span>
+                        <Settings className="h-5 w-5 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
+                        <span className="text-base lg:text-sm xl:text-base font-semibold">ניהול</span>
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
@@ -330,7 +330,7 @@ export default function Calculator() {
             </div>
 
             {/* Calculator Form */}
-            <div className="space-y-1 lg:space-y-1 xl:space-y-2">
+            <div className="space-y-4 lg:space-y-1 xl:space-y-2">
               {/* Project Type Selection */}
               <div>
                 <Label className="text-xs lg:text-sm xl:text-sm font-semibold text-gray-700 mb-1 block text-right" dir="rtl" data-testid="label-project-type">
@@ -343,7 +343,7 @@ export default function Calculator() {
                     console.error('Error setting project type:', error);
                   }
                 }} dir="rtl">
-                  <SelectTrigger className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-sm lg:text-base xl:text-lg focus:border-gray-500 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-project-type">
+                  <SelectTrigger className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-lg lg:text-base xl:text-lg focus:border-gray-500 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-project-type">
                     <SelectValue placeholder="בחר סוג פרויקט" className="text-sm text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent>
@@ -374,7 +374,7 @@ export default function Calculator() {
                     console.error('Error setting years:', error);
                   }
                 }} disabled={!projectType || yearsLoading} dir="rtl">
-                  <SelectTrigger className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 text-sm lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-years">
+                  <SelectTrigger className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-years">
                     <SelectValue placeholder={yearsLoading ? "טוען..." : yearsError ? "שגיאה בטעינה" : "בחר כמות שנים"} className="text-sm text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent>
@@ -398,7 +398,7 @@ export default function Calculator() {
                   max="1000"
                   value={certificates}
                   onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                  className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 text-sm lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
+                  className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
                   placeholder="כמות תעודות"
                   data-testid="input-certificates"
                   inputMode="numeric"
@@ -416,7 +416,7 @@ export default function Calculator() {
                   max="100"
                   value={backupCertificates}
                   onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                  className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 text-sm lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
+                  className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
                   placeholder="תעודות גיבוי"
                   data-testid="input-backup-certificates"
                   inputMode="numeric"
@@ -447,12 +447,12 @@ export default function Calculator() {
             </div>
 
             {/* Advanced Calculation Button */}
-            <div className="mt-1 text-center">
+            <div className="mt-4 text-center">
               <Dialog open={isAdvancedModalOpen} onOpenChange={setIsAdvancedModalOpen}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-3 lg:px-4 xl:px-5 py-1 lg:py-2 xl:py-2 rounded-lg font-semibold text-sm lg:text-base xl:text-lg min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" 
+                    className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 lg:px-4 xl:px-5 py-3 lg:py-2 xl:py-2 rounded-lg font-semibold text-lg lg:text-base xl:text-lg min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" 
                     data-testid="button-advanced-calculation"
                   >
                     חישוב מתקדם
@@ -548,7 +548,7 @@ export default function Calculator() {
               <div className="text-center">
                 <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
                 <div className="bg-white border-gray-200 rounded-lg p-2 sm:p-3 lg:p-3 xl:p-4 shadow-lg border">
-                  <p className="text-lg sm:text-xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
+                  <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
                     ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                   </p>
                 </div>
