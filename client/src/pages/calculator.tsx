@@ -255,17 +255,18 @@ export default function Calculator() {
                   />
                 </div>
                 
-                {/* Settings Button - Left Side */}
+                {/* Admin Access Button - Left Side */}
                 <div className="flex-shrink-0">
                   <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-4 sm:p-3 sm:h-20 sm:px-6 lg:h-24 lg:px-8 xl:h-28 xl:px-10 rounded-lg shadow-sm touch-manipulation hover:scale-105 active:scale-95 transition-transform cursor-pointer" 
-                        data-testid="button-settings"
+                        className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-3 sm:p-3 sm:h-20 sm:px-4 lg:h-24 lg:px-6 xl:h-28 xl:px-8 rounded-lg shadow-sm touch-manipulation hover:scale-105 active:scale-95 transition-transform cursor-pointer flex flex-col sm:flex-row items-center gap-1 sm:gap-2" 
+                        data-testid="button-admin-access"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-                        <Settings className="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 xl:h-12 xl:w-12 text-red-600" />
+                        <Settings className="h-4 w-4 sm:h-6 sm:w-6 lg:h-8 lg:w-8 xl:h-10 xl:w-10 text-red-600" />
+                        <span className="text-xs sm:text-sm lg:text-base xl:text-lg font-semibold">ניהול</span>
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
