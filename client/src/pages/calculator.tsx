@@ -468,7 +468,7 @@ export default function Calculator() {
                     </DialogDescription>
                   </DialogHeader>
                   
-                  <div className="space-y-6 p-4" dir="rtl">
+                  <div className="space-y-2 p-2" dir="rtl">
                     <div className="space-y-4">
                       <div>
                         <Label htmlFor="start-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
