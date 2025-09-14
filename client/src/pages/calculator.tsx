@@ -262,12 +262,11 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-4 py-3 min-h-[56px] lg:min-h-[48px] xl:min-h-[56px] rounded-lg shadow-sm touch-manipulation cursor-pointer flex flex-col sm:flex-row items-center gap-1" 
+                        className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 rounded-lg shadow-sm touch-manipulation cursor-pointer flex items-center justify-center" 
                         data-testid="button-admin-access"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-                        <Settings className="h-5 w-5 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
-                        <span className="text-base lg:text-sm xl:text-base font-semibold">ניהול</span>
+                        <Settings className="h-6 w-6 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
