@@ -284,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       .withMessage('סוג פרויקט חייב להיות מחרוזת')
       .isLength({ min: 1, max: 50 })
       .withMessage('סוג פרויקט חייב להכיל 1-50 תווים')
-      .matches(/^[a-zA-Z\u0590-\u05FF]+$/)
+      .matches(/^[a-zA-Z\u0590-\u05FF\s\(\)\-\u2013\u2014\u05F3\u05F4\u201C\u201D\u2033\u2034\"\'\.\,]+$/)
       .withMessage('סוג פרויקט מכיל תווים לא חוקיים'),
     handleValidationErrors,
     sanitizeInput,
