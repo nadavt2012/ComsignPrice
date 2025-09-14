@@ -19,7 +19,7 @@ const calculationRequestSchema = z.object({
   projectType: z.string()
     .min(1, "סוג פרויקט נדרש")
     .max(50, "סוג פרויקט ארוך מדי")
-    .regex(/^[a-zA-Z\u0590-\u05FF\s]+$/, "סוג פרויקט מכיל תווים לא חוקיים"),
+    .regex(/^[a-zA-Z\u0590-\u05FF\s\(\)\-\u2013\u2014\u05F3\u05F4\u201C\u201D\u2033\u2034\"\'\.\,]+$/, "סוג פרויקט מכיל תווים לא חוקיים"),
   years: z.number()
     .int("מספר שנים חייב להיות מספר שלם")
     .min(1, "מספר שנים חייב להיות לפחות 1")
@@ -155,7 +155,7 @@ const calculateValidationChain: ValidationChain[] = [
     .withMessage('סוג פרויקט חייב להיות מחרוזת')
     .isLength({ min: 1, max: 50 })
     .withMessage('סוג פרויקט חייב להכיל 1-50 תווים')
-    .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
+    .matches(/^[a-zA-Z\u0590-\u05FF\s\(\)\-\u2013\u2014\u05F3\u05F4\u201C\u201D\u2033\u2034\"\'\.\,]+$/)
     .withMessage('סוג פרויקט מכיל תווים לא חוקיים'),
   
   body('years')
