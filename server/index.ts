@@ -76,8 +76,43 @@ app.use(helmet({
   },
   noSniff: true,
   frameguard: { action: 'deny' },
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  // Enhanced 2025 Security Features
+  hidePoweredBy: true,
+  ieNoOpen: true,
+  dnsPrefetchControl: { allow: false },
+  permittedCrossDomainPolicies: false,
+  crossOriginEmbedderPolicy: isProduction,
+  crossOriginOpenerPolicy: { policy: "same-origin" },
+  crossOriginResourcePolicy: { policy: "same-origin" },
+  originAgentCluster: true
 }));
+
+// Maximum Security Headers (2025 Standard)
+app.use((req, res, next) => {
+  // Critical security headers for maximum protection
+  res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+  res.setHeader('Expect-CT', 'max-age=86400, enforce'); // Certificate transparency
+  res.setHeader('Feature-Policy', 
+    'camera \'none\'; microphone \'none\'; geolocation \'none\'; payment \'none\'; usb \'none\'');
+  res.setHeader('Permissions-Policy', 
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), magnetometer=(), gyroscope=()');
+  
+  // Remove server information leakage
+  res.removeHeader('Server');
+  res.removeHeader('X-Powered-By');
+  
+  if (isProduction) {
+    // Production-only maximum security
+    res.setHeader('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  }
+  
+  next();
+});
 
 // Advanced GZIP Compression (2025 Best Practice - Brotli via CDN/Proxy)
 app.use(compression({
@@ -104,8 +139,7 @@ const corsOptions = {
     if (process.env.NODE_ENV === 'production') {
       // STRICT production origins - exact matches only
       const productionOrigins = (process.env.ALLOWED_ORIGINS?.split(',') || [])
-        .concat([process.env.PRODUCTION_DOMAIN, process.env.CUSTOM_DOMAIN])
-        .filter(Boolean);
+        .concat([process.env.PRODUCTION_DOMAIN, process.env.CUSTOM_DOMAIN].filter(Boolean));
       
       if (!origin) {
         return callback(new Error('Origin required in production'), false);
