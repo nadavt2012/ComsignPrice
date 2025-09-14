@@ -238,20 +238,20 @@ export default function Calculator() {
 
   return (
     <div className="main-container" dir="rtl" lang="he">
-      <div className="content-wrapper flex flex-col min-h-screen p-2 sm:p-4 lg:p-4 xl:p-6">
-        <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-4xl xl:max-w-5xl mx-auto animate-slide-up" dir="rtl">
-          <CardContent className="p-3 sm:p-4 lg:p-4 xl:p-6 space-y-4 sm:space-y-6 lg:space-y-4 xl:space-y-6" dir="rtl">
+      <div className="content-wrapper flex flex-col min-h-screen p-1 sm:p-2 lg:p-2 xl:p-3">
+        <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-4xl xl:max-w-5xl mx-auto" dir="rtl">
+          <CardContent className="p-2 sm:p-3 lg:p-3 xl:p-4 space-y-2 sm:space-y-3 lg:space-y-2 xl:space-y-3" dir="rtl">
             
             {/* Header Section */}
-            <div className="space-y-4 animate-fade-in">
+            <div className="space-y-1">
               {/* Top Row - Logo, Settings */}
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-1">
                 {/* Logo - Right Side */}
                 <div className="flex-shrink-0">
                   <img 
                     src={comsignLogo} 
                     alt="Comsign Logo" 
-                    className="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 xl:h-28 xl:w-28 object-contain rounded-lg shadow-sm"
+                    className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16 object-contain rounded-lg shadow-sm"
                     data-testid="logo-comsign"
                   />
                 </div>
@@ -262,12 +262,12 @@ export default function Calculator() {
                     <DialogTrigger asChild>
                       <Button 
                         variant="outline" 
-                        className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-2 h-16 w-auto px-3 sm:p-3 sm:h-20 sm:px-4 lg:h-24 lg:px-6 xl:h-28 xl:px-8 rounded-lg shadow-sm touch-manipulation hover:scale-105 active:scale-95 transition-transform cursor-pointer flex flex-col sm:flex-row items-center gap-1 sm:gap-2" 
+                        className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 p-1 h-10 w-auto px-2 sm:p-2 sm:h-12 sm:px-3 lg:h-12 lg:px-4 xl:h-14 xl:px-6 rounded-lg shadow-sm touch-manipulation cursor-pointer flex flex-col sm:flex-row items-center gap-1" 
                         data-testid="button-admin-access"
                         style={{ WebkitTapHighlightColor: 'transparent' }}
                       >
-                        <Settings className="h-4 w-4 sm:h-6 sm:w-6 lg:h-8 lg:w-8 xl:h-10 xl:w-10 text-red-600" />
-                        <span className="text-xs sm:text-sm lg:text-base xl:text-lg font-semibold">ניהול</span>
+                        <Settings className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
+                        <span className="text-xs sm:text-xs lg:text-sm xl:text-base font-semibold">ניהול</span>
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
@@ -304,7 +304,7 @@ export default function Calculator() {
                               setIsAdminModalOpen(false);
                               // Removed login state reset - user should stay logged in when closing modal
                             }}
-                            className="w-full bg-gray-600 hover:bg-gray-700 text-white min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
+                            className="w-full bg-gray-600 hover:bg-gray-700 text-white min-h-[48px] touch-manipulation cursor-pointer"
                             data-testid="button-close-admin"
                           >
                             סגור
@@ -317,8 +317,8 @@ export default function Calculator() {
               </div>
               
               {/* Title - Center */}
-              <div className="text-center mb-2">
-                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
+              <div className="text-center mb-1">
+                <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
                   מחירון פרויקטים
                 </h1>
               </div>
@@ -330,10 +330,10 @@ export default function Calculator() {
             </div>
 
             {/* Calculator Form */}
-            <div className="space-y-4 lg:space-y-3 xl:space-y-4">
+            <div className="space-y-1 lg:space-y-1 xl:space-y-2">
               {/* Project Type Selection */}
               <div>
-                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-project-type">
+                <Label className="text-xs lg:text-sm xl:text-sm font-semibold text-gray-700 mb-1 block text-right" dir="rtl" data-testid="label-project-type">
                   <span>סוג הפרויקט</span>
                 </Label>
                 <Select value={projectType} onValueChange={(value) => {
@@ -343,8 +343,8 @@ export default function Calculator() {
                     console.error('Error setting project type:', error);
                   }
                 }} dir="rtl">
-                  <SelectTrigger className="w-full p-4 lg:p-6 xl:p-8 border border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-base lg:text-lg xl:text-xl focus:border-gray-500 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer" dir="rtl" data-testid="select-project-type">
-                    <SelectValue placeholder="בחר סוג פרויקט" className="text-base text-gray-900" dir="rtl" />
+                  <SelectTrigger className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-sm lg:text-base xl:text-lg focus:border-gray-500 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-project-type">
+                    <SelectValue placeholder="בחר סוג פרויקט" className="text-sm text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent>
                     {projectTypes.map((type) => {
@@ -374,12 +374,12 @@ export default function Calculator() {
                     console.error('Error setting years:', error);
                   }
                 }} disabled={!projectType || yearsLoading} dir="rtl">
-                  <SelectTrigger className="w-full p-4 lg:p-6 xl:p-8 border border-gray-300 text-base lg:text-lg xl:text-xl focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer" dir="rtl" data-testid="select-years">
-                    <SelectValue placeholder={yearsLoading ? "טוען..." : yearsError ? "שגיאה בטעינה" : "בחר כמות שנים"} className="text-base text-gray-900" dir="rtl" />
+                  <SelectTrigger className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 text-sm lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-years">
+                    <SelectValue placeholder={yearsLoading ? "טוען..." : yearsError ? "שגיאה בטעינה" : "בחר כמות שנים"} className="text-sm text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableYears.map((year) => (
-                      <SelectItem key={year} value={year.toString()} className="text-base lg:text-lg xl:text-xl lg:py-3 xl:py-4" data-testid={`option-years-${year}`}>
+                      <SelectItem key={year} value={year.toString()} className="text-sm lg:text-base xl:text-lg py-1" data-testid={`option-years-${year}`}>
                         {year} שנים
                       </SelectItem>
                     ))}
@@ -398,7 +398,7 @@ export default function Calculator() {
                   max="1000"
                   value={certificates}
                   onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                  className="w-full p-4 lg:p-6 xl:p-8 border border-gray-300 text-base lg:text-lg xl:text-xl focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] text-center touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer"
+                  className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 text-sm lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
                   placeholder="כמות תעודות"
                   data-testid="input-certificates"
                   inputMode="numeric"
@@ -416,7 +416,7 @@ export default function Calculator() {
                   max="100"
                   value={backupCertificates}
                   onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                  className="w-full p-4 lg:p-6 xl:p-8 border border-gray-300 text-base lg:text-lg xl:text-xl focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[64px] xl:min-h-[72px] text-center touch-manipulation hover:scale-[1.02] active:scale-[0.98] transition-transform cursor-pointer"
+                  className="w-full p-2 lg:p-2 xl:p-3 border border-gray-300 text-sm lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
                   placeholder="תעודות גיבוי"
                   data-testid="input-backup-certificates"
                   inputMode="numeric"
@@ -425,7 +425,7 @@ export default function Calculator() {
 
               {/* Token Selection - Show only if project has optional token */}
               {calculationResult && calculationResult.tokenPrice && (
-                <div className="mt-4 lg:mt-6 xl:mt-8 p-4 lg:p-6 xl:p-8 bg-red-50 border border-red-200 rounded-xl">
+                <div className="mt-1 lg:mt-2 xl:mt-2 p-2 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-xl">
                   <div className="flex items-center space-x-2 space-x-reverse" dir="rtl">
                     <Checkbox
                       id="include-token"
@@ -447,12 +447,12 @@ export default function Calculator() {
             </div>
 
             {/* Advanced Calculation Button */}
-            <div className="mt-4 text-center">
+            <div className="mt-1 text-center">
               <Dialog open={isAdvancedModalOpen} onOpenChange={setIsAdvancedModalOpen}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="border-2 border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 lg:px-8 xl:px-10 py-2 lg:py-3 xl:py-4 rounded-lg font-semibold text-base lg:text-lg xl:text-xl min-h-[56px] lg:min-h-[60px] xl:min-h-[64px] touch-manipulation hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer" 
+                    className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-3 lg:px-4 xl:px-5 py-1 lg:py-2 xl:py-2 rounded-lg font-semibold text-sm lg:text-base xl:text-lg min-h-[36px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" 
                     data-testid="button-advanced-calculation"
                   >
                     חישוב מתקדם
@@ -544,11 +544,11 @@ export default function Calculator() {
             </div>
 
             {/* Price Display */}
-            <div className="mt-4 sm:mt-6 lg:mt-4 xl:mt-6 p-4 sm:p-6 lg:p-6 xl:p-8 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
+            <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 p-2 sm:p-3 lg:p-3 xl:p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
               <div className="text-center">
-                <p className="text-sm sm:text-base lg:text-lg xl:text-xl text-gray-700 mb-3 lg:mb-4 xl:mb-5 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
-                <div className="bg-white border-gray-200 rounded-lg p-4 sm:p-6 lg:p-6 xl:p-8 shadow-lg border">
-                  <p className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
+                <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
+                <div className="bg-white border-gray-200 rounded-lg p-2 sm:p-3 lg:p-3 xl:p-4 shadow-lg border">
+                  <p className="text-lg sm:text-xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
                     ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
                   </p>
                 </div>
@@ -576,9 +576,9 @@ export default function Calculator() {
             </div>
 
             {/* Footer */}
-            <div className="mt-4 sm:mt-6 lg:mt-4 xl:mt-6 text-center">
-              <p className="font-medium text-gray-700 text-sm sm:text-base lg:text-lg xl:text-xl" dir="rtl" data-testid="text-company">Comsign 2025</p>
-              <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-600" data-testid="text-developer">© Powered By NadavT</p>
+            <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 text-center">
+              <p className="font-medium text-gray-700 text-xs sm:text-sm lg:text-base xl:text-lg" dir="rtl" data-testid="text-company">Comsign 2025</p>
+              <p className="text-xs sm:text-xs lg:text-sm xl:text-base text-gray-600" data-testid="text-developer">© Powered By NadavT</p>
             </div>
 
           </CardContent>
@@ -647,7 +647,7 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="הזן סיסמה"
-          className="text-center min-h-[56px] text-lg touch-manipulation active:scale-[0.98] transition-transform"
+          className="text-center min-h-[56px] text-lg touch-manipulation cursor-pointer"
           onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
           data-testid="input-admin-password"
         />
@@ -656,7 +656,7 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void
       <Button
         onClick={handleLogin}
         disabled={isLoading}
-        className="w-full bg-red-600 hover:bg-red-700 text-white min-h-[56px] text-lg touch-manipulation active:scale-[0.98] transition-transform"
+        className="w-full bg-red-600 hover:bg-red-700 text-white min-h-[56px] text-lg touch-manipulation cursor-pointer"
         data-testid="button-admin-login"
       >
         {isLoading ? "מתחבר..." : "התחבר"}
@@ -940,7 +940,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
         {canEdit && (
           <Button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white min-h-[60px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 shadow-lg hover:shadow-xl rounded-xl"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white min-h-[60px] text-lg font-semibold touch-manipulation cursor-pointer shadow-lg hover:shadow-xl rounded-xl"
             data-testid="button-add-project"
           >
             {showAddForm ? "ביטול הוספה" : "הוסף פרויקט חדש"}
@@ -976,7 +976,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
           }, {} as Record<string, typeof configs>);
 
           return Object.entries(groupedConfigs).map(([projectType, projectConfigs]) => (
-            <div key={projectType} className="border-2 rounded-xl bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-lg transition-all duration-200">
+            <div key={projectType} className="border-2 rounded-xl bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-lg cursor-pointer">
               {/* Project Header */}
               <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-red-100">
                 <div className="flex items-center gap-2 justify-center">
@@ -1010,7 +1010,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
                               variant="outline"
                               onClick={() => setEditingConfig(config)}
                               data-testid={`button-edit-${config.id}`}
-                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
+                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation cursor-pointer border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
                             >
                               ערוך
                             </Button>
@@ -1021,7 +1021,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
                               variant="destructive"
                               onClick={() => deleteConfig(String(config.id), `${config.projectType} (${config.years} שנים)`)}
                               data-testid={`button-delete-${config.id}`}
-                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
+                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation cursor-pointer bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
                             >
                               מחק
                             </Button>
@@ -1075,7 +1075,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
         <Button
           onClick={onLogout}
           variant="outline"
-          className="w-full min-h-[60px] text-lg font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl"
+          className="w-full min-h-[60px] text-lg font-semibold touch-manipulation cursor-pointer border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl"
           data-testid="button-admin-logout"
         >
 התנתק
@@ -1177,7 +1177,7 @@ function EditConfigForm({
           id={`icon-${config.id}`}
           value={icon}
           onChange={(e) => setIcon(e.target.value)}
-          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px] text-base font-semibold touch-manipulation active:scale-[0.98] transition-all duration-200 bg-white shadow-sm mt-1"
+          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px] text-base font-semibold touch-manipulation active:scale-[0.98] cursor-pointer bg-white shadow-sm mt-1"
           data-testid={`select-edit-icon-${config.id}`}
         >
           <option value="User">משתמש רגיל</option>
@@ -1208,7 +1208,7 @@ function EditConfigForm({
         <Button
           onClick={handleSave}
           size="sm"
-          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 min-h-[52px] font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 rounded-lg shadow-md"
+          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 min-h-[52px] font-semibold touch-manipulation cursor-pointer rounded-lg shadow-md"
           data-testid={`button-save-${config.id}`}
         >
 שמור שינויים
@@ -1217,7 +1217,7 @@ function EditConfigForm({
           onClick={onCancel}
           size="sm"
           variant="outline"
-          className="flex-1 min-h-[52px] font-semibold touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-lg"
+          className="flex-1 min-h-[52px] font-semibold touch-manipulation cursor-pointer border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-lg"
           data-testid={`button-cancel-${config.id}`}
         >
           בטל
@@ -1293,7 +1293,7 @@ function AddConfigForm({
             value={projectType}
             onChange={(e) => setProjectType(e.target.value)}
             placeholder="למשל: עורכי דין"
-            className="text-center min-h-[52px] text-lg font-semibold border-2 rounded-lg touch-manipulation active:scale-[0.98] transition-all duration-200"
+            className="text-center min-h-[52px] text-lg font-semibold border-2 rounded-lg touch-manipulation active:scale-[0.98] cursor-pointer"
             data-testid="input-new-project-type"
           />
         </div>
@@ -1308,7 +1308,7 @@ function AddConfigForm({
             onClick={addYearConfig}
             disabled={yearConfigs.length >= 10}
             size="sm"
-            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[44px] px-4 font-semibold rounded-lg shadow-md active:scale-[0.97] transition-all duration-200"
+            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[44px] px-4 font-semibold rounded-lg shadow-md cursor-pointer"
           >
 הוסף שנה
           </Button>
@@ -1316,7 +1316,7 @@ function AddConfigForm({
         
         <div className="space-y-4 max-h-[320px] overflow-y-auto">
           {yearConfigs.map((config, index) => (
-            <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-white border-2 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
+            <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-white border-2 rounded-xl shadow-sm hover:shadow-md cursor-pointer">
               <div>
                 <Label className="text-sm font-medium text-gray-700 mb-1 block">שנים</Label>
                 <Input
@@ -1363,7 +1363,7 @@ function AddConfigForm({
                   disabled={yearConfigs.length <= 1}
                   size="sm"
                   variant="destructive"
-                  className="w-full min-h-[48px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-semibold rounded-lg shadow-md active:scale-[0.97] transition-all duration-200"
+                  className="w-full min-h-[48px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-semibold rounded-lg shadow-md cursor-pointer"
                 >
 הסר
                 </Button>
@@ -1416,7 +1416,7 @@ function AddConfigForm({
           id="new-icon"
           value={icon}
           onChange={(e) => setIcon(e.target.value)}
-          className="w-full p-4 border-2 border-gray-300 rounded-lg text-center min-h-[52px] text-lg font-semibold touch-manipulation active:scale-[0.98] transition-all duration-200 bg-white shadow-sm"
+          className="w-full p-4 border-2 border-gray-300 rounded-lg text-center min-h-[52px] text-lg font-semibold touch-manipulation active:scale-[0.98] cursor-pointer bg-white shadow-sm"
           data-testid="select-new-icon"
         >
           <option value="User">משתמש רגיל</option>
@@ -1447,7 +1447,7 @@ function AddConfigForm({
         <Button
           onClick={handleSave}
           disabled={!projectType.trim() || yearConfigs.length === 0}
-          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[56px] text-lg font-bold touch-manipulation active:scale-[0.97] transition-all duration-200 rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[56px] text-lg font-bold touch-manipulation cursor-pointer rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           data-testid="button-save-new-config"
         >
 הוסף {yearConfigs.length} הגדרות מחיר
@@ -1455,7 +1455,7 @@ function AddConfigForm({
         <Button
           onClick={onCancel}
           variant="outline"
-          className="flex-1 min-h-[56px] text-lg font-bold touch-manipulation active:scale-[0.97] transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-xl"
+          className="flex-1 min-h-[56px] text-lg font-bold touch-manipulation cursor-pointer border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-xl"
           data-testid="button-cancel-new-config"
         >
           בטל
