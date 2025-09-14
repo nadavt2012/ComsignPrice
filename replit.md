@@ -120,3 +120,37 @@ For successful production deployment, the following environment variables MUST b
 The application includes health check endpoints (`/health`, `/healthz`, `/ready`, `/`) that bypass CORS validation to support deployment health monitoring. However, for all other API endpoints, proper CORS configuration is essential.
 
 **Important:** If CORS environment variables are not properly configured, the deployment will fail with "Origin required in production" errors during health checks and API calls.
+
+## Publishing and Synchronization
+
+### Replit Publishing Limitations
+
+The Replit platform has an important limitation regarding published websites:
+
+- **Published websites are snapshots**: When you publish your app, Replit creates a static snapshot of your current code and deploys it separately from your development environment
+- **No automatic synchronization**: Changes made in the development environment do not automatically update the published website
+- **Manual republishing required**: To reflect development changes in production, you must manually republish your app through the Replit interface
+
+### Current Auto-Sync System
+
+The application includes an automatic database synchronization system that works between development and production:
+- Synchronizes pricing configuration data every time the development server starts
+- Updates 28+ project configurations automatically 
+- Only syncs database content, not application code or UI changes
+- Confirmed working via server logs: `[SYNC] ✅ Success: עודכנו בהצלחה 28 פרויקטים`
+
+### Recommended Workflow for Production Updates
+
+Until Replit provides automated deployment features, follow this workflow:
+
+1. **Test in Development**: Make and test all changes in the development environment
+2. **Verify Functionality**: Ensure calculations, UI, and all features work correctly  
+3. **Manual Republish**: Use the Replit "Publish" button to update the production website
+4. **Verify Production**: Check that changes are live on the published URL
+
+### Future Enhancement Options
+
+Consider these alternatives for more automated deployment:
+- **Replit Deployments**: Migrate from "Publish" to Replit's deployment system which may offer better automation
+- **External CI/CD**: Set up GitHub Actions or similar to trigger Replit deployments
+- **Custom Sync Script**: Develop a webhook-based system to trigger republishing programmatically
