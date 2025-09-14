@@ -101,7 +101,7 @@ html {
   -ms-text-size-adjust: 100%;
   font-feature-settings: 'cv11', 'ss01';
   font-variant: common-ligatures;
-  scroll-behavior: smooth;
+  scroll-behavior: auto !important;
 }
 
 body {
@@ -115,12 +115,8 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Desktop optimizations */
+/* Desktop optimizations - אנימציות הוסרו */
 @media (min-width: 1024px) {
-  * {
-    transition: all 0.2s ease-in-out;
-  }
-  
   button, [role="button"] {
     cursor: pointer;
   }
@@ -142,25 +138,7 @@ button, [role="button"] {
 
 /* כפתור active effects הוסרו */
 
-/* Premium button ripple effect */
-button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
-  pointer-events: none;
-}
-
-button:active::before {
-  width: 300px;
-  height: 300px;
-}
+/* אפקטי ripple הוסרו */
 
 /* אנימציות קלט הוסרו */
 
@@ -193,7 +171,6 @@ input, textarea {
     var(--shadow-2xl),
     0 0 0 1px rgba(255, 255, 255, 0.8) inset,
     0 4px 20px rgba(239, 68, 68, 0.05);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
@@ -210,14 +187,7 @@ input, textarea {
   transition: opacity 0.3s ease;
 }
 
-.premium-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 
-    0 32px 64px -12px rgba(0, 0, 0, 0.15),
-    0 20px 25px -5px rgba(239, 68, 68, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
-  border-color: rgba(239, 68, 68, 0.2);
-}
+/* premium card hover הוסר */
 
 .premium-card:hover::before {
   opacity: 1;
@@ -242,14 +212,7 @@ input, textarea {
   font-family: var(--font-display);
 }
 
-.btn-primary:hover {
-  background: linear-gradient(135deg, var(--red-600) 0%, var(--red-700) 50%, var(--red-800) 100%);
-  box-shadow: 
-    0 20px 40px -10px rgba(239, 68, 68, 0.3),
-    0 10px 20px -5px rgba(239, 68, 68, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
-  transform: translateY(-2px) scale(1.02);
-}
+/* btn-primary hover הוסר */
 
 .btn-secondary {
   background: rgba(255, 255, 255, 0.95);
@@ -263,18 +226,9 @@ input, textarea {
   box-shadow: 
     var(--shadow-lg),
     0 0 0 1px rgba(255, 255, 255, 0.5) inset;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-secondary:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: var(--red-400);
-  color: var(--red-700);
-  box-shadow: 
-    var(--shadow-xl),
-    0 0 0 1px rgba(239, 68, 68, 0.1) inset;
-  transform: translateY(-2px) scale(1.01);
-}
+/* btn-secondary hover הוסר */
 
 /* ===== PREMIUM LAYOUT ===== */
 .main-container {
@@ -357,7 +311,6 @@ input, textarea {
 }
 
 [data-radix-select-item] {
-  transition: all 0.2s ease;
   border-radius: var(--radius-lg);
   margin: 2px;
 }
@@ -378,21 +331,7 @@ input, textarea {
   overflow: hidden;
 }
 
-.skeleton::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
-  animation: shimmer 2s infinite;
-}
+/* skeleton animation הוסר */
 
 .loading-spinner {
   display: inline-block;
@@ -401,20 +340,24 @@ input, textarea {
   border: 2px solid var(--gray-300);
   border-radius: 50%;
   border-top-color: var(--red-500);
-  animation: spin 1s ease-in-out infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
+/* keyframes הוסרו לגמרי */
+
+/* ===== ביטול מוחלט של כל האנימציות ===== */
+html {
+  scroll-behavior: auto !important;
 }
 
-@keyframes loading {
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
+*,
+*::before,
+*::after {
+  animation: none !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition: none !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
 }
 
 /* ===== PREMIUM SCROLLBAR ===== */
@@ -470,29 +413,10 @@ label {
   transform: none !important;
 }
 
-[data-radix-select-content][data-state="closed"] {
-  animation: fadeOut 0.1s ease-in !important;
-  transform: none !important;
-}
+/* radix select animations הוסרו */
 
 /* Simple fade animations only */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
+/* fadeIn/fadeOut keyframes הוסרו */
 
 /* Override any transform animations from Radix */
 [data-radix-select-content] * {
@@ -500,22 +424,7 @@ label {
 }
 
 /* ===== PERFORMANCE OPTIMIZATIONS ===== */
-.transition-all {
-  transform: translateZ(0);
-  will-change: transform, opacity;
-}
-
-/* Hardware acceleration for smooth animations */
-button:active, [role="button"]:active {
-  transform: translateZ(0) scale(0.98);
-  will-change: transform;
-}
-
-/* Optimize keyboard input performance */
-input:focus, textarea:focus, select:focus {
-  will-change: border-color, box-shadow;
-  transform: translateZ(0);
-}
+/* transform וscale effects הוסרו */
 
 /* Reduce reflow on scroll - all devices */
 .admin-scroll-container {
@@ -541,33 +450,7 @@ input:focus, textarea:focus, select:focus {
   border-radius: 3px;
 }
 
-/* Performance optimizations for all screen sizes */
-@media (min-width: 768px) {
-  /* Tablet optimizations - override mobile */
-  input, select, textarea {
-    transition: all 0.2s ease-out; /* Standard timing for tablet */
-  }
-  
-  button, [role="button"] {
-    transition: transform 0.1s ease-out; /* Standard timing for tablet */
-  }
-  
-  button:active, [role="button"]:active {
-    transform: translateZ(0) scale(0.99); /* Less aggressive scaling on larger screens */
-  }
-}
-
-@media (min-width: 1024px) {
-  /* Desktop optimizations */
-  button:hover {
-    transform: translateZ(0) scale(1.02);
-    transition: transform 0.1s ease-out;
-  }
-  
-  button:active, [role="button"]:active {
-    transform: translateZ(0) scale(0.98);
-  }
-}
+/* אנימציות tablet וdesktop הוסרו לגמרי */
 
 img {
   image-rendering: optimizeSpeed;
