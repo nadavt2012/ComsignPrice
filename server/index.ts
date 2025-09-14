@@ -284,20 +284,8 @@ app.get('/ready', (req, res) => {
   });
 });
 
-// Root health check for basic deployment verification
-app.get('/', (req, res) => {
-  // For API requests without proper origin, provide a simple health response
-  if (req.headers.accept && req.headers.accept.includes('application/json')) {
-    res.status(200).json({
-      status: "healthy",
-      message: "Comsign Pricing API is running",
-      timestamp: new Date().toISOString()
-    });
-  } else {
-    // For browser requests, this will be handled by Vite/static serving later
-    res.status(200).send('OK');
-  }
-});
+// Root route is handled by Vite in development or static serving in production
+// Health checks are available at /health, /healthz, and /ready endpoints
 
 // Secure body parsing with size limits
 app.use(express.json({ 
