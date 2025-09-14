@@ -97,40 +97,56 @@ app.use(compression({
   }
 }));
 
-// CORS Configuration (2025 Security Standard)
+// CORS Configuration (2025 Security Standard - Production Ready)
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
-    // Get allowed origins from environment or use defaults
-    const envOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
-    const defaultOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5000',
-      'https://comsignprice.shop'
-    ];
-    
-    // Add current Replit domain pattern - be more permissive for development
-    const replitPattern = /^https:\/\/[a-f0-9-]+.*\.replit\.dev$/;
-    
-    const allowedOrigins = [...envOrigins, ...defaultOrigins];
-    
-    // Allow requests with no origin (mobile apps, Postman, etc.)
-    if (!origin) {
-      return callback(null, true);
-    }
-    
-    // Check exact match or Replit pattern
-    if (allowedOrigins.includes(origin) || replitPattern.test(origin)) {
-      callback(null, true);
+    // Production vs Development security
+    if (process.env.NODE_ENV === 'production') {
+      // STRICT production origins - exact matches only
+      const productionOrigins = (process.env.ALLOWED_ORIGINS?.split(',') || [])
+        .concat([process.env.PRODUCTION_DOMAIN, process.env.CUSTOM_DOMAIN])
+        .filter(Boolean);
+      
+      if (!origin) {
+        return callback(new Error('Origin required in production'), false);
+      }
+      
+      if (productionOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        logger.error(`CORS blocked unauthorized origin in production: ${origin}`, { 
+          timestamp: new Date().toISOString(),
+          severity: 'HIGH'
+        });
+        callback(new Error(`Origin '${origin}' not allowed by production CORS policy`), false);
+      }
     } else {
-      logger.warn(`CORS blocked origin: ${origin}`, { 
-        ip: 'unknown', 
-        userAgent: 'unknown',
-        timestamp: new Date().toISOString()
-      });
-      callback(new Error('Not allowed by CORS policy'), false);
+      // Development - more permissive but still secure
+      const devOrigins = [
+        'http://localhost:3000',
+        'http://localhost:5000',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:5000'
+      ];
+      
+      const replitPattern = /^https:\/\/[a-f0-9-]+.*\.replit\.(dev|app)$/;
+      
+      // Allow requests with no origin (mobile apps, Postman, etc.) only in development
+      if (!origin) {
+        return callback(null, true);
+      }
+      
+      if (devOrigins.includes(origin) || replitPattern.test(origin)) {
+        callback(null, true);
+      } else {
+        logger.warn(`CORS blocked origin in development: ${origin}`, { 
+          timestamp: new Date().toISOString()
+        });
+        callback(new Error('Not allowed by development CORS policy'), false);
+      }
     }
   },
-  credentials: true,
+  credentials: process.env.NODE_ENV === 'development', // Disable credentials in production unless needed
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   optionsSuccessStatus: 200,

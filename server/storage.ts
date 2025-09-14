@@ -22,8 +22,8 @@ export interface IStorage {
 
 class DatabaseStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
-  private adminPassword: string = process.env.ADMIN_PASSWORD || "795915";
-  private managerPassword: string = process.env.MANAGER_PASSWORD || "manager123";
+  private adminPassword: string;
+  private managerPassword: string;
   
   // Enhanced Multi-Level Caching (2025 Standard)
   private configsCache: PricingConfig[] | null = null;
@@ -53,6 +53,26 @@ class DatabaseStorage implements IStorage {
   };
 
   constructor() {
+    // CRITICAL SECURITY: Enforce required secrets in production
+    if (process.env.NODE_ENV === 'production') {
+      if (!process.env.ADMIN_PASSWORD) {
+        throw new Error('ADMIN_PASSWORD environment variable is required in production');
+      }
+      if (!process.env.MANAGER_PASSWORD) {
+        throw new Error('MANAGER_PASSWORD environment variable is required in production');
+      }
+    }
+    
+    // Use environment variables or secure defaults only in development
+    this.adminPassword = process.env.ADMIN_PASSWORD || 
+      (process.env.NODE_ENV === 'development' ? "795915" : "");
+    this.managerPassword = process.env.MANAGER_PASSWORD || 
+      (process.env.NODE_ENV === 'development' ? "manager123" : "");
+    
+    if (!this.adminPassword || !this.managerPassword) {
+      throw new Error('Authentication passwords not properly configured');
+    }
+    
     const sql = neon(process.env.DATABASE_URL!);
     this.db = drizzle(sql);
     this.initializeDefaultPricing();

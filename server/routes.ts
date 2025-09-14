@@ -245,15 +245,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ===== ENHANCED PRICING API ROUTES (2025 Standard) =====
   
-  // Add caching middleware for API responses
+  // Add caching middleware for API responses (Fixed ETag consistency)
   const setCacheHeaders = (req: any, res: any, next: any) => {
     // Cache pricing data for 5 minutes
     res.set({
       'Cache-Control': 'public, max-age=300, s-maxage=300',
-      'ETag': `"pricing-${Date.now()}"`,
       'Last-Modified': new Date().toUTCString(),
       'Vary': 'Accept-Encoding, Accept-Language'
     });
+    // Note: ETag will be set per-route based on content for consistency
     next();
   };
 
