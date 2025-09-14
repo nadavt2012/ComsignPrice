@@ -380,10 +380,10 @@ export default function Calculator() {
 
   return (
     <div className="main-container" dir="rtl" lang="he">
-      <div className="content-wrapper flex flex-col min-h-screen p-1 sm:p-2 lg:p-4 xl:p-6">
-        {/* Improved centering for desktop with better max-width and center positioning */}
-        <div className="flex justify-center items-start min-h-screen">
-          <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl my-4 lg:my-8 xl:my-12" dir="rtl">
+      <div className="content-wrapper p-1 sm:p-2 lg:p-4 xl:p-6">
+        {/* Perfect centering for desktop - both horizontal and vertical */}
+        <div className="flex justify-center items-center min-h-screen py-4">
+          <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl" dir="rtl">
             <CardContent className="p-2 sm:p-3 lg:p-4 xl:p-6 space-y-2 sm:space-y-3 lg:space-y-3 xl:space-y-4" dir="rtl">
             
             {/* Header Section */}
