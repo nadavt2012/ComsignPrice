@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { z } from "zod";
 import { body, param, validationResult, ValidationChain } from "express-validator";
 import validator from "validator";
+import express from "express";
 import path from "path";
 import fs from "fs";
 import { createHmac } from "crypto";
@@ -242,32 +243,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(iconPath);
   });
 
-  // ===== PRICING API ROUTES =====
-  app.get("/api/pricing", async (req, res) => {
+  // ===== ENHANCED PRICING API ROUTES (2025 Standard) =====
+  
+  // Add caching middleware for API responses
+  const setCacheHeaders = (req: any, res: any, next: any) => {
+    // Cache pricing data for 5 minutes
+    res.set({
+      'Cache-Control': 'public, max-age=300, s-maxage=300',
+      'ETag': `"pricing-${Date.now()}"`,
+      'Last-Modified': new Date().toUTCString(),
+      'Vary': 'Accept-Encoding, Accept-Language'
+    });
+    next();
+  };
+
+  app.get("/api/pricing", setCacheHeaders, async (req, res) => {
     try {
       const configs = await storage.getPricingConfigs();
+      
+      // Generate ETag based on configs content for better caching
+      const configHash = JSON.stringify(configs).length.toString(36);
+      const etag = `"pricing-${configHash}"`;
+      res.set('ETag', etag);
+      
+      // Check if client already has this version
+      if (req.headers['if-none-match'] === etag) {
+        return res.status(304).end();
+      }
+      
       res.json(configs);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch pricing configurations" });
+      res.status(500).json({ message: "שגיאה בטעינת תצורות המחירים" });
     }
   });
 
-  app.get("/api/pricing/:projectType/years", async (req, res) => {
-    try {
-      const { projectType } = req.params;
-      const configs = await storage.getPricingConfigs();
-      const years = configs
-        .filter(config => config.projectType === projectType)
-        .map(config => config.years)
-        .sort((a, b) => a - b);
-      res.json(years);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch years for project type" });
+  app.get("/api/pricing/:projectType/years", 
+    // Enhanced parameter validation
+    param('projectType')
+      .isString()
+      .withMessage('סוג פרויקט חייב להיות מחרוזת')
+      .isLength({ min: 1, max: 50 })
+      .withMessage('סוג פרויקט חייב להכיל 1-50 תווים')
+      .matches(/^[a-zA-Z\u0590-\u05FF]+$/)
+      .withMessage('סוג פרויקט מכיל תווים לא חוקיים'),
+    handleValidationErrors,
+    sanitizeInput,
+    setCacheHeaders,
+    async (req: express.Request, res: express.Response) => {
+      try {
+        const { projectType } = req.params as { projectType: string };
+        const configs = await storage.getPricingConfigs();
+        const years = configs
+          .filter(config => config.projectType === projectType)
+          .map(config => config.years)
+          .sort((a, b) => a - b);
+        
+        // Remove duplicates for cleaner response
+        const uniqueYears = Array.from(new Set(years));
+        
+        res.json(uniqueYears);
+      } catch (error) {
+        res.status(500).json({ message: "שגיאה בטעינת שנים לסוג פרויקט" });
+      }
     }
-  });
+  );
 
-  // Calculate price
-  app.post("/api/calculate", async (req, res) => {
+  // Enhanced price calculation with validation and performance optimization
+  app.post("/api/calculate", 
+    calculateValidationChain,
+    handleValidationErrors,
+    sanitizeInput,
+    async (req: express.Request, res: express.Response) => {
     try {
       const data = calculationRequestSchema.parse(req.body) as CalculationRequest;
       
@@ -379,7 +425,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin authentication endpoint with role support
-  app.post("/api/admin/login", async (req, res) => {
+  app.post("/api/admin/login", 
+    adminLoginValidationChain,
+    handleValidationErrors,
+    sanitizeInput,
+    async (req: express.Request, res: express.Response) => {
     try {
       const { password } = adminLoginSchema.parse(req.body) as AdminLoginRequest;
       const authResult = await storage.verifyAdminPassword(password);

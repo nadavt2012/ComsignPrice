@@ -3,6 +3,8 @@ import { randomUUID } from "crypto";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, and } from "drizzle-orm";
+import { LRUCache } from "lru-cache";
+import NodeCache from "node-cache";
 
 export interface IStorage {
   getPricingConfigs(): Promise<PricingConfig[]>;
@@ -22,9 +24,33 @@ class DatabaseStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
   private adminPassword: string = process.env.ADMIN_PASSWORD || "795915";
   private managerPassword: string = process.env.MANAGER_PASSWORD || "manager123";
+  
+  // Enhanced Multi-Level Caching (2025 Standard)
   private configsCache: PricingConfig[] | null = null;
   private cacheTimestamp: number = 0;
   private readonly CACHE_DURATION = 300000; // 5 minutes for better performance
+  
+  private lruCache = new LRUCache<string, PricingConfig[]>({
+    max: 100, // Maximum 100 cache entries
+    ttl: 1000 * 60 * 5, // 5 minutes TTL
+    updateAgeOnGet: true, // Refresh TTL on access
+    updateAgeOnHas: true
+  });
+  
+  private queryCache = new NodeCache({
+    stdTTL: 300, // 5 minutes
+    checkperiod: 60, // Check for expired keys every minute
+    useClones: false, // Better performance by avoiding deep cloning
+    deleteOnExpire: true,
+    maxKeys: 1000 // Prevent memory bloat
+  });
+  
+  // Performance tracking
+  private cacheStats = {
+    hits: 0,
+    misses: 0,
+    totalQueries: 0
+  };
 
   constructor() {
     const sql = neon(process.env.DATABASE_URL!);
@@ -79,18 +105,50 @@ class DatabaseStorage implements IStorage {
   }
 
   async getPricingConfigs(): Promise<PricingConfig[]> {
+    this.cacheStats.totalQueries++;
+    const cacheKey = 'all_pricing_configs';
+    
+    // Check basic cache first (for backwards compatibility)
     if (this.isCacheValid()) {
+      this.cacheStats.hits++;
       return this.configsCache!;
     }
     
+    // Check LRU cache
+    const lruCached = this.lruCache.get(cacheKey);
+    if (lruCached) {
+      this.cacheStats.hits++;
+      this.configsCache = lruCached;
+      this.cacheTimestamp = Date.now();
+      return lruCached;
+    }
+    
+    // Check secondary cache  
+    const secondaryCache = this.queryCache.get<PricingConfig[]>(cacheKey);
+    if (secondaryCache) {
+      this.cacheStats.hits++;
+      this.lruCache.set(cacheKey, secondaryCache);
+      this.configsCache = secondaryCache;
+      this.cacheTimestamp = Date.now();
+      return secondaryCache;
+    }
+
+    this.cacheStats.misses++;
+    
     try {
       const configs = await this.db.select().from(pricingConfigs);
+      
+      // Update all caches
       this.configsCache = configs;
       this.cacheTimestamp = Date.now();
+      this.lruCache.set(cacheKey, configs);
+      this.queryCache.set(cacheKey, configs);
+      
       return configs;
     } catch (error) {
       console.error('Error getting pricing configs:', error);
-      return [];
+      // Return any cached data as emergency fallback
+      return this.configsCache || [];
     }
   }
 
@@ -277,10 +335,19 @@ class DatabaseStorage implements IStorage {
     return { valid: false };
   }
 
-  // Clear cache when data changes
+  // Clear cache when data changes (Enhanced 2025)
   private clearCache(): void {
     this.configsCache = null;
     this.cacheTimestamp = 0;
+    this.lruCache.clear();
+    this.queryCache.flushAll();
+    
+    // Reset stats on clear
+    this.cacheStats = {
+      hits: 0,
+      misses: 0,
+      totalQueries: 0
+    };
   }
 
   // Check if cache is valid

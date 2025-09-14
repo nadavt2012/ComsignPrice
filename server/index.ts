@@ -215,6 +215,28 @@ app.use(express.urlencoded({
   parameterLimit: 20 // Prevent parameter pollution
 }));
 
+// Memory Optimization Middleware (2025 Standard)
+app.use((req, res, next) => {
+  // Force garbage collection every 100 requests (if available)
+  if (global.gc && Math.random() < 0.01) {
+    global.gc();
+  }
+  
+  // Monitor memory usage in development
+  if (process.env.NODE_ENV === 'development') {
+    const memUsage = process.memoryUsage();
+    if (memUsage.heapUsed > 100 * 1024 * 1024) { // > 100MB
+      logger.warn('High memory usage detected', {
+        heapUsed: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
+        heapTotal: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`,
+        external: `${Math.round(memUsage.external / 1024 / 1024)}MB`
+      });
+    }
+  }
+  
+  next();
+});
+
 // Enhanced Request Logging with Winston (2025 Standard)
 app.use((req, res, next) => {
   const start = Date.now();
@@ -306,7 +328,32 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
   }, () => {
-    log(`serving on port ${port}`);
+    const bootTime = Date.now();
+    const currentMemory = process.memoryUsage();
+    
+    log(`🚀 Server ready on port ${port}`);
+    logger.info('Server startup complete', {
+      port,
+      memoryUsage: {
+        heap: `${Math.round(currentMemory.heapUsed / 1024 / 1024)}MB`,
+        external: `${Math.round(currentMemory.external / 1024 / 1024)}MB`
+      },
+      nodeVersion: process.version,
+      environment: process.env.NODE_ENV
+    });
+    
+    // Set up periodic memory monitoring
+    if (process.env.NODE_ENV === 'development') {
+      setInterval(() => {
+        const mem = process.memoryUsage();
+        if (mem.heapUsed > 150 * 1024 * 1024) { // > 150MB warning
+          logger.warn('Memory threshold exceeded', {
+            heapUsed: `${Math.round(mem.heapUsed / 1024 / 1024)}MB`,
+            heapTotal: `${Math.round(mem.heapTotal / 1024 / 1024)}MB`
+          });
+        }
+      }, 300000); // Check every 5 minutes
+    }
     
     // Initialize auto-sync system only in development and when explicitly enabled
     // This prevents background processes in production that could interfere with Autoscale
