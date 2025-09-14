@@ -791,7 +791,12 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
     refetchOnWindowFocus: false,
   });
 
-  const deleteConfig = async (configId: string) => {
+  const deleteConfig = async (configId: string, projectName: string) => {
+    // Add confirmation dialog
+    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${projectName}"?`)) {
+      return;
+    }
+
     try {
       const response = await fetch(`/api/admin/configs/${configId}`, {
         method: 'DELETE',
@@ -1013,7 +1018,7 @@ function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPass
                             <Button
                               size="sm"
                               variant="destructive"
-                              onClick={() => deleteConfig(String(config.id))}
+                              onClick={() => deleteConfig(String(config.id), `${config.projectType} (${config.years} שנים)`)}
                               data-testid={`button-delete-${config.id}`}
                               className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation active:scale-[0.97] transition-all duration-200 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
                             >
