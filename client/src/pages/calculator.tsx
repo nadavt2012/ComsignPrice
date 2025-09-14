@@ -86,6 +86,148 @@ interface PricingConfig {
   tokenIncluded: string;
 }
 
+// ===== ADMIN COMPONENTS =====
+function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void }) {
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleLogin = async () => {
+    if (!password.trim()) {
+      toast({
+        title: "שגיאה",
+        description: "נא הזן סיסמה",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({
+          title: "התחברות מוצלחת",
+          description: data.message || "ברוך הבא לפאנל הניהול",
+        });
+        onLoginSuccess(data.role || 'super_admin');
+        setPassword("");
+      } else {
+        toast({
+          title: "שגיאת התחברות",
+          description: "סיסמה לא נכונה",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "שגיאה",
+        description: "בעיה בהתחברות לשרת",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="space-y-3">
+        <Input
+          id="admin-password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="הזן סיסמה"
+          className="text-center min-h-[56px] text-lg touch-manipulation cursor-pointer"
+          onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+          data-testid="input-admin-password"
+        />
+      </div>
+      
+      <Button
+        onClick={handleLogin}
+        disabled={isLoading}
+        className="w-full bg-red-600 hover:bg-red-700 text-white min-h-[56px] text-lg touch-manipulation cursor-pointer"
+        data-testid="button-admin-login"
+      >
+        {isLoading ? "מתחבר..." : "התחבר"}
+      </Button>
+    </div>
+  );
+}
+
+function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) {
+  const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const { toast } = useToast();
+
+  // Use React Query for admin configs to sync with main screen
+  const { data: configs = [], isLoading } = useQuery<PricingConfig[]>({
+    queryKey: ["/api/pricing"],
+    staleTime: 30 * 1000, // 30 seconds cache for better performance
+    refetchOnWindowFocus: false,
+  });
+
+  return (
+    <div className="space-y-4" dir="rtl">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-bold">פאנל ניהול - {role}</h3>
+        <Button onClick={onLogout} variant="outline" size="sm">
+          התנתק
+        </Button>
+      </div>
+      
+      <Tabs defaultValue="view" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="view">צפיה במחירים</TabsTrigger>
+          <TabsTrigger value="add">הוסף מחיר</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="view" className="space-y-4">
+          {isLoading ? (
+            <div className="text-center">טוען...</div>
+          ) : (
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {configs.map((config) => (
+                <div key={config.id} className="border p-3 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-semibold">{config.projectType}</p>
+                      <p className="text-sm text-gray-600">{config.years} שנים - ₪{config.basePrice}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setEditingConfig(config)}
+                      >
+                        ערוך
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+        
+        <TabsContent value="add" className="space-y-4">
+          <div className="text-center text-gray-600">
+            הוספת מחיר חדש תבוא בגרסה הבאה
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
 // ===== MAIN COMPONENT =====
 export default function Calculator() {
   // ===== STATE =====
@@ -238,9 +380,11 @@ export default function Calculator() {
 
   return (
     <div className="main-container" dir="rtl" lang="he">
-      <div className="content-wrapper flex flex-col min-h-screen p-1 sm:p-2 lg:p-2 xl:p-3">
-        <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-4xl xl:max-w-5xl mx-auto" dir="rtl">
-          <CardContent className="p-2 sm:p-3 lg:p-3 xl:p-4 space-y-2 sm:space-y-3 lg:space-y-2 xl:space-y-3" dir="rtl">
+      <div className="content-wrapper flex flex-col min-h-screen p-1 sm:p-2 lg:p-4 xl:p-6">
+        {/* Improved centering for desktop with better max-width and center positioning */}
+        <div className="flex justify-center items-start min-h-screen">
+          <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-2xl xl:max-w-3xl my-4 lg:my-8 xl:my-12" dir="rtl">
+            <CardContent className="p-2 sm:p-3 lg:p-4 xl:p-6 space-y-2 sm:space-y-3 lg:space-y-3 xl:space-y-4" dir="rtl">
             
             {/* Header Section */}
             <div className="space-y-1">
@@ -287,7 +431,6 @@ export default function Calculator() {
                           ) : (
                             <AdminPanel 
                               role={adminRole}
-                              adminPassword={adminPassword}
                               onLogout={() => {
                                 setIsAdminLoggedIn(false);
                                 setAdminRole("");
@@ -301,7 +444,6 @@ export default function Calculator() {
                           <Button 
                             onClick={() => {
                               setIsAdminModalOpen(false);
-                              // Removed login state reset - user should stay logged in when closing modal
                             }}
                             className="w-full bg-gray-600 hover:bg-gray-700 text-white min-h-[48px] touch-manipulation cursor-pointer"
                             data-testid="button-close-admin"
@@ -342,10 +484,10 @@ export default function Calculator() {
                     console.error('Error setting project type:', error);
                   }
                 }} dir="rtl">
-                  <SelectTrigger className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-lg lg:text-base xl:text-lg focus:border-gray-500 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-project-type">
+                  <SelectTrigger className="w-full p-4 lg:p-3 xl:p-3 border border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-lg lg:text-base xl:text-lg focus:border-gray-500 min-h-[56px] lg:min-h-[44px] xl:min-h-[48px] touch-manipulation cursor-pointer transition-all duration-150 ease-out" dir="rtl" data-testid="select-project-type">
                     <SelectValue placeholder="בחר סוג פרויקט" className="text-sm text-gray-900" dir="rtl" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px] lg:max-h-[250px] xl:max-h-[280px] overflow-y-auto">
                     {projectTypes.map((type) => {
                       const IconComponent = type.icon;
                       return (
@@ -373,10 +515,10 @@ export default function Calculator() {
                     console.error('Error setting years:', error);
                   }
                 }} disabled={!projectType || yearsLoading} dir="rtl">
-                  <SelectTrigger className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" dir="rtl" data-testid="select-years">
+                  <SelectTrigger className="w-full p-4 lg:p-3 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] lg:min-h-[44px] xl:min-h-[48px] touch-manipulation cursor-pointer transition-all duration-150 ease-out" dir="rtl" data-testid="select-years">
                     <SelectValue placeholder={yearsLoading ? "טוען..." : yearsError ? "שגיאה בטעינה" : "בחר כמות שנים"} className="text-sm text-gray-900" dir="rtl" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[200px] lg:max-h-[180px] xl:max-h-[200px] overflow-y-auto">
                     {availableYears.map((year) => (
                       <SelectItem key={year} value={year.toString()} className="text-base py-3" data-testid={`option-years-${year}`}>
                         {year} שנים
@@ -601,882 +743,6 @@ export default function Calculator() {
         </Card>
       </div>
     </div>
-  );
-}
-
-// Admin Login Component
-function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void }) {
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handleLogin = async () => {
-    if (!password.trim()) {
-      toast({
-        title: "שגיאה",
-        description: "נא הזן סיסמה",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        toast({
-          title: "התחברות מוצלחת",
-          description: data.message || "ברוך הבא לפאנל הניהול",
-        });
-        onLoginSuccess(data.role || 'super_admin');
-        setPassword("");
-      } else {
-        toast({
-          title: "שגיאת התחברות",
-          description: "סיסמה לא נכונה",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "בעיה בהתחברות לשרת",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-4" dir="rtl">
-      <div className="space-y-3">
-        <Input
-          id="admin-password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="הזן סיסמה"
-          className="text-center min-h-[56px] text-lg touch-manipulation cursor-pointer"
-          onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-          data-testid="input-admin-password"
-        />
-      </div>
-      
-      <Button
-        onClick={handleLogin}
-        disabled={isLoading}
-        className="w-full bg-red-600 hover:bg-red-700 text-white min-h-[56px] text-lg touch-manipulation cursor-pointer"
-        data-testid="button-admin-login"
-      >
-        {isLoading ? "מתחבר..." : "התחבר"}
-      </Button>
-    </div>
-  );
-}
-
-
-
-// Password Management Component (only for super admin)
-function PasswordManager({ adminRole }: { adminRole: string }) {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const handlePasswordChange = async () => {
-    if (!currentPassword || !newPassword) {
-      toast({
-        title: "שגיאה",
-        description: "נא למלא את כל השדות",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/admin/change-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword, targetRole: "manager" }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast({
-          title: "הצלחה",
-          description: data.message,
-        });
-        
-        // Show instructions
-        toast({
-          title: "הוראות",
-          description: data.instruction,
-          variant: "default",
-        });
-        
-        setCurrentPassword("");
-        setNewPassword("");
-      } else {
-        toast({
-          title: "שגיאה",
-          description: data.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "בעיה בשינוי סיסמה",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (adminRole !== 'super_admin') {
-    return null; // Only super admin can manage passwords
-  }
-
-  return (
-    <div className="space-y-4 p-4 border rounded-lg bg-yellow-50" dir="rtl">
-      <h3 className="text-lg font-semibold text-center">ניהול סיסמאות</h3>
-      
-      <div className="space-y-3">
-        <Input
-          type="password"
-          placeholder="הסיסמה הנוכחית שלך"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          className="text-center"
-        />
-        
-        <Input
-          type="text"
-          placeholder="סיסמה חדשה"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className="text-center"
-        />
-        
-        <div className="text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p className="text-sm text-blue-700 font-medium">
-            יוצר סיסמה חדשה
-          </p>
-          <p className="text-xs text-blue-600">
-            יכול לערוך מחירים אבל לא למחוק או לשנות סיסמאות
-          </p>
-        </div>
-        
-        <Button
-          onClick={handlePasswordChange}
-          disabled={isLoading}
-          className="w-full bg-yellow-600 hover:bg-yellow-700"
-        >
-          {isLoading ? "משנה סיסמה..." : "צור סיסמה חדשה"}
-        </Button>
-      </div>
-      
-      <div className="text-xs text-gray-600 bg-blue-50 p-2 rounded border border-blue-200">
-        <strong>הוראות:</strong> לאחר יצירת סיסמה חדשה, עדכן את ה-Secret המתאים בפאנל הגדרות של Replit
-      </div>
-    </div>
-  );
-}
-
-// Admin Panel Component with role support
-function AdminPanel({ role, adminPassword, onLogout }: { role: string; adminPassword: string; onLogout: () => void }) {
-  const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const { toast } = useToast();
-
-  // Use React Query for admin configs to sync with main screen
-  const { data: configs = [], isLoading } = useQuery<PricingConfig[]>({
-    queryKey: ["/api/pricing"],
-    staleTime: 30 * 1000, // 30 seconds cache for better performance
-    refetchOnWindowFocus: false,
-  });
-
-  const deleteConfig = async (configId: string, projectName: string) => {
-    // Add confirmation dialog
-    if (!window.confirm(`האם אתה בטוח שברצונך למחוק את הפרויקט "${projectName}"?`)) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/admin/configs/${configId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        toast({
-          title: "הצלחה",
-          description: "הפרויקט נמחק בהצלחה",
-        });
-        // Refresh cache after showing success message
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
-      } else {
-        toast({
-          title: "שגיאה",
-          description: "לא ניתן למחוק את הפרויקט",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "בעיה בתקשורת עם השרת",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const updateConfig = async (configId: string, updates: Partial<PricingConfig>) => {
-    try {
-      const response = await fetch(`/api/admin/configs/${configId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
-
-      if (response.ok) {
-        toast({
-          title: "עדכון מוצלח",
-          description: "המחירים עודכנו בהצלחה",
-        });
-        // Refresh cache after showing success message
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
-        setEditingConfig(null);
-      } else {
-        throw new Error('Update failed');
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "לא ניתן לעדכן את המחירים",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const createConfig = async (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string; tokenPrice?: number; tokenIncluded?: string }[]) => {
-    try {
-      // Create each configuration separately
-      let successCount = 0;
-      for (const config of configs) {
-        const response = await fetch('/api/admin/pricing', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...config,
-            tokenPrice: config.tokenPrice || 120,
-            tokenIncluded: config.tokenIncluded || "optional"
-          }),
-        });
-        
-        if (response.ok) {
-          successCount++;
-        }
-      }
-
-      if (successCount === configs.length) {
-        toast({
-          title: "הצלחה",
-          description: `${configs.length} הגדרות מחיר נוספו בהצלחה`,
-        });
-        // Refresh cache after showing success message
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
-        setShowAddForm(false);
-      } else if (successCount > 0) {
-        toast({
-          title: "הצלחה חלקית",
-          description: `${successCount} מתוך ${configs.length} הגדרות נוספו`,
-        });
-        // Refresh cache after showing success message
-        queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
-      } else {
-        toast({
-          title: "שגיאה",
-          description: "לא ניתן להוסיף את ההגדרות",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "שגיאה",
-        description: "בעיה בתקשורת עם השרת",
-        variant: "destructive",
-      });
-    }
-  };
-
-
-  if (isLoading) {
-    return (
-      <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-        <p className="mt-2 text-gray-600">טוען נתונים...</p>
-      </div>
-    );
-  }
-
-  // Role-based access control - only 2 levels now
-  const canEdit = role === 'super_admin' || role === 'manager';
-  const canDelete = role === 'super_admin';
-
-  const getRoleDisplay = () => {
-    switch (role) {
-      case 'super_admin': return 'מנהל ראשי';
-      case 'manager': return '';
-      default: return 'משתמש';
-    }
-  };
-
-  return (
-    <div className="space-y-4" dir="rtl">
-
-      {/* Password Management - Only for super admin */}
-      <PasswordManager adminRole={role} />
-
-
-
-      {/* Add New Project Button */}
-      <div className="border-b pb-6 mb-6">
-        {canEdit && (
-          <Button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white min-h-[60px] text-lg font-semibold touch-manipulation cursor-pointer shadow-lg hover:shadow-xl rounded-xl"
-            data-testid="button-add-project"
-          >
-            {showAddForm ? "ביטול הוספה" : "הוסף פרויקט חדש"}
-          </Button>
-        )}
-        
-        {!canEdit && (
-          <div className="text-center text-sm text-gray-500 italic p-4 bg-gray-50 rounded-lg">
-            אין הרשאה להוסיף פרויקטים
-          </div>
-        )}
-        
-        {showAddForm && (
-          <div className="mt-4">
-            <AddConfigForm
-              onSave={createConfig}
-              onCancel={() => setShowAddForm(false)}
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4 max-h-[300px] sm:max-h-[400px] overflow-y-auto admin-scroll-container">
-        {(() => {
-          // Group configs by project type
-          const groupedConfigs = configs.reduce((groups, config) => {
-            const projectType = config.projectType;
-            if (!groups[projectType]) {
-              groups[projectType] = [];
-            }
-            groups[projectType].push(config);
-            return groups;
-          }, {} as Record<string, typeof configs>);
-
-          return Object.entries(groupedConfigs).map(([projectType, projectConfigs]) => (
-            <div key={projectType} className="border-2 rounded-xl bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-lg cursor-pointer">
-              {/* Project Header */}
-              <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-red-50 to-red-100">
-                <div className="flex items-center gap-2 justify-center">
-                  {projectConfigs[0]?.icon && (() => {
-                    const IconComponent = getIconComponent(projectConfigs[0].icon);
-                    return <IconComponent className="h-6 w-6 text-red-600" />;
-                  })()}
-                  <h3 className="font-bold text-gray-800 text-xl">{projectType}</h3>
-                  <span className="text-sm text-gray-600 bg-white px-2 py-1 rounded-full">
-                    {projectConfigs.length} אופציות
-                  </span>
-                </div>
-              </div>
-              
-              {/* Sub-projects */}
-              <div className="p-4 space-y-3">
-                {projectConfigs
-                  .sort((a, b) => a.years - b.years)
-                  .map((config) => (
-                    <div key={config.id} className="border rounded-lg p-3 bg-white">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-3">
-                        <div className="text-center sm:text-right">
-                          <h4 className="font-semibold text-gray-800 text-lg">
-                            {config.years} שנים
-                          </h4>
-                        </div>
-                        <div className="flex gap-2 justify-center sm:justify-end">
-                          {canEdit && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => setEditingConfig(config)}
-                              data-testid={`button-edit-${config.id}`}
-                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation cursor-pointer border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 text-blue-700 hover:text-blue-800 rounded-lg"
-                            >
-                              ערוך
-                            </Button>
-                          )}
-                          {canDelete && (
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => deleteConfig(String(config.id), `${config.projectType} (${config.years} שנים)`)}
-                              data-testid={`button-delete-${config.id}`}
-                              className="flex-1 sm:flex-none min-h-[48px] px-4 text-sm font-medium touch-manipulation cursor-pointer bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg shadow-md"
-                            >
-                              מחק
-                            </Button>
-                          )}
-                          {!canEdit && !canDelete && (
-                            <div className="flex-1 sm:flex-none text-center text-xs text-gray-500 italic p-3 bg-gray-100 rounded-lg">
-                              אין הרשאה
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-gray-700">
-                        <div className="text-center bg-blue-50 p-2 rounded border border-blue-200">
-                          <div className="font-medium text-xs">מחיר בסיס</div>
-                          <div className="font-bold text-blue-700">₪{config.basePrice}</div>
-                        </div>
-                        <div className="text-center bg-green-50 p-2 rounded border border-green-200">
-                          <div className="font-medium text-xs">תעודה נוספת</div>
-                          <div className="font-bold text-green-700">₪{config.backupCertificatePrice}</div>
-                        </div>
-                        <div className="text-center bg-red-50 p-2 rounded border border-red-200">
-                          <div className="font-medium text-xs">טוקן</div>
-                          <div className="font-bold text-red-700">₪{config.tokenPrice || 120}</div>
-                        </div>
-                        <div className="text-center bg-yellow-50 p-2 rounded border border-yellow-200">
-                          <div className="font-medium text-xs">סטטוס טוקן</div>
-                          <div className="font-bold text-yellow-700 text-xs">
-                            {config.tokenIncluded === "true" ? "כלול" : 
-                             config.tokenIncluded === "optional" ? "אופציונלי" : "לא זמין"}
-                          </div>
-                        </div>
-                      </div>
-
-                      {editingConfig?.id === config.id && (
-                        <EditConfigForm
-                          config={config}
-                          onSave={(updates) => updateConfig(String(config.id), updates)}
-                          onCancel={() => setEditingConfig(null)}
-                        />
-                      )}
-                    </div>
-                  ))}
-              </div>
-            </div>
-          ));
-        })()}
-      </div>
-
-      <div className="pt-6 border-t-2 mt-6">
-        <Button
-          onClick={onLogout}
-          variant="outline"
-          className="w-full min-h-[60px] text-lg font-semibold touch-manipulation cursor-pointer border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 rounded-xl"
-          data-testid="button-admin-logout"
-        >
-התנתק
-        </Button>
-      </div>
-
-    </div>
-  );
-}
-
-// Edit Config Form Component
-function EditConfigForm({
-  config,
-  onSave,
-  onCancel
-}: {
-  config: PricingConfig;
-  onSave: (updates: Partial<PricingConfig>) => void;
-  onCancel: () => void;
-}) {
-  const [basePrice, setBasePrice] = useState(config.basePrice);
-  const [backupPrice, setBackupPrice] = useState(config.backupCertificatePrice);
-  const [tokenPrice, setTokenPrice] = useState(config.tokenPrice || 120);
-  const [tokenIncluded, setTokenIncluded] = useState(config.tokenIncluded || "optional");
-  const [icon, setIcon] = useState(config.icon || "User");
-
-  const handleSave = () => {
-    onSave({
-      basePrice: Number(basePrice),
-      backupCertificatePrice: Number(backupPrice),
-      tokenPrice: Number(tokenPrice),
-      tokenIncluded: tokenIncluded,
-      icon: icon,
-    });
-  };
-
-  return (
-    <div className="mt-3 p-3 sm:p-4 border rounded bg-white space-y-3 sm:space-y-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <div>
-          <Label htmlFor={`base-price-${config.id}`} className="text-sm font-medium">מחיר בסיס</Label>
-          <Input
-            id={`base-price-${config.id}`}
-            type="number"
-            value={basePrice}
-            onChange={(e) => setBasePrice(Number(e.target.value))}
-            className="mt-1 text-center"
-            data-testid={`input-base-price-${config.id}`}
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor={`backup-price-${config.id}`} className="text-sm font-medium">מחיר תעודה נוספת</Label>
-          <Input
-            id={`backup-price-${config.id}`}
-            type="number"
-            value={backupPrice}
-            onChange={(e) => setBackupPrice(Number(e.target.value))}
-            className="mt-1 text-center"
-            data-testid={`input-backup-price-${config.id}`}
-          />
-        </div>
-      </div>
-      
-      {/* Token Configuration */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <div>
-          <Label htmlFor={`token-price-${config.id}`} className="text-sm font-medium">מחיר טוקן</Label>
-          <Input
-            id={`token-price-${config.id}`}
-            type="number"
-            value={tokenPrice}
-            onChange={(e) => setTokenPrice(Number(e.target.value))}
-            className="mt-1 text-center"
-            data-testid={`input-token-price-${config.id}`}
-          />
-        </div>
-        
-        <div>
-          <Label htmlFor={`token-included-${config.id}`} className="text-sm font-medium">טוקן במחיר</Label>
-          <select
-            id={`token-included-${config.id}`}
-            value={tokenIncluded}
-            onChange={(e) => setTokenIncluded(e.target.value)}
-            className="w-full p-2 border-2 border-gray-300 rounded-lg text-center min-h-[40px] font-medium touch-manipulation bg-white shadow-sm mt-1"
-            data-testid={`select-token-included-${config.id}`}
-          >
-            <option value="optional">אופציונלי</option>
-            <option value="true">כלול במחיר</option>
-            <option value="false">לא זמין</option>
-          </select>
-        </div>
-      </div>
-      
-      {/* Icon Selection */}
-      <div>
-        <Label htmlFor={`icon-${config.id}`} className="text-sm font-medium">סמל</Label>
-        <select
-          id={`icon-${config.id}`}
-          value={icon}
-          onChange={(e) => setIcon(e.target.value)}
-          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px] text-base font-semibold touch-manipulation active:scale-[0.98] cursor-pointer bg-white shadow-sm mt-1"
-          data-testid={`select-edit-icon-${config.id}`}
-        >
-          <option value="User">משתמש רגיל</option>
-          <option value="Scale">עורכי דין</option>
-          <option value="Building">אדריכלים</option>
-          <option value="Wrench">מהנדסים</option>
-          <option value="GraduationCap">מגנא</option>
-          <option value="CalcIcon">רואי חשבון</option>
-          <option value="Stethoscope">רופאים</option>
-          <option value="Briefcase">עסקים</option>
-          <option value="Shield">ביטוח</option>
-          <option value="Gavel">בית משפט</option>
-          <option value="FileText">מסמכים</option>
-          <option value="Globe">יעוץ בינלאומי</option>
-          <option value="Camera">צלמים</option>
-          <option value="Palette">עיצוב גרפי</option>
-          <option value="Code">תכנות</option>
-          <option value="Heart">בריאות</option>
-          <option value="Car">רכב</option>
-          <option value="Home">נדלן</option>
-          <option value="Zap">חשמל</option>
-          <option value="Star">שירותי תחזוקה</option>
-          <option value="TrendingUp">ניירות ערך</option>
-        </select>
-      </div>
-      
-      <div className="flex flex-col sm:flex-row gap-3 pt-2">
-        <Button
-          onClick={handleSave}
-          size="sm"
-          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 min-h-[52px] font-semibold touch-manipulation cursor-pointer rounded-lg shadow-md"
-          data-testid={`button-save-${config.id}`}
-        >
-שמור שינויים
-        </Button>
-        <Button
-          onClick={onCancel}
-          size="sm"
-          variant="outline"
-          className="flex-1 min-h-[52px] font-semibold touch-manipulation cursor-pointer border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-lg"
-          data-testid={`button-cancel-${config.id}`}
-        >
-          בטל
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-// Add Config Form Component
-function AddConfigForm({
-  onSave,
-  onCancel
-}: {
-  onSave: (configs: { projectType: string; years: number; basePrice: number; backupCertificatePrice: number; icon?: string; tokenPrice?: number; tokenIncluded?: string }[]) => void;
-  onCancel: () => void;
-}) {
-  const [projectType, setProjectType] = useState("");
-  const [tokenPrice, setTokenPrice] = useState(120);
-  const [tokenIncluded, setTokenIncluded] = useState("optional");
-  const [icon, setIcon] = useState("User");
-  const [yearConfigs, setYearConfigs] = useState<{year: number; basePrice: number; backupPrice: number}[]>([
-    { year: 1, basePrice: 0, backupPrice: 0 }
-  ]);
-
-  const addYearConfig = () => {
-    if (yearConfigs.length < 10) {
-      const nextYear = Math.max(...yearConfigs.map(c => c.year)) + 1;
-      setYearConfigs([...yearConfigs, { year: nextYear, basePrice: 0, backupPrice: 0 }]);
-    }
-  };
-
-  const removeYearConfig = (index: number) => {
-    if (yearConfigs.length > 1) {
-      setYearConfigs(yearConfigs.filter((_, i) => i !== index));
-    }
-  };
-
-  const updateYearConfig = (index: number, field: 'year' | 'basePrice' | 'backupPrice', value: number) => {
-    const updated = [...yearConfigs];
-    updated[index][field] = value;
-    setYearConfigs(updated);
-  };
-
-  const handleSave = () => {
-    if (!projectType.trim() || yearConfigs.length === 0) {
-      return;
-    }
-    
-    const configs = yearConfigs.map(config => ({
-      projectType: projectType.trim(),
-      years: config.year,
-      basePrice: config.basePrice,
-      backupCertificatePrice: config.backupPrice,
-      icon: icon,
-      tokenPrice: tokenPrice,
-      tokenIncluded: tokenIncluded
-    }));
-    
-    onSave(configs);
-  };
-
-  return (
-    <div className="p-4 sm:p-6 border-2 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 space-y-4 sm:space-y-6 shadow-lg" dir="rtl">
-      <h4 className="font-bold text-center text-gray-800 text-xl">הוספת פרויקט חדש</h4>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="sm:col-span-2">
-          <Label htmlFor="new-project-type" className="text-lg font-semibold text-gray-800 mb-2 block">סוג פרויקט</Label>
-          <Input
-            id="new-project-type"
-            type="text"
-            value={projectType}
-            onChange={(e) => setProjectType(e.target.value)}
-            placeholder="למשל: עורכי דין"
-            className="text-center min-h-[52px] text-lg font-semibold border-2 rounded-lg touch-manipulation active:scale-[0.98] cursor-pointer"
-            data-testid="input-new-project-type"
-          />
-        </div>
-      </div>
-
-      {/* Year Configurations */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between bg-white p-4 rounded-lg border-2 border-blue-200">
-          <Label className="text-base font-semibold text-gray-800">הגדרות מחירים לשנים</Label>
-          <Button
-            type="button"
-            onClick={addYearConfig}
-            disabled={yearConfigs.length >= 10}
-            size="sm"
-            className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[44px] px-4 font-semibold rounded-lg shadow-md cursor-pointer"
-          >
-הוסף שנה
-          </Button>
-        </div>
-        
-        <div className="space-y-4 max-h-[320px] overflow-y-auto">
-          {yearConfigs.map((config, index) => (
-            <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-white border-2 rounded-xl shadow-sm hover:shadow-md cursor-pointer">
-              <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block">שנים</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={config.year}
-                  onChange={(e) => updateYearConfig(index, 'year', Number(e.target.value))}
-                  className="text-center min-h-[48px] font-semibold border-2 rounded-lg"
-                  inputMode="numeric"
-                />
-              </div>
-              
-              <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block">מחיר בסיס</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  value={config.basePrice}
-                  onChange={(e) => updateYearConfig(index, 'basePrice', Number(e.target.value))}
-                  className="text-center min-h-[48px] font-semibold border-2 rounded-lg"
-                  placeholder="₪"
-                  inputMode="numeric"
-                />
-              </div>
-              
-              <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block">מחיר גיבוי</Label>
-                <Input
-                  type="number"
-                  min="0"
-                  value={config.backupPrice}
-                  onChange={(e) => updateYearConfig(index, 'backupPrice', Number(e.target.value))}
-                  className="text-center min-h-[48px] font-semibold border-2 rounded-lg"
-                  placeholder="₪"
-                  inputMode="numeric"
-                />
-              </div>
-              
-              <div className="flex items-end">
-                <Button
-                  type="button"
-                  onClick={() => removeYearConfig(index)}
-                  disabled={yearConfigs.length <= 1}
-                  size="sm"
-                  variant="destructive"
-                  className="w-full min-h-[48px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 font-semibold rounded-lg shadow-md cursor-pointer"
-                >
-הסר
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* Token Configuration */}
-      <div className="space-y-4 bg-white p-4 rounded-lg border-2 border-red-200">
-        <Label className="text-lg font-semibold text-gray-800 mb-2 block">הגדרות טוקן</Label>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="token-price" className="text-sm font-semibold text-gray-700 mb-2 block">מחיר טוקן</Label>
-            <Input
-              id="token-price"
-              type="number"
-              min="0"
-              value={tokenPrice}
-              onChange={(e) => setTokenPrice(Number(e.target.value))}
-              className="text-center min-h-[48px] font-semibold border-2 rounded-lg"
-              placeholder="₪"
-              inputMode="numeric"
-              data-testid="input-token-price"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="token-included" className="text-sm font-semibold text-gray-700 mb-2 block">טוקן במחיר</Label>
-            <select
-              id="token-included"
-              value={tokenIncluded}
-              onChange={(e) => setTokenIncluded(e.target.value)}
-              className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px] font-semibold touch-manipulation bg-white shadow-sm"
-              data-testid="select-token-included"
-            >
-              <option value="optional">אופציונלי</option>
-              <option value="true">כלול במחיר</option>
-              <option value="false">לא זמין</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <div>
-        <Label htmlFor="new-icon" className="text-lg font-semibold text-gray-800 mb-2 block">סמל</Label>
-        <select
-          id="new-icon"
-          value={icon}
-          onChange={(e) => setIcon(e.target.value)}
-          className="w-full p-4 border-2 border-gray-300 rounded-lg text-center min-h-[52px] text-lg font-semibold touch-manipulation active:scale-[0.98] cursor-pointer bg-white shadow-sm"
-          data-testid="select-new-icon"
-        >
-          <option value="User">משתמש רגיל</option>
-          <option value="Scale">עורכי דין</option>
-          <option value="Building">אדריכלים</option>
-          <option value="Wrench">מהנדסים</option>
-          <option value="GraduationCap">מגנא</option>
-          <option value="CalcIcon">רואי חשבון</option>
-          <option value="Stethoscope">רופאים</option>
-          <option value="Briefcase">עסקים</option>
-          <option value="Shield">ביטוח</option>
-          <option value="Gavel">בית משפט</option>
-          <option value="FileText">מסמכים</option>
-          <option value="Globe">יעוץ בינלאומי</option>
-          <option value="Camera">צלמים</option>
-          <option value="Palette">עיצוב גרפי</option>
-          <option value="Code">תכנות</option>
-          <option value="Heart">בריאות</option>
-          <option value="Car">רכב</option>
-          <option value="Home">נדלן</option>
-          <option value="Zap">חשמל</option>
-          <option value="Star">שירותי תחזוקה</option>
-          <option value="TrendingUp">ניירות ערך</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t-2 border-blue-200">
-        <Button
-          onClick={handleSave}
-          disabled={!projectType.trim() || yearConfigs.length === 0}
-          className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white min-h-[56px] text-lg font-bold touch-manipulation cursor-pointer rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          data-testid="button-save-new-config"
-        >
-הוסף {yearConfigs.length} הגדרות מחיר
-        </Button>
-        <Button
-          onClick={onCancel}
-          variant="outline"
-          className="flex-1 min-h-[56px] text-lg font-bold touch-manipulation cursor-pointer border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-xl"
-          data-testid="button-cancel-new-config"
-        >
-          בטל
-        </Button>
-      </div>
-    </div>
+  </div>
   );
 }
