@@ -237,13 +237,13 @@ export default function Calculator() {
   }, [startDate, endDate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-2 sm:p-4 lg:p-6 xl:p-8" dir="rtl" lang="he">
-      <div className="flex flex-col min-h-screen">
-        <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto shadow-2xl bg-white border-gray-200 border-2 rounded-2xl" dir="rtl">
+    <div className="main-container" dir="rtl" lang="he">
+      <div className="content-wrapper flex flex-col min-h-screen p-2 sm:p-4 lg:p-6 xl:p-8">
+        <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl mx-auto animate-slide-up" dir="rtl">
           <CardContent className="p-3 sm:p-4 lg:p-6 xl:p-8 space-y-4 sm:space-y-6 lg:space-y-8" dir="rtl">
             
             {/* Header Section */}
-            <div className="space-y-4">
+            <div className="space-y-4 animate-fade-in">
               {/* Top Row - Logo, Settings */}
               <div className="flex items-center justify-between mb-3">
                 {/* Logo - Right Side */}
