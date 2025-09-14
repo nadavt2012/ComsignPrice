@@ -75,7 +75,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 origin-[--radix-select-content-transform-origin] will-change-transform motion-reduce:animate-none motion-reduce:transition-none",
+        "relative z-50 max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-lg data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:scale-100 data-[state=closed]:scale-95 transition-[opacity,transform] duration-150 ease-out will-change-transform origin-[--radix-select-content-transform-origin] motion-reduce:animate-none motion-reduce:transition-none motion-reduce:data-[state=open]:scale-100 motion-reduce:data-[state=closed]:scale-100",
         className
       )}
       position={position}
