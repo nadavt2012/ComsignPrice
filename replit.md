@@ -2,7 +2,12 @@
 
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
-**Recent Updates (August 2025):**
+**Recent Updates (September 2025):**
+- **Design Cleanup**: Removed heavy border-2 styling framework for cleaner, minimal visual design with subtle borders and shadows
+- **Desktop Layout Optimization**: Compressed spacing and layout elements to ensure complete dashboard visibility without vertical scrolling
+- **Maximum HTTP Security (2025 Standards)**: Enhanced with strict CSP, COEP/COOP/CORP headers, certificate transparency, permissions policies, and production-ready CORS with exact origin matching
+
+**Previous Updates (August 2025):**
 - Converted to Progressive Web App (PWA) for mobile installation
 - **MAXIMIZED Mobile UX/UI Experience**: Complete mobile optimization with 56px touch targets, scale animations, improved responsive design across all components
 - **Enhanced Admin Panel**: Full mobile optimization with larger buttons, improved dialogs, and better touch interaction
