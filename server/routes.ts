@@ -204,13 +204,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ===== PWA ROUTES =====
   app.get("/manifest.json", (req, res) => {
+    // Prevent caching of manifest to ensure updates are fetched
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    
     const manifestPath = path.resolve(import.meta.dirname, "..", "client", "public", "manifest.json");
     res.sendFile(manifestPath);
   });
 
   app.get("/sw.js", (req, res) => {
-    const swPath = path.resolve(import.meta.dirname, "..", "client", "public", "sw.js");
+    // Prevent aggressive caching of Service Worker to ensure updates are fetched
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.setHeader("Service-Worker-Allowed", "/");
     res.setHeader("Content-Type", "application/javascript");
+    
+    const swPath = path.resolve(import.meta.dirname, "..", "client", "public", "sw.js");
     res.sendFile(swPath);
   });
 

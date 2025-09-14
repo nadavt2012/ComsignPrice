@@ -108,13 +108,29 @@
     
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker Registration with Auto-Update -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js')
+          const swUrl = '/sw.js?v=' + Date.now();
+          navigator.serviceWorker.register(swUrl)
             .then(function(registration) {
               console.log('SW registered: ', registration);
+              
+              // Check for updates periodically
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('New version available! Refreshing...');
+                    // Force refresh to use new version
+                    window.location.reload();
+                  }
+                });
+              });
+              
+              // Force check for updates
+              registration.update();
             })
             .catch(function(registrationError) {
               console.log('SW registration failed: ', registrationError);
