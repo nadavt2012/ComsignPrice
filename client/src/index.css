@@ -340,18 +340,42 @@ input, textarea {
   border: 2px solid var(--gray-300);
   border-radius: 50%;
   border-top-color: var(--red-500);
+  animation: spin 1s linear infinite;
 }
 
-/* keyframes הוסרו לגמרי */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* אנימציה מיוחדת לכפתור חישוב מתקדם - specificity גבוהה */
+button[data-testid="button-advanced-calculation"].cursor-pointer,
+button[data-testid="button-advanced-calculation"] {
+  transition: transform 0.1s ease-out !important;
+  animation: none !important;
+}
+
+button[data-testid="button-advanced-calculation"].cursor-pointer:hover,
+button[data-testid="button-advanced-calculation"]:hover {
+  transform: translateZ(0) scale(1.02) !important;
+  transition: transform 0.1s ease-out !important;
+}
+
+/* Active state with higher specificity to override hover */
+button[data-testid="button-advanced-calculation"].cursor-pointer:active,
+button[data-testid="button-advanced-calculation"]:active:hover,
+button[data-testid="button-advanced-calculation"]:active {
+  transform: translateZ(0) scale(0.98) !important;
+  transition: transform 0.05s ease-out !important;
+}
 
 /* ===== ביטול מוחלט של כל האנימציות ===== */
 html {
   scroll-behavior: auto !important;
 }
 
-*,
-*::before,
-*::after {
+*:not(.loading-spinner):not([data-testid="button-advanced-calculation"]),
+*:not(.loading-spinner):not([data-testid="button-advanced-calculation"])::before,
+*:not(.loading-spinner):not([data-testid="button-advanced-calculation"])::after {
   animation: none !important;
   animation-duration: 0s !important;
   animation-delay: 0s !important;
@@ -399,29 +423,8 @@ label {
   display: block;
 }
 
-/* ===== SELECT ANIMATIONS ===== */
-/* Disable all Radix UI Select animations completely */
-[data-radix-select-content] {
-  animation-duration: 0.2s !important;
-  animation: slideInUp 0.2s ease-out !important;
-  transition: opacity 0.15s ease-out !important;
-}
-
-/* Force immediate appearance without sliding animation */
-[data-radix-select-content][data-state="open"] {
-  animation: fadeIn 0.15s ease-out !important;
-  transform: none !important;
-}
-
-/* radix select animations הוסרו */
-
-/* Simple fade animations only */
-/* fadeIn/fadeOut keyframes הוסרו */
-
-/* Override any transform animations from Radix */
-[data-radix-select-content] * {
-  transform: none !important;
-}
+/* ===== דרופדאון/סלקט - ללא אנימציות ===== */
+/* הסרת אנימציות דרופדאון לחלוטין */
 
 /* ===== PERFORMANCE OPTIMIZATIONS ===== */
 /* transform וscale effects הוסרו */
