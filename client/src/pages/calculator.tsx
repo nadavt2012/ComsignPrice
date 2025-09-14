@@ -428,29 +428,29 @@ export default function Calculator() {
                   <div className="p-3 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-xl">
                     {calculationResult.tokenIncluded && calculationResult.tokenDisclaimer === "עלות טוקן כלולה במחיר" ? (
                       // Token is included in price - show info only
-                      <div className="flex items-center gap-3 h-6" dir="rtl">
-                        <div className="w-4 h-4 bg-red-600 rounded-sm flex items-center justify-center">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-start gap-3 py-1" dir="rtl">
+                        <div className="w-5 h-5 bg-red-600 rounded-sm flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        <div className="text-sm font-semibold text-red-800 h-6 flex items-center" data-testid="text-token-included">
+                        <div className="text-sm font-semibold text-red-800 leading-5" data-testid="text-token-included">
                           טוקן כלול במחיר (₪{calculationResult.tokenPrice})
                         </div>
                       </div>
                     ) : (
                       // Token is optional - show interactive checkbox
-                      <div className="flex items-center gap-3 h-6" dir="rtl">
+                      <div className="flex items-start gap-3 py-1" dir="rtl">
                         <Checkbox
                           id="include-token"
                           checked={includeToken}
                           onCheckedChange={(checked) => setIncludeToken(checked as boolean)}
-                          className="data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                          className="data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600 mt-0.5 w-5 h-5 flex-shrink-0"
                           data-testid="checkbox-include-token"
                         />
                         <Label 
                           htmlFor="include-token" 
-                          className="text-sm font-semibold text-red-800 cursor-pointer select-none h-6 flex items-center"
+                          className="text-sm font-semibold text-red-800 cursor-pointer select-none leading-5"
                           data-testid="label-include-token"
                         >
                           הוסף טוקן (₪{calculationResult.tokenPrice})
