@@ -225,6 +225,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile(swPath);
   });
 
+  app.get("/sw-v3.0.1.js", (req, res) => {
+    // Prevent aggressive caching of Service Worker to ensure updates are fetched
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    res.setHeader("Service-Worker-Allowed", "/");
+    res.setHeader("Content-Type", "application/javascript");
+    
+    const swPath = path.resolve(import.meta.dirname, "..", "client", "public", "sw-v3.0.1.js");
+    res.sendFile(swPath);
+  });
+
   app.get("/icon-192.png", (req, res) => {
     const iconPath = path.resolve(import.meta.dirname, "..", "client", "public", "icon-192.png");
     res.sendFile(iconPath);
@@ -233,6 +245,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/icon-512.png", (req, res) => {
     const iconPath = path.resolve(import.meta.dirname, "..", "client", "public", "icon-512.png");
     res.sendFile(iconPath);
+  });
+
+  // ===== VERSION CHECK API =====
+  app.get("/api/version", (req, res) => {
+    res.json({
+      version: "3.0.1",
+      buildTime: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      serviceWorker: "sw-v3.0.1.js"
+    });
   });
 
   // ===== ENHANCED PRICING API ROUTES (2025 Standard) =====

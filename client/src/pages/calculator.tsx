@@ -737,7 +737,7 @@ export default function Calculator() {
             <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 text-center">
               <p className="font-medium text-gray-700 text-xs sm:text-sm lg:text-base xl:text-lg" dir="rtl" data-testid="text-company">Comsign 2025</p>
               <p className="text-xs sm:text-xs lg:text-sm xl:text-base text-gray-600" data-testid="text-developer">© Powered By NadavT</p>
-              <p className="text-xs text-gray-400 mt-1" data-testid="text-version">v3.0 - {new Date().toLocaleDateString('he-IL')}</p>
+              <p className="text-xs text-gray-400 mt-1" data-testid="text-version">v3.0.1 - {new Date().toLocaleDateString('he-IL')} - SW:{navigator.serviceWorker?.controller ? 'Active' : 'None'}</p>
             </div>
 
           </CardContent>

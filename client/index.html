@@ -112,8 +112,7 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
-          const swUrl = '/sw.js?v=' + Date.now();
-          navigator.serviceWorker.register(swUrl)
+          navigator.serviceWorker.register('/sw-v3.0.1.js')
             .then(function(registration) {
               console.log('SW registered: ', registration);
               
