@@ -301,8 +301,7 @@ export default function Calculator() {
                           <Button 
                             onClick={() => {
                               setIsAdminModalOpen(false);
-                              setIsAdminLoggedIn(false);
-                              setAdminRole("");
+                              // Removed login state reset - user should stay logged in when closing modal
                             }}
                             className="w-full bg-gray-600 hover:bg-gray-700 text-white min-h-[48px] touch-manipulation active:scale-[0.98] transition-transform"
                             data-testid="button-close-admin"
