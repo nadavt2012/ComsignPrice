@@ -108,8 +108,8 @@ const corsOptions = {
       'https://comsignprice.shop'
     ];
     
-    // Add current Replit domain pattern
-    const replitPattern = /^https:\/\/[a-f0-9-]+\.picard\.replit\.dev$/;
+    // Add current Replit domain pattern - be more permissive for development
+    const replitPattern = /^https:\/\/[a-f0-9-]+.*\.replit\.dev$/;
     
     const allowedOrigins = [...envOrigins, ...defaultOrigins];
     

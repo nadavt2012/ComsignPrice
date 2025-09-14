@@ -1,6 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
+import { body, param, validationResult, ValidationChain } from "express-validator";
+import validator from "validator";
 import path from "path";
 import fs from "fs";
 import { createHmac } from "crypto";
@@ -9,37 +11,188 @@ import { createHmac } from "crypto";
 import { storage } from "./storage";
 import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate } from "@shared/schema";
 
-// ===== VALIDATION SCHEMAS =====
+// ===== ENHANCED VALIDATION SCHEMAS (2025 Standard) =====
+
+// Comprehensive calculation request validation
 const calculationRequestSchema = z.object({
-  projectType: z.string(),
-  years: z.number(),
-  certificates: z.number().min(1),
-  backupCertificates: z.number().min(0),
+  projectType: z.string()
+    .min(1, "סוג פרויקט נדרש")
+    .max(50, "סוג פרויקט ארוך מדי")
+    .regex(/^[a-zA-Z\u0590-\u05FF\s]+$/, "סוג פרויקט מכיל תווים לא חוקיים"),
+  years: z.number()
+    .int("מספר שנים חייב להיות מספר שלם")
+    .min(1, "מספר שנים חייב להיות לפחות 1")
+    .max(10, "מספר שנים מקסימלי הוא 10"),
+  certificates: z.number()
+    .int("מספר תעודות חייב להיות מספר שלם")
+    .min(1, "חייב להיות לפחות תעודה אחת")
+    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
+  backupCertificates: z.number()
+    .int("מספר תעודות גיבוי חייב להיות מספר שלם")
+    .min(0, "מספר תעודות גיבוי לא יכול להיות שלילי")
+    .max(1000, "מספר תעודות גיבוי מקסימלי הוא 1000"),
   includeToken: z.boolean().optional(),
-  dayOffset: z.number().optional(),
+  dayOffset: z.number()
+    .int("היסט ימים חייב להיות מספר שלם")
+    .min(-365, "היסט ימים מינימלי הוא -365")
+    .max(365, "היסט ימים מקסימלי הוא 365")
+    .optional(),
 });
 
 const adminLoginSchema = z.object({
-  password: z.string(),
+  password: z.string()
+    .min(1, "סיסמה נדרשת")
+    .max(100, "סיסמה ארוכה מדי")
+    .refine((pwd) => !validator.contains(pwd, '<>{}[]()'), "סיסמה מכילה תווים לא חוקיים"),
 });
 
 const adminConfigUpdateSchema = z.object({
-  projectType: z.string(),
-  years: z.number(),
-  basePrice: z.number(),
-  backupCertificatePrice: z.number(),
-  icon: z.string().optional(),
-  tokenPrice: z.number().optional(),
-  tokenIncluded: z.string().optional(),
+  projectType: z.string()
+    .min(1, "סוג פרויקט נדרש")
+    .max(50, "סוג פרויקט ארוך מדי")
+    .regex(/^[a-zA-Z\u0590-\u05FF\s]+$/, "סוג פרויקט מכיל תווים לא חוקיים"),
+  years: z.number()
+    .int("מספר שנים חייב להיות מספר שלם")
+    .min(1, "מספר שנים חייב להיות לפחות 1")
+    .max(10, "מספר שנים מקסימלי הוא 10"),
+  basePrice: z.number()
+    .min(0, "מחיר בסיס לא יכול להיות שלילי")
+    .max(1000000, "מחיר בסיס מקסימלי הוא מיליון שקלים"),
+  backupCertificatePrice: z.number()
+    .min(0, "מחיר תעודת גיבוי לא יכול להיות שלילי")
+    .max(1000000, "מחיר תעודת גיבוי מקסימלי הוא מיליון שקלים"),
+  icon: z.string()
+    .max(50, "שם אייקון ארוך מדי")
+    .regex(/^[a-zA-Z0-9\-_]*$/, "שם אייקון מכיל תווים לא חוקיים")
+    .optional(),
+  tokenPrice: z.number()
+    .min(0, "מחיר טוקן לא יכול להיות שלילי")
+    .max(10000, "מחיר טוקן מקסימלי הוא 10,000 שקלים")
+    .optional(),
+  tokenIncluded: z.enum(["true", "false", "optional"], {
+    errorMap: () => ({ message: "סטטוס טוקן חייב להיות 'true', 'false' או 'optional'" })
+  }).optional(),
 });
 
 const adminPasswordChangeSchema = z.object({
-  currentPassword: z.string().min(1, "נדרשת סיסמה נוכחית"),
-  newPassword: z.string().min(1, "נדרשת סיסמה חדשה"),
-  targetRole: z.enum(["manager"]),
+  currentPassword: z.string()
+    .min(1, "נדרשת סיסמה נוכחית")
+    .max(100, "סיסמה נוכחית ארוכה מדי"),
+  newPassword: z.string()
+    .min(6, "סיסמה חדשה חייבת להכיל לפחות 6 תווים")
+    .max(100, "סיסמה חדשה ארוכה מדי")
+    .refine((pwd) => /[A-Za-z]/.test(pwd), "סיסמה חדשה חייבת להכיל לפחות אות אחת")
+    .refine((pwd) => /\d/.test(pwd), "סיסמה חדשה חייבת להכיל לפחות ספרה אחת")
+    .refine((pwd) => !validator.contains(pwd, '<>{}[]()'), "סיסמה מכילה תווים לא חוקיים"),
+  targetRole: z.enum(["manager"], {
+    errorMap: () => ({ message: "תפקיד יעד חייב להיות 'manager'" })
+  }),
 });
 
 
+
+// ===== VALIDATION MIDDLEWARE =====
+
+// Enhanced validation error handler (2025 Standard)
+const handleValidationErrors = (req: any, res: any, next: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const formattedErrors = errors.array().map((error: any) => ({
+      field: error.path || error.param || 'unknown',
+      message: error.msg || 'Invalid value',
+      value: error.value || 'undefined'
+    }));
+    
+    return res.status(400).json({
+      error: "נתונים לא תקינים",
+      details: formattedErrors,
+      timestamp: new Date().toISOString()
+    });
+  }
+  next();
+};
+
+// Input sanitization middleware
+const sanitizeInput = (req: any, res: any, next: any) => {
+  const sanitizeValue = (value: any): any => {
+    if (typeof value === 'string') {
+      // Basic XSS protection - remove potential script tags and dangerous HTML
+      return value
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .trim();
+    }
+    if (typeof value === 'object' && value !== null) {
+      const sanitized: any = {};
+      for (const key in value) {
+        sanitized[key] = sanitizeValue(value[key]);
+      }
+      return sanitized;
+    }
+    return value;
+  };
+
+  if (req.body) {
+    req.body = sanitizeValue(req.body);
+  }
+  if (req.query) {
+    req.query = sanitizeValue(req.query);
+  }
+  if (req.params) {
+    req.params = sanitizeValue(req.params);
+  }
+  
+  next();
+};
+
+// Express-validator chains for specific endpoints
+const calculateValidationChain: ValidationChain[] = [
+  body('projectType')
+    .isString()
+    .withMessage('סוג פרויקט חייב להיות מחרוזת')
+    .isLength({ min: 1, max: 50 })
+    .withMessage('סוג פרויקט חייב להכיל 1-50 תווים')
+    .matches(/^[a-zA-Z\u0590-\u05FF\s]+$/)
+    .withMessage('סוג פרויקט מכיל תווים לא חוקיים'),
+  
+  body('years')
+    .isInt({ min: 1, max: 10 })
+    .withMessage('מספר שנים חייב להיות בין 1 ל-10'),
+  
+  body('certificates')
+    .isInt({ min: 1, max: 1000 })
+    .withMessage('מספר תעודות חייב להיות בין 1 ל-1000'),
+  
+  body('backupCertificates')
+    .isInt({ min: 0, max: 1000 })
+    .withMessage('מספר תעודות גיבוי חייב להיות בין 0 ל-1000'),
+  
+  body('includeToken')
+    .optional()
+    .isBoolean()
+    .withMessage('כלול טוקן חייב להיות ערך בוליאני'),
+  
+  body('dayOffset')
+    .optional()
+    .isInt({ min: -365, max: 365 })
+    .withMessage('היסט ימים חייב להיות בין -365 ל-365')
+];
+
+const adminLoginValidationChain: ValidationChain[] = [
+  body('password')
+    .isString()
+    .withMessage('סיסמה חייבת להיות מחרוזת')
+    .isLength({ min: 1, max: 100 })
+    .withMessage('סיסמה חייבת להכיל 1-100 תווים')
+    .custom((value) => {
+      if (validator.contains(value, '<>{}[]()')) {
+        throw new Error('סיסמה מכילה תווים לא חוקיים');
+      }
+      return true;
+    })
+];
 
 // ===== MAIN ROUTES REGISTRATION =====
 export async function registerRoutes(app: Express): Promise<Server> {
