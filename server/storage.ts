@@ -24,7 +24,7 @@ class DatabaseStorage implements IStorage {
   private managerPassword: string = process.env.MANAGER_PASSWORD || "manager123";
   private configsCache: PricingConfig[] | null = null;
   private cacheTimestamp: number = 0;
-  private readonly CACHE_DURATION = 30000; // 30 seconds
+  private readonly CACHE_DURATION = 300000; // 5 minutes for better performance
 
   constructor() {
     const sql = neon(process.env.DATABASE_URL!);

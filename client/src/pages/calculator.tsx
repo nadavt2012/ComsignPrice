@@ -110,10 +110,11 @@ export default function Calculator() {
   // ===== DYNAMIC PROJECT TYPES FROM DATABASE =====
   const { data: allConfigs = [] } = useQuery<PricingConfig[]>({
     queryKey: ["/api/pricing"],
-    staleTime: 1000 * 30, // 30 seconds cache for performance
-    gcTime: 1000 * 60 * 2, // 2 minutes cleanup
+    staleTime: 1000 * 60 * 5, // 5 minutes cache for much better performance
+    gcTime: 1000 * 60 * 10, // 10 minutes cleanup
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false, // Don't refetch on network reconnect
   });
 
   // Create unique project types from database
