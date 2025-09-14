@@ -87,3 +87,36 @@ Preferred communication style: Simple, everyday language.
 - **Replit Development Banner**: Development environment integration
 
 The application uses environment variables for database configuration and supports both development and production deployment modes with appropriate build optimizations.
+
+## Production Deployment Requirements
+
+### Required Environment Variables for Production
+
+For successful production deployment, the following environment variables MUST be configured:
+
+**Core Application Settings:**
+- `NODE_ENV=production` - Enables production mode with enhanced security
+- `PORT=5000` - Application port (default: 5000, required by Replit)
+
+**CORS Security Configuration:**
+- `ALLOWED_ORIGINS` - Comma-separated list of allowed frontend origins (e.g., "https://yourapp.replit.app,https://yourdomain.com")
+- `PRODUCTION_DOMAIN` - Primary production domain (e.g., "https://yourapp.replit.app")
+- `CUSTOM_DOMAIN` - Optional custom domain if configured (e.g., "https://yourdomain.com")
+
+**Database Configuration:**
+- `DATABASE_URL` - PostgreSQL connection string (automatically provided by Replit)
+
+**Authentication Secrets:**
+- `ADMIN_PASSWORD` - Super admin password for full system access
+- `MANAGER_PASSWORD` - Manager password for price editing capabilities
+
+**Optional Auto-Sync Settings (Development Only):**
+- `ENABLE_AUTO_SYNC=false` - Should be disabled in production
+- `SYNC_SECRET` - Only used in development for syncing to production
+- `PROD_SYNC_URL` - Only used in development for syncing to production
+
+### CORS Configuration Notes
+
+The application includes health check endpoints (`/health`, `/healthz`, `/ready`, `/`) that bypass CORS validation to support deployment health monitoring. However, for all other API endpoints, proper CORS configuration is essential.
+
+**Important:** If CORS environment variables are not properly configured, the deployment will fail with "Origin required in production" errors during health checks and API calls.

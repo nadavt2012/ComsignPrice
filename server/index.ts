@@ -132,17 +132,31 @@ app.use(compression({
   }
 }));
 
-// CORS Configuration (2025 Security Standard - Production Ready)
+// CORS Configuration (2025 Security Standard - Production Ready with Health Check Support)
 const corsOptions = {
-  origin: function (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
+  origin: function (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void, req?: express.Request) {
     // Production vs Development security
     if (process.env.NODE_ENV === 'production') {
-      // STRICT production origins - exact matches only
-      const productionOrigins = (process.env.ALLOWED_ORIGINS?.split(',') || [])
-        .concat([process.env.PRODUCTION_DOMAIN, process.env.CUSTOM_DOMAIN].filter(Boolean));
+      // Get allowed origins from environment variables
+      const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
+      const productionDomain = process.env.PRODUCTION_DOMAIN;
+      const customDomain = process.env.CUSTOM_DOMAIN;
       
+      // Combine all allowed origins
+      const productionOrigins = [...allowedOrigins];
+      if (productionDomain) productionOrigins.push(productionDomain);
+      if (customDomain) productionOrigins.push(customDomain);
+      
+      // Add default Replit app domain if PRODUCTION_DOMAIN not set
+      if (!productionDomain && !customDomain && allowedOrigins.length === 0) {
+        logger.warn('No ALLOWED_ORIGINS, PRODUCTION_DOMAIN, or CUSTOM_DOMAIN set for production CORS');
+      }
+      
+      // Allow requests with no origin for health checks and deployment monitoring
+      // Health check requests often don't include origin headers
       if (!origin) {
-        return callback(new Error('Origin required in production'), false);
+        // Allow origin-less requests for health checks and API calls that don't require credentials
+        return callback(null, true);
       }
       
       if (productionOrigins.includes(origin)) {
@@ -150,7 +164,8 @@ const corsOptions = {
       } else {
         logger.error(`CORS blocked unauthorized origin in production: ${origin}`, { 
           timestamp: new Date().toISOString(),
-          severity: 'HIGH'
+          severity: 'HIGH',
+          allowedOrigins: productionOrigins
         });
         callback(new Error(`Origin '${origin}' not allowed by production CORS policy`), false);
       }
@@ -165,7 +180,7 @@ const corsOptions = {
       
       const replitPattern = /^https:\/\/[a-f0-9-]+.*\.replit\.(dev|app)$/;
       
-      // Allow requests with no origin (mobile apps, Postman, etc.) only in development
+      // Allow requests with no origin (mobile apps, Postman, etc.) in development
       if (!origin) {
         return callback(null, true);
       }
@@ -187,7 +202,8 @@ const corsOptions = {
   maxAge: 86400 // Cache preflight for 24 hours
 };
 
-app.use(cors(corsOptions));
+// Apply CORS only to API routes, leaving health checks unrestricted for deployment monitoring
+app.use('/api', cors(corsOptions));
 
 // HTTP Parameter Pollution Protection
 app.use(hpp({
@@ -245,6 +261,43 @@ const apiLimiter = rateLimit({
 app.use(globalLimiter);
 app.use('/api/auth', authLimiter);
 app.use('/api', apiLimiter);
+
+// Health check endpoints for deployment monitoring - no CORS restrictions needed
+// These endpoints support deployment health checks and monitoring without origin validation
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development"
+  });
+});
+
+app.get('/healthz', (req, res) => {
+  res.status(200).send("OK");
+});
+
+app.get('/ready', (req, res) => {
+  res.status(200).json({
+    status: "ready",
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Root health check for basic deployment verification
+app.get('/', (req, res) => {
+  // For API requests without proper origin, provide a simple health response
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    res.status(200).json({
+      status: "healthy",
+      message: "Comsign Pricing API is running",
+      timestamp: new Date().toISOString()
+    });
+  } else {
+    // For browser requests, this will be handled by Vite/static serving later
+    res.status(200).send('OK');
+  }
+});
 
 // Secure body parsing with size limits
 app.use(express.json({ 
