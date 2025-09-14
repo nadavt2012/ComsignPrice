@@ -347,41 +347,47 @@ input, textarea {
   to { transform: rotate(360deg); }
 }
 
-/* אנימציה מיוחדת לכפתור חישוב מתקדם - specificity גבוהה */
-button[data-testid="button-advanced-calculation"].cursor-pointer,
-button[data-testid="button-advanced-calculation"] {
-  transition: transform 0.1s ease-out !important;
-  animation: none !important;
+/* אנימציה פשוטה לכפתור חישוב מתקדם */
+[data-testid="button-advanced-calculation"] {
+  transition: transform 0.15s ease !important;
+  transform: translateZ(0) scale(1) !important;
 }
 
-button[data-testid="button-advanced-calculation"].cursor-pointer:hover,
-button[data-testid="button-advanced-calculation"]:hover {
-  transform: translateZ(0) scale(1.02) !important;
-  transition: transform 0.1s ease-out !important;
+[data-testid="button-advanced-calculation"]:hover {
+  transform: translateZ(0) scale(1.05) !important;
 }
 
-/* Active state with higher specificity to override hover */
-button[data-testid="button-advanced-calculation"].cursor-pointer:active,
-button[data-testid="button-advanced-calculation"]:active:hover,
-button[data-testid="button-advanced-calculation"]:active {
-  transform: translateZ(0) scale(0.98) !important;
-  transition: transform 0.05s ease-out !important;
+[data-testid="button-advanced-calculation"]:active {
+  transform: translateZ(0) scale(0.95) !important;
 }
 
-/* ===== ביטול מוחלט של כל האנימציות ===== */
+/* ===== ביטול אנימציות ללא כפתור מתקדם וספינר ===== */
 html {
   scroll-behavior: auto !important;
 }
 
-*:not(.loading-spinner):not([data-testid="button-advanced-calculation"]),
-*:not(.loading-spinner):not([data-testid="button-advanced-calculation"])::before,
-*:not(.loading-spinner):not([data-testid="button-advanced-calculation"])::after {
+/* ביטול אנימציות לכפתורים רגילים */
+button:not([data-testid="button-advanced-calculation"]) {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ביטול אנימציות לדרופדאונים - ספציפי מאוד */
+[data-radix-select-content] {
   animation: none !important;
   animation-duration: 0s !important;
-  animation-delay: 0s !important;
   transition: none !important;
   transition-duration: 0s !important;
-  transition-delay: 0s !important;
+}
+
+[data-radix-select-trigger]:not([data-testid*="button-advanced"]) {
+  animation: none !important;  
+  transition: none !important;
+}
+
+[data-radix-dropdown-menu-content] {
+  animation: none !important;
+  transition: none !important;
 }
 
 /* ===== PREMIUM SCROLLBAR ===== */
