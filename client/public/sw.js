@@ -1,4 +1,4 @@
-const CACHE_NAME = 'comsign-calculator-v2';
+const CACHE_NAME = 'comsign-calculator-v3-' + Date.now();
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -17,38 +17,36 @@ self.addEventListener('install', function(event) {
   );
 });
 
-// שליפת קבצים מהמטמון עם Cache-First strategy למהירות מקסימלית
+// שליפת קבצים מהרשת תמיד - Network-First למניעת cache ישן
 self.addEventListener('fetch', function(event) {
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return;
   }
 
+  // For API calls, always use network (no caching)
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // For main app files, prioritize network over cache
   event.respondWith(
-    caches.match(event.request)
-      .then(function(response) {
-        // Cache hit - return immediately
-        if (response) {
-          return response;
-        }
-        
-        // Cache miss - fetch from network and cache
-        return fetch(event.request).then(function(response) {
-          // Don't cache non-successful responses
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone response for caching
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, responseToCache);
-          });
-
-          return response;
+    fetch(event.request).then(function(response) {
+      // Network success - cache and return fresh content
+      if (response && response.status === 200) {
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, responseToCache);
         });
+        return response;
       }
-    )
+      // Network failed - fallback to cache if available
+      return caches.match(event.request);
+    }).catch(function() {
+      // Network completely failed - try cache as last resort
+      return caches.match(event.request);
+    })
   );
 });
 
