@@ -251,7 +251,7 @@ export default function Calculator() {
                   <img 
                     src={comsignLogo} 
                     alt="Comsign Logo" 
-                    className="h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16 object-contain rounded-lg shadow-sm"
+                    className="h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 object-contain rounded-lg shadow-sm"
                     data-testid="logo-comsign"
                   />
                 </div>
@@ -330,10 +330,10 @@ export default function Calculator() {
             </div>
 
             {/* Calculator Form */}
-            <div className="space-y-4 lg:space-y-1 xl:space-y-2">
+            <div className="space-y-3 lg:space-y-1 xl:space-y-2">
               {/* Project Type Selection */}
               <div>
-                <Label className="text-xs lg:text-sm xl:text-sm font-semibold text-gray-700 mb-1 block text-right" dir="rtl" data-testid="label-project-type">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
                   <span>סוג הפרויקט</span>
                 </Label>
                 <Select value={projectType} onValueChange={(value) => {
@@ -350,7 +350,7 @@ export default function Calculator() {
                     {projectTypes.map((type) => {
                       const IconComponent = type.icon;
                       return (
-                        <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`} className="lg:py-3 xl:py-4">
+                        <SelectItem key={type.value} value={type.value} data-testid={`option-project-${type.value}`} className="py-3">
                           <div className="flex items-center gap-2 lg:gap-3 justify-end" style={{direction: 'rtl'}}>
                             <span className="text-base lg:text-lg xl:text-xl">{type.label}</span>
                             <IconComponent className="h-4 w-4 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
@@ -364,7 +364,7 @@ export default function Calculator() {
 
               {/* Years Selection */}
               <div>
-                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-years">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
                   <span>כמות שנים</span>
                 </Label>
                 <Select value={years} onValueChange={(value) => {
@@ -379,7 +379,7 @@ export default function Calculator() {
                   </SelectTrigger>
                   <SelectContent>
                     {availableYears.map((year) => (
-                      <SelectItem key={year} value={year.toString()} className="text-sm lg:text-base xl:text-lg py-1" data-testid={`option-years-${year}`}>
+                      <SelectItem key={year} value={year.toString()} className="text-base py-3" data-testid={`option-years-${year}`}>
                         {year} שנים
                       </SelectItem>
                     ))}
@@ -389,7 +389,7 @@ export default function Calculator() {
 
               {/* Certificate Quantity */}
               <div>
-                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-certificates">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
                   <span>כמות תעודות</span>
                 </Label>
                 <Input
@@ -407,7 +407,7 @@ export default function Calculator() {
 
               {/* Backup Certificates */}
               <div>
-                <Label className="text-sm lg:text-base xl:text-lg font-semibold text-gray-700 mb-2 lg:mb-3 block text-right" dir="rtl" data-testid="label-backup-certificates">
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
                   <span>תעודות גיבוי</span>
                 </Label>
                 <Input
@@ -471,7 +471,7 @@ export default function Calculator() {
                   <div className="space-y-2 p-2" dir="rtl">
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="start-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
+                        <Label htmlFor="start-date" className="text-sm font-semibold text-gray-700 mb-2 block text-right">
                           תאריך הנפקת הכרטיס
                         </Label>
                         <Input
@@ -486,7 +486,7 @@ export default function Calculator() {
                       </div>
                       
                       <div>
-                        <Label htmlFor="end-date" className="text-sm font-medium text-gray-700 mb-1 block text-right">
+                        <Label htmlFor="end-date" className="text-sm font-semibold text-gray-700 mb-2 block text-right">
                           תאריך תום תוקף המקורי
                         </Label>
                         <Input
@@ -1318,7 +1318,7 @@ function AddConfigForm({
           {yearConfigs.map((config, index) => (
             <div key={index} className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-white border-2 rounded-xl shadow-sm hover:shadow-md cursor-pointer">
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-1 block">שנים</Label>
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block">שנים</Label>
                 <Input
                   type="number"
                   min="1"
@@ -1331,7 +1331,7 @@ function AddConfigForm({
               </div>
               
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-1 block">מחיר בסיס</Label>
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block">מחיר בסיס</Label>
                 <Input
                   type="number"
                   min="0"
@@ -1344,7 +1344,7 @@ function AddConfigForm({
               </div>
               
               <div>
-                <Label className="text-sm font-medium text-gray-700 mb-1 block">מחיר גיבוי</Label>
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block">מחיר גיבוי</Label>
                 <Input
                   type="number"
                   min="0"
@@ -1379,7 +1379,7 @@ function AddConfigForm({
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="token-price" className="text-sm font-medium text-gray-700 mb-1 block">מחיר טוקן</Label>
+            <Label htmlFor="token-price" className="text-sm font-semibold text-gray-700 mb-2 block">מחיר טוקן</Label>
             <Input
               id="token-price"
               type="number"
@@ -1394,7 +1394,7 @@ function AddConfigForm({
           </div>
           
           <div>
-            <Label htmlFor="token-included" className="text-sm font-medium text-gray-700 mb-1 block">טוקן במחיר</Label>
+            <Label htmlFor="token-included" className="text-sm font-semibold text-gray-700 mb-2 block">טוקן במחיר</Label>
             <select
               id="token-included"
               value={tokenIncluded}
