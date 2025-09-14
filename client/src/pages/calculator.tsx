@@ -426,17 +426,17 @@ export default function Calculator() {
               {calculationResult && calculationResult.tokenPrice && (
                 <div>
                   <div className="p-3 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-xl">
-                    <div className="flex items-center gap-3" dir="rtl">
+                    <div className="flex items-center justify-start gap-3" dir="rtl">
                       <Checkbox
                         id="include-token"
                         checked={includeToken}
                         onCheckedChange={(checked) => setIncludeToken(checked as boolean)}
-                        className="data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                        className="data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600 flex-shrink-0"
                         data-testid="checkbox-include-token"
                       />
                       <Label 
                         htmlFor="include-token" 
-                        className="text-sm font-semibold text-red-800 cursor-pointer select-none"
+                        className="text-sm font-semibold text-red-800 cursor-pointer select-none leading-none flex items-center"
                         data-testid="label-include-token"
                       >
                         הוסף טוקן (₪{calculationResult.tokenPrice})
