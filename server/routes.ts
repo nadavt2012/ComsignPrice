@@ -411,6 +411,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin - Clear all pricing configurations (for testing)
+  app.post("/api/admin/clear-all", async (req, res) => {
+    try {
+      const success = await storage.clearAllPricingConfigs();
+      if (success) {
+        // Trigger sync to production
+        if (typeof global.triggerSync === 'function') {
+          global.triggerSync();
+        }
+        res.json({ success: true, message: "All configurations cleared successfully" });
+      } else {
+        res.status(500).json({ success: false, message: "Failed to clear configurations" });
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Error clearing configurations" });
+    }
+  });
+
+  // Admin - Force sync endpoint
+  app.post("/api/admin/force-sync", async (req, res) => {
+    try {
+      if (typeof global.triggerSync === 'function') {
+        global.triggerSync();
+        res.json({ success: true, message: "Sync triggered successfully" });
+      } else {
+        res.status(500).json({ success: false, message: "Sync function not available" });
+      }
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Error triggering sync" });
+    }
+  });
+
   // Admin password change endpoint (only for super admin)
   app.post("/api/admin/change-password", async (req, res) => {
     try {
