@@ -30,6 +30,12 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
+  // DEVELOPMENT: Always fetch fresh, never cache CSS/JS
+  if (location.hostname === 'localhost' || location.hostname.includes('replit')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // For main app files, prioritize network over cache
   event.respondWith(
     fetch(event.request).then(function(response) {
