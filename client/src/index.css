@@ -373,22 +373,59 @@ button:not([data-testid="button-advanced-calculation"]) {
   animation: none !important;
 }
 
-/* ביטול אנימציות לדרופדאונים - ספציפי מאוד */
+/* אנימציות מהירות ואינטואיטיביות לדרופדאונים */
 [data-radix-select-content] {
-  animation: none !important;
-  animation-duration: 0s !important;
-  transition: none !important;
-  transition-duration: 0s !important;
+  animation: slideDownFade 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform-origin: var(--radix-select-content-transform-origin);
 }
 
-[data-radix-select-trigger]:not([data-testid*="button-advanced"]) {
-  animation: none !important;  
-  transition: none !important;
+[data-radix-select-trigger] {
+  transition: all 0.15s ease !important;
+}
+
+[data-radix-select-trigger]:hover {
+  background-color: var(--gray-50) !important;
+  transform: scale(1.01) !important;
+}
+
+[data-radix-select-trigger]:active {
+  transform: scale(0.99) !important;
 }
 
 [data-radix-dropdown-menu-content] {
-  animation: none !important;
-  transition: none !important;
+  animation: slideDownFade 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* אנימציות מותקנות מראש */
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+}
+
+/* אנימציות סגירה */
+[data-radix-select-content][data-state="closed"] {
+  animation: slideUpFade 0.1s ease-out !important;
+}
+
+[data-radix-dropdown-menu-content][data-state="closed"] {
+  animation: slideUpFade 0.1s ease-out !important;
 }
 
 /* ===== PREMIUM SCROLLBAR ===== */

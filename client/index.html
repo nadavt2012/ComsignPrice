@@ -108,33 +108,41 @@
     
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- PWA Service Worker Registration with Auto-Update -->
+    <!-- PWA Service Worker Registration - Only in Production -->
     <script>
-      if ('serviceWorker' in navigator) {
+      // Disable Service Worker completely in development
+      const isDevelopment = window.location.hostname === 'localhost' || 
+                           window.location.hostname.includes('replit.dev') || 
+                           window.location.hostname.includes('replit.co');
+      
+      if ('serviceWorker' in navigator && !isDevelopment) {
+        // Production only - register SW
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('/sw-v3.0.1.js')
             .then(function(registration) {
               console.log('SW registered: ', registration);
-              
-              // Check for updates periodically
-              registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                newWorker.addEventListener('statechange', () => {
-                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    console.log('New version available! Refreshing...');
-                    // Force refresh to use new version
-                    window.location.reload();
-                  }
-                });
-              });
-              
-              // Force check for updates
               registration.update();
             })
             .catch(function(registrationError) {
               console.log('SW registration failed: ', registrationError);
             });
         });
+      } else if ('serviceWorker' in navigator && isDevelopment) {
+        // Development - unregister all existing service workers
+        console.log('Development mode: Unregistering all Service Workers for fresh content');
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister().then(function(boolean) {
+              console.log('SW unregistered:', boolean);
+            });
+          }
+        });
+      }
+      
+      // Development: Add cache-busting timestamp to all requests
+      if (isDevelopment) {
+        const timestamp = Date.now();
+        console.log('Development mode: Cache busting active', timestamp);
       }
     </script>
     

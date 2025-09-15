@@ -147,9 +147,13 @@ const corsOptions = {
       if (productionDomain) productionOrigins.push(productionDomain);
       if (customDomain) productionOrigins.push(customDomain);
       
-      // Add default Replit app domain if PRODUCTION_DOMAIN not set
+      // Add default Replit app domains as fallback
       if (!productionDomain && !customDomain && allowedOrigins.length === 0) {
-        logger.warn('No ALLOWED_ORIGINS, PRODUCTION_DOMAIN, or CUSTOM_DOMAIN set for production CORS');
+        logger.info('No specific origins configured, allowing all .replit.app and .replit.co domains');
+        // Allow all Replit published domains as fallback
+        if (origin && (origin.endsWith('.replit.app') || origin.endsWith('.replit.co') || origin.includes('.replit.'))) {
+          return callback(null, true);
+        }
       }
       
       // Allow requests with no origin for health checks and deployment monitoring

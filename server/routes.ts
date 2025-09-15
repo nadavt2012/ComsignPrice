@@ -367,8 +367,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const backupPrice = pricingConfig.backupCertificatePrice;
       const tokenPrice = pricingConfig.tokenPrice || 120;
       
-      // Calculate total price: regular certificates + backup certificates
-      const regularCertificatesCost = regularCertificates * basePrice;
+      // Calculate total price: base price for project + backup certificates cost
+      // Base price is for the entire project, not per certificate
+      const regularCertificatesCost = basePrice;
       const backupCertificatesCost = backupCertificates * backupPrice;
       let totalPrice = regularCertificatesCost + backupCertificatesCost;
       const originalPrice = totalPrice;

@@ -1,14 +1,16 @@
 {
-  "name": "מחירון פרויקטים - קומסיין",
+  "name": "מחירון קומסיין - מחשבון מחירים מתקדם",
   "short_name": "מחירון קומסיין",
-  "description": "מחשבון מחירים מתקדם לפרויקטים שונים של קומסיין",
+  "description": "אפליקציית מחשבון מחירים מתקדמת לפרויקטים שונים של קומסיין - זמינה לשימוש אופליין",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#ef4444",
-  "orientation": "portrait",
+  "orientation": "any",
   "dir": "rtl",
   "lang": "he",
+  "scope": "/",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -24,5 +26,25 @@
     }
   ],
   "categories": ["business", "productivity", "finance"],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "shortcuts": [
+    {
+      "name": "חישוב מהיר",
+      "short_name": "חישוב",
+      "description": "פתיחה ישירה למחשבון המחירים",
+      "url": "/",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 }
