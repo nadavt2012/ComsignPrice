@@ -47,16 +47,32 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 30, // 30 seconds
-      gcTime: 1000 * 60 * 2, // 2 minutes cleanup
-      retry: 1,
+      refetchOnReconnect: 'always',
+      staleTime: 1000 * 60 * 5, // 5 minutes - increased for better performance
+      gcTime: 1000 * 60 * 10, // 10 minutes cleanup - increased for better caching
+      retry: (failureCount, error: any) => {
+        // Smart retry: only retry on network errors, not on 4xx errors
+        if (error?.message?.includes('4')) return false;
+        return failureCount < 2;
+      },
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      networkMode: 'always',
     },
     mutations: {
       retry: 1,
+      networkMode: 'always',
       onSuccess: () => {
-        // Invalidate admin configs immediately on mutations
-        queryClient.invalidateQueries({ queryKey: ['/api/admin/configs'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/configs'] });
+        // Efficient selective invalidation
+        queryClient.invalidateQueries({ 
+          queryKey: ['/api/admin/configs'],
+          exact: false,
+          refetchType: 'active'
+        });
+        queryClient.invalidateQueries({ 
+          queryKey: ['/api/configs'],
+          exact: false,
+          refetchType: 'active'
+        });
       },
     },
   },

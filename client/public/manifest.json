@@ -4,7 +4,7 @@
   "description": "אפליקציית מחשבון מחירים מתקדמת לפרויקטים שונים של קומסיין - זמינה לשימוש אופליין",
   "start_url": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "display_override": ["window-controls-overlay", "standalone", "fullscreen", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#ef4444",
   "orientation": "any",
@@ -25,11 +25,13 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "finance"],
+  "categories": ["business", "productivity", "finance", "utilities"],
   "prefer_related_applications": false,
   "edge_side_panel": {
-    "preferred_width": 400
+    "preferred_width": 480
   },
+  "handle_links": "preferred",
+  "protocol_handlers": [],
   "launch_handler": {
     "client_mode": "focus-existing"
   },

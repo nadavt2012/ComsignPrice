@@ -23,14 +23,36 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
     
-    <!-- Optimized fonts loading -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Advanced Performance Optimization (2025) -->
+    <!-- Critical Resource Hints -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
     
-    <!-- Preload critical resources -->
-    <link rel="preload" href="/icon-192.png" as="image">
+    <!-- Preload Critical CSS Variables -->
+    <link rel="preload" href="/src/index.css" as="style">
+    
+    <!-- Optimized Hebrew + Latin Fonts Loading with font-display: swap -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Heebo:wght@300;400;500;600;700;800;900&family=Assistant:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Prefetch Next-Likely Resources -->
+    <link rel="prefetch" href="/src/lib/queryClient.ts">
+    <link rel="prefetch" href="/src/pages/calculator.tsx">
+    
+    <!-- Enhanced Critical Resource Preloading -->
+    <link rel="preload" href="/icon-192.png" as="image" type="image/png">
+    <link rel="preload" href="/icon-512.png" as="image" type="image/png">
     <link rel="preload" href="/manifest.json" as="fetch" crossorigin>
+    
+    <!-- Preload Critical JavaScript Modules -->
+    <link rel="modulepreload" href="/src/main.tsx">
+    <link rel="modulepreload" href="/src/App.tsx">
+    
+    <!-- Resource Hints for Performance -->
+    <link rel="prefetch" href="/src/components/ui/button.tsx">
+    <link rel="prefetch" href="/src/components/ui/card.tsx">
+    <link rel="prefetch" href="/src/components/ui/input.tsx">
   </head>
   <body>
     <div id="root"></div>
