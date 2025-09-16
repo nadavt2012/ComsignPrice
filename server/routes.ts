@@ -271,19 +271,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
-  app.get("/api/pricing", setCacheHeaders, async (req, res) => {
+  app.get("/api/pricing", async (req, res) => {
     try {
       const configs = await storage.getPricingConfigs();
       
-      // Generate ETag based on configs content for better caching
-      const configHash = JSON.stringify(configs).length.toString(36);
-      const etag = `"pricing-${configHash}"`;
-      res.set('ETag', etag);
-      
-      // Check if client already has this version
-      if (req.headers['if-none-match'] === etag) {
-        return res.status(304).end();
-      }
+      // FIXED: Force no-cache for production to ensure fresh data after sync
+      res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Last-Modified': new Date().toUTCString()
+      });
       
       res.json(configs);
     } catch (error) {
