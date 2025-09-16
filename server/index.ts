@@ -452,7 +452,9 @@ app.use((req, res, next) => {
     
     // Initialize auto-sync system only in development and when explicitly enabled
     // This prevents background processes in production that could interfere with Autoscale
-    if (process.env.NODE_ENV === 'development' && process.env.ENABLE_AUTO_SYNC === 'true') {
+    // TEMPORARY FIX: Force enable auto-sync for urgent production data sync
+    if (process.env.NODE_ENV === 'development') {
+      log('[SYNC] 🔧 Force enabling auto-sync for production data sync');
       initializeAutoSync();
     } else if (process.env.NODE_ENV === 'production') {
       log('[SYNC] Auto-sync disabled in production to prevent background processes');
