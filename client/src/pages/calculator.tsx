@@ -701,15 +701,16 @@ export default function Calculator() {
               </Dialog>
             </div>
 
-            {/* Price Display */}
-            <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 p-2 sm:p-3 lg:p-3 xl:p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
-              <div className="text-center">
-                <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
-                <div className="bg-white border-gray-200 rounded-lg p-2 sm:p-3 lg:p-3 xl:p-4 shadow-lg border">
-                  <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
-                    ₪{calculationResult?.totalPrice?.toLocaleString() || 0}
-                  </p>
-                </div>
+            {/* Price Display - Only show when there's a result */}
+            {calculationResult && calculationResult.totalPrice !== null && calculationResult.totalPrice !== undefined && (
+              <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 p-2 sm:p-3 lg:p-3 xl:p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
+                <div className="text-center">
+                  <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
+                  <div className="bg-white border-gray-200 rounded-lg p-2 sm:p-3 lg:p-3 xl:p-4 shadow-lg border">
+                    <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
+                      ₪{calculationResult.totalPrice.toLocaleString()}
+                    </p>
+                  </div>
                 {calculationResult?.discountInfo && (
                   <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-600 mt-2 lg:mt-3 font-medium" data-testid="text-discount-info">
                     {calculationResult.discountInfo}
@@ -732,6 +733,7 @@ export default function Calculator() {
                 )}
               </div>
             </div>
+            )}
 
             {/* Footer */}
             <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 text-center">
