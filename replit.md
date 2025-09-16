@@ -3,6 +3,9 @@
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
 **Recent Updates (September 2025):**
+- **Critical Bug Fix**: Fixed frontend price display issue where calculations weren't showing on published website despite API working correctly
+- **Auto-Version System**: Implemented automatic version numbering for deployments with simple incrementing numbers (format: v3.0.2, v3.0.3, etc.)
+- **Version Tracking**: Added `scripts/generate-version.js` script and `useVersion` React hook for dynamic version display and deployment tracking
 - **Design Cleanup**: Removed heavy border-2 styling framework for cleaner, minimal visual design with subtle borders and shadows
 - **Desktop Layout Optimization**: Compressed spacing and layout elements to ensure complete dashboard visibility without vertical scrolling
 - **Maximum HTTP Security (2025 Standards)**: Enhanced with strict CSP, COEP/COOP/CORP headers, certificate transparency, permissions policies, and production-ready CORS with exact origin matching
@@ -141,12 +144,19 @@ The application includes an automatic database synchronization system that works
 
 ### Recommended Workflow for Production Updates
 
-Until Replit provides automated deployment features, follow this workflow:
+The application now includes automatic version tracking for every deployment:
 
 1. **Test in Development**: Make and test all changes in the development environment
 2. **Verify Functionality**: Ensure calculations, UI, and all features work correctly  
-3. **Manual Republish**: Use the Replit "Publish" button to update the production website
-4. **Verify Production**: Check that changes are live on the published URL
+3. **Generate New Version**: Run `node scripts/generate-version.js` to create a unique version for this deployment
+4. **Deploy via Autoscale**: Use the Replit "Redeploy" button to update the production website
+5. **Verify Production**: Check that changes are live on the published URL and verify the new version number appears at the bottom of the calculator
+
+**Automatic Version Generation:**
+- Each deployment creates a unique version number in format: `v3.0.2`, `v3.0.3`, etc.
+- Version is automatically displayed at the bottom of the calculator interface
+- Helps track which changes are live on the production website
+- No need to manually update version numbers in code
 
 ### Future Enhancement Options
 
