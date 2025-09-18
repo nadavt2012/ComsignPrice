@@ -149,9 +149,9 @@ const corsOptions = {
       
       // Add default Replit app domains as fallback
       if (!productionDomain && !customDomain && allowedOrigins.length === 0) {
-        logger.info('No specific origins configured, allowing all .replit.app and .replit.co domains');
-        // Allow all Replit published domains as fallback
-        if (origin && (origin.endsWith('.replit.app') || origin.endsWith('.replit.co') || origin.includes('.replit.'))) {
+        logger.info('No specific origins configured, allowing all .replit.app and .replit.co domains and comsignprice.shop');
+        // Allow all Replit published domains and comsignprice.shop as fallback
+        if (origin && (origin.endsWith('.replit.app') || origin.endsWith('.replit.co') || origin.includes('.replit.') || origin === 'https://comsignprice.shop')) {
           return callback(null, true);
         }
       }
@@ -179,7 +179,8 @@ const corsOptions = {
         'http://localhost:3000',
         'http://localhost:5000',
         'http://127.0.0.1:3000',
-        'http://127.0.0.1:5000'
+        'http://127.0.0.1:5000',
+        'https://comsignprice.shop'
       ];
       
       const replitPattern = /^https:\/\/[a-f0-9-]+.*\.replit\.(dev|app)$/;
