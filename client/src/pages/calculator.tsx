@@ -252,7 +252,7 @@ export default function Calculator() {
   const { versionInfo } = useVersion();
 
   // ===== DYNAMIC PROJECT TYPES FROM DATABASE =====
-  const { data: allConfigs = [] } = useQuery<PricingConfig[]>({
+  const { data: allConfigs = [], isLoading: configsLoading, error: configsError } = useQuery<PricingConfig[]>({
     queryKey: ["/api/pricing"],
     staleTime: 1000 * 60 * 5, // 5 minutes cache for much better performance
     gcTime: 1000 * 60 * 10, // 10 minutes cleanup
@@ -260,6 +260,18 @@ export default function Calculator() {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false, // Don't refetch on network reconnect
   });
+
+  // Show error toast if configs fail to load
+  useEffect(() => {
+    if (configsError) {
+      console.error('Failed to load pricing configs:', configsError);
+      toast({
+        title: "שגיאה בטעינת נתונים",
+        description: "לא ניתן לטעון את סוגי הפרויקטים. נסה לרענן את הדף.",
+        variant: "destructive",
+      });
+    }
+  }, [configsError, toast]);
 
   // Create unique project types from database
   const projectTypes = useMemo(() => {

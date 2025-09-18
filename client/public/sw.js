@@ -1,4 +1,4 @@
-const CACHE_NAME = 'comsign-calculator-v3-' + Date.now();
+const CACHE_NAME = 'comsign-calculator-v3-' + new Date().getTime();
 const urlsToCache = [
   '/',
   '/manifest.json',
