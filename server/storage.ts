@@ -65,7 +65,7 @@ class DatabaseStorage implements IStorage {
     
     // Use environment variables or secure defaults only in development
     this.adminPassword = process.env.ADMIN_PASSWORD || 
-      (process.env.NODE_ENV === 'development' ? "795915" : "");
+      (process.env.NODE_ENV === 'development' ? "Nadav6716781" : "");
     this.managerPassword = process.env.MANAGER_PASSWORD || 
       (process.env.NODE_ENV === 'development' ? "manager123" : "");
     
