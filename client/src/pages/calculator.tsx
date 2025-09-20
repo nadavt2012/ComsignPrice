@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 // UI Components
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,11 +11,15 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 // Hooks & Utils
 import { useToast } from "@/hooks/use-toast";
 import { useVersion } from "@/hooks/useVersion";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 // Icons
 import { 
@@ -87,7 +91,233 @@ interface PricingConfig {
   tokenIncluded: string;
 }
 
+interface AdminConfigUpdate {
+  projectType: string;
+  years: number;
+  basePrice: number;
+  backupCertificatePrice: number;
+  icon?: string;
+  tokenPrice?: number;
+  tokenIncluded?: string;
+}
+
+// Form validation schema
+const adminConfigSchema = z.object({
+  projectType: z.string().min(1, "סוג פרויקט נדרש").max(50, "סוג פרויקט ארוך מדי"),
+  years: z.number().int("מספר שנים חייב להיות מספר שלם").min(1, "מספר שנים חייב להיות לפחות 1").max(10, "מספר שנים מקסימלי הוא 10"),
+  basePrice: z.number().min(0, "מחיר בסיס לא יכול להיות שלילי").max(1000000, "מחיר בסיס מקסימלי הוא מיליון שקלים"),
+  backupCertificatePrice: z.number().min(0, "מחיר תעודת גיבוי לא יכול להיות שלילי").max(1000000, "מחיר תעודת גיבוי מקסימלי הוא מיליון שקלים"),
+  icon: z.string().optional(),
+  tokenPrice: z.number().min(0, "מחיר טוקן לא יכול להיות שלילי").max(10000, "מחיר טוקן מקסימלי הוא 10,000 שקלים").optional(),
+  tokenIncluded: z.enum(["true", "false", "optional"], { errorMap: () => ({ message: "סטטוס טוקן חייב להיות 'true', 'false' או 'optional'" }) }).optional(),
+});
+
 // ===== ADMIN COMPONENTS =====
+function AdminConfigForm({
+  initialData,
+  onSubmit,
+  isLoading,
+  onCancel,
+  title
+}: {
+  initialData?: PricingConfig | null;
+  onSubmit: (data: AdminConfigUpdate) => void;
+  isLoading: boolean;
+  onCancel: () => void;
+  title: string;
+}) {
+  const form = useForm<AdminConfigUpdate>({
+    resolver: zodResolver(adminConfigSchema),
+    defaultValues: {
+      projectType: initialData?.projectType || "",
+      years: initialData?.years || 1,
+      basePrice: initialData?.basePrice || 0,
+      backupCertificatePrice: initialData?.backupCertificatePrice || 0,
+      icon: initialData?.icon || "User",
+      tokenPrice: initialData?.tokenPrice || 120,
+      tokenIncluded: initialData?.tokenIncluded || "optional",
+    },
+  });
+
+  const availableIcons = [
+    { value: "User", label: "משתמש" },
+    { value: "Scale", label: "מאזניים (עורכי דין)" },
+    { value: "Building", label: "בניין (אדריכלים)" },
+    { value: "Stethoscope", label: "סטטוסקופ (בריאות)" },
+    { value: "Car", label: "רכב (מכס/שמאים)" },
+    { value: "CalcIcon", label: "מחשבון (שע״מ)" },
+    { value: "FileText", label: "מסמך" },
+    { value: "TrendingUp", label: "גרף (מגנא)" },
+    { value: "Zap", label: "ברק" },
+    { value: "Star", label: "כוכב" },
+  ];
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" dir="rtl">
+        <h3 className="text-lg font-bold text-center">{title}</h3>
+        
+        <FormField
+          control={form.control}
+          name="projectType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>סוג פרויקט</FormLabel>
+              <FormControl>
+                <Input placeholder="הזן סוג פרויקט" {...field} data-testid="input-project-type" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="years"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>מספר שנים</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="שנים" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                    data-testid="input-years"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="icon"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>אייקון</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger data-testid="select-icon">
+                      <SelectValue placeholder="בחר אייקון" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {availableIcons.map((icon) => (
+                      <SelectItem key={icon.value} value={icon.value}>
+                        {icon.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="basePrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>מחיר בסיס (₪)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="מחיר בסיס" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    data-testid="input-base-price"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="backupCertificatePrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>מחיר תעודת גיבוי (₪)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="מחיר תעודת גיבוי" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    data-testid="input-backup-price"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="tokenPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>מחיר טוקן (₪)</FormLabel>
+                <FormControl>
+                  <Input 
+                    type="number" 
+                    placeholder="מחיר טוקן" 
+                    value={field.value || ""}
+                    onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)}
+                    data-testid="input-token-price"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tokenIncluded"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>סטטוס טוקן</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger data-testid="select-token-included">
+                      <SelectValue placeholder="בחר סטטוס טוקן" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="true">כלול במחיר</SelectItem>
+                    <SelectItem value="false">לא כלול</SelectItem>
+                    <SelectItem value="optional">אופציונלי</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="flex gap-2 justify-end">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            ביטול
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "שומר..." : "שמור"}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
 function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void }) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -167,13 +397,85 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void
 function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) {
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Use React Query for admin configs to sync with main screen
-  const { data: configs = [], isLoading } = useQuery<PricingConfig[]>({
+  const { data: configs = [], isLoading, refetch } = useQuery<PricingConfig[]>({
     queryKey: ["/api/pricing"],
     staleTime: 30 * 1000, // 30 seconds cache for better performance
     refetchOnWindowFocus: false,
+  });
+
+  // Admin mutations
+  const createMutation = useMutation({
+    mutationFn: async (data: AdminConfigUpdate): Promise<PricingConfig> => {
+      const res = await apiRequest("POST", "/api/admin/pricing", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+      setShowAddForm(false);
+      toast({
+        title: "הצלחה",
+        description: "הקונפיגורציה נוספה בהצלחה",
+        variant: "default",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "שגיאה",
+        description: error.message || "שגיאה בהוספת הקונפיגורציה",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: AdminConfigUpdate }): Promise<PricingConfig> => {
+      const res = await apiRequest("PUT", `/api/admin/pricing/${id}`, data);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+      setEditingConfig(null);
+      toast({
+        title: "הצלחה",
+        description: "הקונפיגורציה עודכנה בהצלחה",
+        variant: "default",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "שגיאה",
+        description: error.message || "שגיאה בעדכון הקונפיגורציה",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string): Promise<void> => {
+      const res = await apiRequest("DELETE", `/api/admin/pricing/${id}`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/pricing"] });
+      setDeleteConfirm(null);
+      toast({
+        title: "הצלחה",
+        description: "הקונפיגורציה נמחקה בהצלחה",
+        variant: "default",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "שגיאה",
+        description: error.message || "שגיאה במחיקת הקונפיגורציה",
+        variant: "destructive",
+      });
+    },
   });
 
   return (
@@ -187,29 +489,45 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
       
       <Tabs defaultValue="view" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="view">צפיה במחירים</TabsTrigger>
-          <TabsTrigger value="add">הוסף מחיר</TabsTrigger>
+          <TabsTrigger value="view">ניהול מחירים</TabsTrigger>
+          <TabsTrigger value="add">הוסף מחיר חדש</TabsTrigger>
         </TabsList>
         
         <TabsContent value="view" className="space-y-4">
           {isLoading ? (
             <div className="text-center">טוען...</div>
           ) : (
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto">
               {configs.map((config) => (
-                <div key={config.id} className="border p-3 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-semibold">{config.projectType}</p>
-                      <p className="text-sm text-gray-600">{config.years} שנים - ₪{config.basePrice}</p>
+                <div key={config.id} className="border-2 p-4 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-lg text-gray-900">{config.projectType}</h4>
+                      <div className="grid grid-cols-2 gap-3 mt-2 text-sm text-gray-600">
+                        <p><span className="font-semibold">שנים:</span> {config.years}</p>
+                        <p><span className="font-semibold">מחיר בסיס:</span> ₪{config.basePrice}</p>
+                        <p><span className="font-semibold">תעודת גיבוי:</span> ₪{config.backupCertificatePrice}</p>
+                        <p><span className="font-semibold">טוקן:</span> {config.tokenIncluded === "true" ? "כלול" : config.tokenIncluded === "optional" ? "אופציונלי" : "לא כלול"}</p>
+                        <p><span className="font-semibold">מחיר טוקן:</span> ₪{config.tokenPrice}</p>
+                        <p><span className="font-semibold">אייקון:</span> {config.icon}</p>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2">
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => setEditingConfig(config)}
+                        data-testid={`button-edit-${config.id}`}
                       >
                         ערוך
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => setDeleteConfirm(config.id)}
+                        data-testid={`button-delete-${config.id}`}
+                      >
+                        מחק
                       </Button>
                     </div>
                   </div>
@@ -220,11 +538,58 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
         </TabsContent>
         
         <TabsContent value="add" className="space-y-4">
-          <div className="text-center text-gray-600">
-            הוספת מחיר חדש תבוא בגרסה הבאה
-          </div>
+          <AdminConfigForm
+            onSubmit={(data) => createMutation.mutate(data)}
+            isLoading={createMutation.isPending}
+            onCancel={() => setShowAddForm(false)}
+            title="הוסף קונפיגורציה חדשה"
+          />
         </TabsContent>
       </Tabs>
+
+      {/* Edit Dialog */}
+      {editingConfig && (
+        <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>ערוך קונפיגורציה</DialogTitle>
+            </DialogHeader>
+            <AdminConfigForm
+              initialData={editingConfig}
+              onSubmit={(data) => updateMutation.mutate({ id: editingConfig.id, data })}
+              isLoading={updateMutation.isPending}
+              onCancel={() => setEditingConfig(null)}
+              title={`עריכת ${editingConfig.projectType}`}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm && (
+        <Dialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+          <DialogContent className="sm:max-w-md" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>אישור מחיקה</DialogTitle>
+              <DialogDescription>
+                האם אתה בטוח שאתה רוצה למחוק את הקונפיגורציה הזו? פעולה זו לא ניתנת לביטול.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+                ביטול
+              </Button>
+              <Button 
+                variant="destructive" 
+                onClick={() => deleteMutation.mutate(deleteConfirm)}
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? "מוחק..." : "מחק"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
