@@ -27,7 +27,8 @@ import {
   User, Scale, Wrench, GraduationCap, Briefcase, 
   Star, Heart, Home, Car, Plane, Camera, Music, 
   Book, Coffee, Calculator as CalcIcon, Stethoscope, Gavel, 
-  FileText, Globe, Palette, Code, Zap, TrendingUp
+  FileText, Globe, Palette, Code, Zap, TrendingUp,
+  Search, ArrowUpDown, X
 } from "lucide-react";
 
 // Assets
@@ -398,6 +399,9 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"projectType" | "years" | "basePrice">("projectType");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -407,6 +411,36 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
     staleTime: 30 * 1000, // 30 seconds cache for better performance
     refetchOnWindowFocus: false,
   });
+
+  // Filter and sort configs
+  const filteredAndSortedConfigs = useMemo(() => {
+    let filtered = configs;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(config =>
+        config.projectType.toLowerCase().includes(query) ||
+        config.years.toString().includes(query) ||
+        config.basePrice.toString().includes(query)
+      );
+    }
+
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      let comparison = 0;
+      if (sortBy === "projectType") {
+        comparison = a.projectType.localeCompare(b.projectType, 'he');
+      } else if (sortBy === "years") {
+        comparison = a.years - b.years;
+      } else if (sortBy === "basePrice") {
+        comparison = a.basePrice - b.basePrice;
+      }
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    return sorted;
+  }, [configs, searchQuery, sortBy, sortOrder]);
 
   // Admin mutations
   const createMutation = useMutation({
@@ -479,61 +513,162 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
   });
 
   return (
-    <div className="space-y-4" dir="rtl">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold">פאנל ניהול - {role}</h3>
-        <Button onClick={onLogout} variant="outline" size="sm">
+    <div className="space-y-6 p-4 md:p-6" dir="rtl">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pb-4 border-b-2 border-gray-200">
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900">פאנל ניהול</h3>
+          <p className="text-sm text-gray-600 mt-1">תפקיד: {role === 'super_admin' ? 'סופר אדמין' : 'מנהל'}</p>
+        </div>
+        <Button onClick={onLogout} variant="outline" size="default" className="w-full sm:w-auto">
           התנתק
         </Button>
       </div>
       
       <Tabs defaultValue="view" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="view">ניהול מחירים</TabsTrigger>
-          <TabsTrigger value="add">הוסף מחיר חדש</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 h-12 bg-gray-100">
+          <TabsTrigger value="view" className="text-base">ניהול מחירים</TabsTrigger>
+          <TabsTrigger value="add" className="text-base">הוסף מחיר חדש</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="view" className="space-y-4">
+        <TabsContent value="view" className="space-y-4 mt-6">
           {isLoading ? (
-            <div className="text-center">טוען...</div>
+            <div className="flex flex-col items-center justify-center py-12 space-y-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <p className="text-gray-600">טוען נתונים...</p>
+            </div>
+          ) : configs.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <p className="text-gray-600 text-lg">אין קונפיגורציות עדיין</p>
+              <p className="text-gray-500 text-sm mt-2">לחץ על "הוסף מחיר חדש" להתחיל</p>
+            </div>
           ) : (
-            <div className="space-y-2 max-h-[500px] overflow-y-auto">
-              {configs.map((config) => (
-                <div key={config.id} className="border-2 p-4 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
+            <>
+              <div className="bg-white border-2 border-gray-200 rounded-xl p-4 space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                    <Input
+                      type="text"
+                      placeholder="חיפוש לפי סוג פרויקט, שנים או מחיר..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pr-10 h-11"
+                      data-testid="input-search-configs"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={sortBy} onValueChange={(value) => setSortBy(value as any)}>
+                      <SelectTrigger className="w-[180px] h-11" data-testid="select-sort-by">
+                        <SelectValue placeholder="מיין לפי" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="projectType">סוג פרויקט</SelectItem>
+                        <SelectItem value="years">מספר שנים</SelectItem>
+                        <SelectItem value="basePrice">מחיר בסיס</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="default"
+                      onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                      className="h-11 px-3"
+                      data-testid="button-toggle-sort-order"
+                    >
+                      <ArrowUpDown className="h-4 w-4 ml-1" />
+                      {sortOrder === "asc" ? "עולה" : "יורד"}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>מציג {filteredAndSortedConfigs.length} מתוך {configs.length} קונפיגורציות</span>
+                  {searchQuery && (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => setSearchQuery("")}
+                      className="text-blue-600 h-auto p-0"
+                    >
+                      נקה חיפוש
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {filteredAndSortedConfigs.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                  <Search className="mx-auto h-12 w-12 text-gray-400 mb-3" />
+                  <p className="text-gray-600 text-lg">לא נמצאו תוצאות</p>
+                  <p className="text-gray-500 text-sm mt-2">נסה לשנות את מונח החיפוש</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+                  {filteredAndSortedConfigs.map((config) => (
+                    <div key={config.id} className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                     <div className="flex-1">
-                      <h4 className="font-bold text-lg text-gray-900">{config.projectType}</h4>
-                      <div className="grid grid-cols-2 gap-3 mt-2 text-sm text-gray-600">
-                        <p><span className="font-semibold">שנים:</span> {config.years}</p>
-                        <p><span className="font-semibold">מחיר בסיס:</span> ₪{config.basePrice}</p>
-                        <p><span className="font-semibold">תעודת גיבוי:</span> ₪{config.backupCertificatePrice}</p>
-                        <p><span className="font-semibold">טוקן:</span> {config.tokenIncluded === "true" ? "כלול" : config.tokenIncluded === "optional" ? "אופציונלי" : "לא כלול"}</p>
-                        <p><span className="font-semibold">מחיר טוקן:</span> ₪{config.tokenPrice}</p>
-                        <p><span className="font-semibold">אייקון:</span> {config.icon}</p>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                          {config.years} {config.years === 1 ? 'שנה' : 'שנים'}
+                        </div>
+                        <h4 className="font-bold text-xl text-gray-900">{config.projectType}</h4>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
+                          <span className="font-semibold text-gray-700">מחיר בסיס:</span>
+                          <span className="text-green-700 font-bold">₪{config.basePrice}</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
+                          <span className="font-semibold text-gray-700">תעודת גיבוי:</span>
+                          <span className="text-purple-700 font-bold">₪{config.backupCertificatePrice}</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
+                          <span className="font-semibold text-gray-700">מחיר טוקן:</span>
+                          <span className="text-orange-700 font-bold">₪{config.tokenPrice}</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
+                          <span className="font-semibold text-gray-700">טוקן:</span>
+                          <span className="font-medium">{config.tokenIncluded === "true" ? "כלול" : config.tokenIncluded === "optional" ? "אופציונלי" : "לא כלול"}</span>
+                        </div>
+                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
+                          <span className="font-semibold text-gray-700">אייקון:</span>
+                          <span className="font-medium">{config.icon}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
+                    <div className="flex lg:flex-col gap-2 justify-end">
                       <Button
-                        size="sm"
+                        size="default"
                         variant="outline"
                         onClick={() => setEditingConfig(config)}
                         data-testid={`button-edit-${config.id}`}
+                        className="flex-1 lg:flex-none lg:min-w-[100px]"
                       >
                         ערוך
                       </Button>
                       <Button
-                        size="sm"
+                        size="default"
                         variant="destructive"
                         onClick={() => setDeleteConfirm(config.id)}
                         data-testid={`button-delete-${config.id}`}
+                        className="flex-1 lg:flex-none lg:min-w-[100px]"
                       >
                         מחק
                       </Button>
                     </div>
                   </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </TabsContent>
         
