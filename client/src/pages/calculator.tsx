@@ -666,6 +666,20 @@ export default function Calculator() {
     refetchOnMount: false,
   });
 
+  // Get current pricing config to check backup certificate availability
+  const currentConfig = useMemo(() => {
+    if (!projectType || !years) return null;
+    return allConfigs.find(
+      config => config.projectType === projectType && config.years === parseInt(years)
+    );
+  }, [allConfigs, projectType, years]);
+
+  // Check if backup certificates are available
+  const backupCertificatesAvailable = useMemo(() => {
+    if (!currentConfig) return false;
+    return currentConfig.backupCertificatePrice > 0;
+  }, [currentConfig]);
+
   // ===== MUTATIONS =====
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationRequest): Promise<CalculationResult> => {
@@ -727,6 +741,13 @@ export default function Calculator() {
   useEffect(() => {
     setYears("");
   }, [projectType]);
+
+  // Reset backup certificates when they become unavailable
+  useEffect(() => {
+    if (!backupCertificatesAvailable && backupCertificates > 0) {
+      setBackupCertificates(0);
+    }
+  }, [backupCertificatesAvailable]);
 
   // Calculate remaining days when dates change
   useEffect(() => {
@@ -925,23 +946,25 @@ export default function Calculator() {
                 />
               </div>
 
-              {/* Backup Certificates */}
-              <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
-                  <span>תעודות גיבוי</span>
-                </Label>
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={backupCertificates}
-                  onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                  className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
-                  placeholder="תעודות גיבוי"
-                  data-testid="input-backup-certificates"
-                  inputMode="numeric"
-                />
-              </div>
+              {/* Backup Certificates - Only show if available */}
+              {backupCertificatesAvailable && (
+                <div>
+                  <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
+                    <span>תעודות גיבוי</span>
+                  </Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={backupCertificates}
+                    onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
+                    className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
+                    placeholder="תעודות גיבוי"
+                    data-testid="input-backup-certificates"
+                    inputMode="numeric"
+                  />
+                </div>
+              )}
 
               {/* Token Information */}
               {calculationResult && calculationResult.tokenPrice && (
