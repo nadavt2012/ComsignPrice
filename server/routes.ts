@@ -7,6 +7,7 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { createHmac } from "crypto";
+import bcrypt from "bcrypt";
 
 // Local imports
 import { storage } from "./storage";
@@ -88,6 +89,40 @@ const adminPasswordChangeSchema = z.object({
   targetRole: z.enum(["manager"], {
     errorMap: () => ({ message: "תפקיד יעד חייב להיות 'manager'" })
   }),
+});
+
+const createUserSchema = z.object({
+  displayName: z.string()
+    .min(1, "שם תצוגה נדרש")
+    .max(100, "שם תצוגה ארוך מדי")
+    .regex(/^[a-zA-Z\u0590-\u05FF\s\-]+$/, "שם תצוגה מכיל תווים לא חוקיים"),
+  password: z.string()
+    .min(6, "סיסמה חייבת להכיל לפחות 6 תווים")
+    .max(100, "סיסמה ארוכה מדי")
+    .refine((pwd) => /[A-Za-z]/.test(pwd), "סיסמה חייבת להכיל לפחות אות אחת")
+    .refine((pwd) => /\d/.test(pwd), "סיסמה חייבת להכיל לפחות ספרה אחת")
+    .refine((pwd) => !validator.contains(pwd, '<>{}[]()'), "סיסמה מכילה תווים לא חוקיים"),
+  role: z.enum(["admin", "manager"], {
+    errorMap: () => ({ message: "תפקיד חייב להיות 'admin' או 'manager'" })
+  }),
+});
+
+const updateUserSchema = z.object({
+  displayName: z.string()
+    .min(1, "שם תצוגה נדרש")
+    .max(100, "שם תצוגה ארוך מדי")
+    .regex(/^[a-zA-Z\u0590-\u05FF\s\-]+$/, "שם תצוגה מכיל תווים לא חוקיים")
+    .optional(),
+  password: z.string()
+    .min(6, "סיסמה חייבת להכיל לפחות 6 תווים")
+    .max(100, "סיסמה ארוכה מדי")
+    .refine((pwd) => /[A-Za-z]/.test(pwd), "סיסמה חייבת להכיל לפחות אות אחת")
+    .refine((pwd) => /\d/.test(pwd), "סיסמה חייבת להכיל לפחות ספרה אחת")
+    .refine((pwd) => !validator.contains(pwd, '<>{}[]()'), "סיסמה מכילה תווים לא חוקיים")
+    .optional(),
+  role: z.enum(["admin", "manager"], {
+    errorMap: () => ({ message: "תפקיד חייב להיות 'admin' או 'manager'" })
+  }).optional(),
 });
 
 
@@ -767,6 +802,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Sync operation failed",
         message: "שגיאה בסינכרון הנתונים",
         details: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // ===== USER MANAGEMENT ROUTES (Stage 6) =====
+  
+  // GET /api/users - Get all users (Admin only)
+  app.get("/api/users", async (req, res) => {
+    try {
+      const users = await storage.getUsers();
+      
+      // Don't send passwords to client
+      const sanitizedUsers = users.map(user => ({
+        id: user.id,
+        displayName: user.displayName,
+        role: user.role,
+        createdAt: user.createdAt
+      }));
+      
+      res.json(sanitizedUsers);
+    } catch (error) {
+      console.error('Error getting users:', error);
+      res.status(500).json({ 
+        error: "Internal server error",
+        message: "שגיאה בטעינת משתמשים"
+      });
+    }
+  });
+
+  // POST /api/users - Create new user (Admin only)
+  app.post("/api/users", async (req, res) => {
+    try {
+      const validatedData = createUserSchema.parse(req.body);
+      
+      // Hash password before storing
+      const hashedPassword = await bcrypt.hash(validatedData.password, 10);
+      
+      const newUser = await storage.createUser({
+        displayName: validatedData.displayName,
+        password: hashedPassword,
+        role: validatedData.role
+      });
+      
+      // Don't send password back to client
+      res.status(201).json({
+        id: newUser.id,
+        displayName: newUser.displayName,
+        role: newUser.role,
+        createdAt: newUser.createdAt
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid request data",
+          errors: error.errors 
+        });
+      }
+      
+      console.error('Error creating user:', error);
+      res.status(500).json({ 
+        error: "Internal server error",
+        message: "שגיאה ביצירת משתמש"
+      });
+    }
+  });
+
+  // PATCH /api/users/:id - Update user (Admin only)
+  app.patch("/api/users/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = updateUserSchema.parse(req.body);
+      
+      const updates: any = {};
+      
+      if (validatedData.displayName) {
+        updates.displayName = validatedData.displayName;
+      }
+      
+      if (validatedData.password) {
+        // Hash new password
+        updates.password = await bcrypt.hash(validatedData.password, 10);
+      }
+      
+      if (validatedData.role) {
+        updates.role = validatedData.role;
+      }
+      
+      const updatedUser = await storage.updateUser(id, updates);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ 
+          error: "User not found",
+          message: "משתמש לא נמצא"
+        });
+      }
+      
+      // Don't send password back to client
+      res.json({
+        id: updatedUser.id,
+        displayName: updatedUser.displayName,
+        role: updatedUser.role,
+        createdAt: updatedUser.createdAt
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid request data",
+          errors: error.errors 
+        });
+      }
+      
+      console.error('Error updating user:', error);
+      res.status(500).json({ 
+        error: "Internal server error",
+        message: "שגיאה בעדכון משתמש"
+      });
+    }
+  });
+
+  // DELETE /api/users/:id - Delete user (Admin only)
+  app.delete("/api/users/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const deleted = await storage.deleteUser(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ 
+          error: "User not found",
+          message: "משתמש לא נמצא"
+        });
+      }
+      
+      res.json({ 
+        success: true,
+        message: "משתמש נמחק בהצלחה"
+      });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ 
+        error: "Internal server error",
+        message: "שגיאה במחיקת משתמש"
       });
     }
   });
