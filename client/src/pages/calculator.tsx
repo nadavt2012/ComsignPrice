@@ -525,9 +525,12 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
       </div>
       
       <Tabs defaultValue="view" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 h-12 bg-gray-100">
+        <TabsList className={`grid w-full ${role === 'super_admin' ? 'grid-cols-3' : 'grid-cols-2'} h-12 bg-gray-100`}>
           <TabsTrigger value="view" className="text-base">ניהול מחירים</TabsTrigger>
           <TabsTrigger value="add" className="text-base">הוסף מחיר חדש</TabsTrigger>
+          {role === 'super_admin' && (
+            <TabsTrigger value="users" className="text-base">ניהול משתמשים</TabsTrigger>
+          )}
         </TabsList>
         
         <TabsContent value="view" className="space-y-4 mt-6">
@@ -680,6 +683,122 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
             title="הוסף קונפיגורציה חדשה"
           />
         </TabsContent>
+
+        {role === 'super_admin' && (
+          <TabsContent value="users" className="space-y-4 mt-6">
+            <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
+              <h4 className="text-lg font-bold text-gray-900 mb-4">משתמשים במערכת</h4>
+              
+              {/* Mock users list - Stage 3: View only */}
+              <div className="space-y-3">
+                {/* Super Admin User */}
+                <div className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+                          סופר אדמין
+                        </div>
+                        <h5 className="font-bold text-xl text-gray-900">נדב (אתה)</h5>
+                      </div>
+                      <p className="text-sm text-gray-600">גישה מלאה לכל המערכת</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="default"
+                        variant="outline"
+                        disabled
+                        className="flex-1 lg:flex-none lg:min-w-[100px]"
+                      >
+                        ערוך סיסמה
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Manager 1 */}
+                <div className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                          מנהל
+                        </div>
+                        <h5 className="font-bold text-xl text-gray-900">יוסי - מנהל מחירים</h5>
+                      </div>
+                      <p className="text-sm text-gray-600">הרשאות: עריכת מחירים בלבד</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="default"
+                        variant="outline"
+                        disabled
+                        className="flex-1 lg:flex-none lg:min-w-[100px]"
+                      >
+                        ערוך
+                      </Button>
+                      <Button
+                        size="default"
+                        variant="destructive"
+                        disabled
+                        className="flex-1 lg:flex-none lg:min-w-[100px]"
+                      >
+                        מחק
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Manager 2 */}
+                <div className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200">
+                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+                          מנהל
+                        </div>
+                        <h5 className="font-bold text-xl text-gray-900">שרה - מנהלת תמחור</h5>
+                      </div>
+                      <p className="text-sm text-gray-600">הרשאות: עריכת מחירים בלבד</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="default"
+                        variant="outline"
+                        disabled
+                        className="flex-1 lg:flex-none lg:min-w-[100px]"
+                      >
+                        ערוך
+                      </Button>
+                      <Button
+                        size="default"
+                        variant="destructive"
+                        disabled
+                        className="flex-1 lg:flex-none lg:min-w-[100px]"
+                      >
+                        מחק
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add User Button */}
+              <div className="mt-6 pt-6 border-t-2 border-gray-200">
+                <Button 
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-md"
+                  disabled
+                >
+                  + הוסף משתמש חדש
+                </Button>
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  פונקציונליות זו תופעל בשלבים הבאים
+                </p>
+              </div>
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
 
       {/* Edit Dialog */}
