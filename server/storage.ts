@@ -5,6 +5,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { eq, and } from "drizzle-orm";
 import { LRUCache } from "lru-cache";
 import NodeCache from "node-cache";
+import bcrypt from "bcrypt";
 
 export interface IStorage {
   getPricingConfigs(): Promise<PricingConfig[]>;
@@ -344,21 +345,43 @@ class DatabaseStorage implements IStorage {
     }
   }
 
-  // Admin password validation with role detection
+  // Admin password validation with role detection (Stage 5 - Hybrid Auth)
   async verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }> {
-    // Check Super Admin password (main admin password)
+    // Stage 5: Hybrid authentication (DB + ENV fallback)
+    
+    // First, check if we have users in the database
+    const dbUsers = await this.getUsers();
+    
+    if (dbUsers.length > 0) {
+      // Use database authentication
+      for (const user of dbUsers) {
+        try {
+          const isMatch = await bcrypt.compare(password, user.password);
+          if (isMatch) {
+            return { 
+              valid: true, 
+              role: user.role === 'admin' ? 'super_admin' : 'manager' 
+            };
+          }
+        } catch (error) {
+          console.error('Error comparing password:', error);
+        }
+      }
+      // If no DB user matched, don't fall back to ENV (DB takes precedence)
+      return { valid: false };
+    }
+    
+    // Fallback to ENV-based authentication (backwards compatibility)
     const superAdminPassword = process.env.ADMIN_PASSWORD || this.adminPassword;
     if (password === superAdminPassword) {
       return { valid: true, role: 'super_admin' };
     }
     
-    // Check Manager password (can edit pricing only)
     const managerPassword = process.env.MANAGER_PASSWORD;
     if (managerPassword && password === managerPassword) {
       return { valid: true, role: 'manager' };
     }
     
-
     return { valid: false };
   }
 
