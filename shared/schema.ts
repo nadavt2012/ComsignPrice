@@ -1,4 +1,4 @@
-import { pgTable, text, varchar, integer, real } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, real, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -14,14 +14,30 @@ export const pricingConfigs = pgTable("pricing_configs", {
   tokenIncluded: text("token_included").notNull().default("false"), // "true", "false", "optional"
 });
 
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey(),
+  displayName: text("display_name").notNull(),
+  password: text("password").notNull(), // bcrypt hashed
+  role: text("role").notNull(), // 'admin' | 'manager'
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 // ===== ZOD SCHEMAS =====
 export const insertPricingConfigSchema = createInsertSchema(pricingConfigs).omit({
   id: true,
 });
 
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+});
+
 // ===== DRIZZLE TYPES =====
 export type InsertPricingConfig = z.infer<typeof insertPricingConfigSchema>;
 export type PricingConfig = typeof pricingConfigs.$inferSelect;
+
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type User = typeof users.$inferSelect;
 
 // ===== MANUAL TYPES =====
 export interface PricingConfigManual {

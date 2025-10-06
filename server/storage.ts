@@ -1,4 +1,4 @@
-import { type PricingConfig, type InsertPricingConfig, type AdminConfigUpdate, pricingConfigs } from "@shared/schema";
+import { type PricingConfig, type InsertPricingConfig, type AdminConfigUpdate, type User, type InsertUser, pricingConfigs, users } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -18,6 +18,13 @@ export interface IStorage {
   updateAdminPassword(newPassword: string): Promise<void>;
   resetAdminPassword(): Promise<void>;
   changeSubAdminPassword(currentPassword: string, newPassword: string, targetRole: string): Promise<boolean>;
+  
+  // User management (Stage 4 - DB infrastructure)
+  getUsers(): Promise<User[]>;
+  getUser(id: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
+  deleteUser(id: string): Promise<boolean>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -396,6 +403,72 @@ class DatabaseStorage implements IStorage {
 
   async resetAdminPassword(): Promise<void> {
     this.adminPassword = process.env.ADMIN_PASSWORD || "795915";
+  }
+
+  // ===== USER MANAGEMENT (Stage 4 - DB Infrastructure) =====
+  async getUsers(): Promise<User[]> {
+    try {
+      const allUsers = await this.db.select().from(users);
+      return allUsers;
+    } catch (error) {
+      console.error('Error getting users:', error);
+      return [];
+    }
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    try {
+      const results = await this.db.select()
+        .from(users)
+        .where(eq(users.id, id));
+      return results[0] || undefined;
+    } catch (error) {
+      console.error('Error getting user:', error);
+      return undefined;
+    }
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    try {
+      const id = randomUUID();
+      const user = {
+        ...insertUser,
+        id,
+      };
+      
+      const results = await this.db.insert(users).values(user).returning();
+      return results[0] as User;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    try {
+      const results = await this.db.update(users)
+        .set(updates)
+        .where(eq(users.id, id))
+        .returning();
+      
+      return results[0] || undefined;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      return undefined;
+    }
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    try {
+      const results = await this.db.delete(users)
+        .where(eq(users.id, id))
+        .returning();
+      
+      return results.length > 0;
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      return false;
+    }
   }
 }
 
