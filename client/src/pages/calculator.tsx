@@ -319,7 +319,7 @@ function AdminConfigForm({
   );
 }
 
-function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void }) {
+function AdminLogin({ onLoginSuccess, onCancel }: { onLoginSuccess: (role: string) => void; onCancel?: () => void }) {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -383,14 +383,26 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void
         />
       </div>
       
-      <Button
-        onClick={handleLogin}
-        disabled={isLoading}
-        className="w-full bg-red-600 hover:bg-red-700 text-white min-h-[56px] text-lg touch-manipulation cursor-pointer"
-        data-testid="button-admin-login"
-      >
-        {isLoading ? "מתחבר..." : "התחבר"}
-      </Button>
+      <div className="flex gap-3">
+        {onCancel && (
+          <Button
+            onClick={onCancel}
+            variant="outline"
+            className="flex-1 min-h-[56px] text-lg touch-manipulation cursor-pointer border-gray-300 hover:bg-gray-100"
+            data-testid="button-cancel-login"
+          >
+            חזור
+          </Button>
+        )}
+        <Button
+          onClick={handleLogin}
+          disabled={isLoading}
+          className="flex-1 bg-red-600 hover:bg-red-700 text-white min-h-[56px] text-lg touch-manipulation cursor-pointer"
+          data-testid="button-admin-login"
+        >
+          {isLoading ? "מתחבר..." : "התחבר"}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -1220,10 +1232,13 @@ export default function Calculator() {
           <div className="flex items-center justify-center min-h-screen p-4">
             <Card className="w-full max-w-md shadow-xl">
               <CardContent className="p-6">
-                <AdminLogin onLoginSuccess={(role: string) => {
-                  setIsAdminLoggedIn(true);
-                  setAdminRole(role);
-                }} />
+                <AdminLogin 
+                  onLoginSuccess={(role: string) => {
+                    setIsAdminLoggedIn(true);
+                    setAdminRole(role);
+                  }}
+                  onCancel={() => setIsAdminModalOpen(false)}
+                />
               </CardContent>
             </Card>
           </div>
