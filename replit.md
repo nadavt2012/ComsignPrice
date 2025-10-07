@@ -2,7 +2,18 @@
 
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
-**Recent Updates (September 2025):**
+**Recent Updates (October 2025):**
+- **Critical Security Hardening**: Comprehensive security audit and fixes to prevent vulnerabilities and unauthorized access
+  - **Session-Based Authentication**: PostgreSQL-backed sessions with secure cookies (HttpOnly, Secure in production, SameSite=strict)
+  - **Brute Force Protection**: Rate limiting on login endpoint (5 attempts per 15 minutes)
+  - **SQL Injection Prevention**: Drizzle ORM parameterized queries + Zod validation on all routes
+  - **XSS Protection**: No dangerouslySetInnerHTML or innerHTML usage throughout application
+  - **CSRF Protection**: SameSite=strict cookies preventing cross-site request forgery
+  - **Secrets Management**: Removed all hard-coded passwords, ENV fallbacks, and password logging
+  - **Authentication Middleware**: All 17 admin endpoints protected with role-based access control
+  - **Deprecated Functions Cleanup**: Removed updateAdminPassword and resetAdminPassword (replaced by user management)
+
+**Previous Updates (September 2025):**
 - **Critical Bug Fix**: Fixed frontend price display issue where calculations weren't showing on published website despite API working correctly
 - **Auto-Version System**: Implemented automatic version numbering for deployments with simple incrementing numbers (format: v3.0.2, v3.0.3, etc.)
 - **Version Tracking**: Added `scripts/generate-version.js` script and `useVersion` React hook for dynamic version display and deployment tracking
