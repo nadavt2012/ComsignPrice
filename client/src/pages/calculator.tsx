@@ -395,6 +395,259 @@ function AdminLogin({ onLoginSuccess }: { onLoginSuccess: (role: string) => void
   );
 }
 
+// ===== USERS MANAGEMENT COMPONENT =====
+function UsersManagement() {
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Fetch users
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ['/api/users'],
+  });
+
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (data: { username: string; displayName: string; role: string; password: string }) => {
+      return apiRequest('/api/users', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      setShowAddUser(false);
+      toast({ title: 'המשתמש נוצר בהצלחה!' });
+    },
+    onError: () => {
+      toast({ title: 'שגיאה ביצירת משתמש', variant: 'destructive' });
+    },
+  });
+
+  // Update user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      return apiRequest(`/api/users/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      setEditingUser(null);
+      toast({ title: 'המשתמש עודכן בהצלחה!' });
+    },
+    onError: () => {
+      toast({ title: 'שגיאה בעדכון משתמש', variant: 'destructive' });
+    },
+  });
+
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest(`/api/users/${id}`, { method: 'DELETE' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/users'] });
+      setDeleteConfirm(null);
+      toast({ title: 'המשתמש נמחק בהצלחה!' });
+    },
+    onError: () => {
+      toast({ title: 'שגיאה במחיקת משתמש', variant: 'destructive' });
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-xl font-bold text-gray-900">משתמשי המערכת</h3>
+        <Button
+          onClick={() => setShowAddUser(true)}
+          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+        >
+          + הוסף משתמש
+        </Button>
+      </div>
+
+      {/* Users List */}
+      <div className="space-y-3">
+        {users.map((user: any) => (
+          <div
+            key={user.id}
+            className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200"
+          >
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`${user.role === 'super_admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'} px-3 py-1 rounded-full text-xs font-semibold`}>
+                    {user.role === 'super_admin' ? 'סופר אדמין' : 'מנהל'}
+                  </div>
+                  <h5 className="font-bold text-xl text-gray-900">{user.displayName}</h5>
+                </div>
+                <p className="text-sm text-gray-600">{user.username}</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="default"
+                  variant="outline"
+                  onClick={() => setEditingUser(user)}
+                  className="flex-1 lg:flex-none lg:min-w-[100px]"
+                >
+                  ערוך
+                </Button>
+                {user.role !== 'super_admin' && (
+                  <Button
+                    size="default"
+                    variant="destructive"
+                    onClick={() => setDeleteConfirm(user.id)}
+                    className="flex-1 lg:flex-none lg:min-w-[100px]"
+                  >
+                    מחק
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add User Dialog */}
+      {showAddUser && (
+        <Dialog open={showAddUser} onOpenChange={setShowAddUser}>
+          <DialogContent className="sm:max-w-md" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>הוסף משתמש חדש</DialogTitle>
+            </DialogHeader>
+            <UserForm
+              onSubmit={(data) => createUserMutation.mutate(data)}
+              onCancel={() => setShowAddUser(false)}
+              isLoading={createUserMutation.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Edit User Dialog */}
+      {editingUser && (
+        <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
+          <DialogContent className="sm:max-w-md" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>ערוך משתמש</DialogTitle>
+            </DialogHeader>
+            <UserForm
+              initialData={editingUser}
+              onSubmit={(data) => updateUserMutation.mutate({ id: editingUser.id, data })}
+              onCancel={() => setEditingUser(null)}
+              isLoading={updateUserMutation.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteConfirm && (
+        <Dialog open={!!deleteConfirm} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+          <DialogContent className="sm:max-w-md" dir="rtl">
+            <DialogHeader>
+              <DialogTitle>אישור מחיקה</DialogTitle>
+              <DialogDescription>
+                האם אתה בטוח שאתה רוצה למחוק משתמש זה? פעולה זו לא ניתנת לביטול.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+                ביטול
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => deleteUserMutation.mutate(deleteConfirm)}
+                disabled={deleteUserMutation.isPending}
+              >
+                {deleteUserMutation.isPending ? 'מוחק...' : 'מחק'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}
+
+// ===== USER FORM COMPONENT =====
+function UserForm({ initialData, onSubmit, onCancel, isLoading }: any) {
+  const [username, setUsername] = useState(initialData?.username || '');
+  const [displayName, setDisplayName] = useState(initialData?.displayName || '');
+  const [role, setRole] = useState(initialData?.role || 'manager');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const data: any = { username, displayName, role };
+    if (password) data.password = password;
+    onSubmit(data);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <Label>שם משתמש</Label>
+        <Input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          disabled={!!initialData}
+        />
+      </div>
+      <div>
+        <Label>שם תצוגה</Label>
+        <Input
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <Label>תפקיד</Label>
+        <Select value={role} onValueChange={setRole}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="manager">מנהל</SelectItem>
+            <SelectItem value="super_admin">סופר אדמין</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>{initialData ? 'סיסמה חדשה (אופציונלי)' : 'סיסמה'}</Label>
+        <Input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required={!initialData}
+        />
+      </div>
+      <div className="flex gap-2 justify-end pt-4">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          ביטול
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? 'שומר...' : initialData ? 'עדכן' : 'צור משתמש'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) {
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -513,25 +766,55 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
   });
 
   return (
-    <div className="space-y-6 p-4 md:p-6" dir="rtl">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 pb-4 border-b-2 border-gray-200">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900">פאנל ניהול</h3>
-          <p className="text-sm text-gray-600 mt-1">תפקיד: {role === 'super_admin' ? 'סופר אדמין' : 'מנהל'}</p>
+    <>
+    <div className="h-full flex flex-col bg-white" dir="rtl">
+      {/* Header Bar */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 shadow-lg">
+        <div className="flex justify-between items-center max-w-7xl mx-auto">
+          <div>
+            <h1 className="text-2xl font-bold">פאנל ניהול המערכת</h1>
+            <p className="text-sm text-blue-100 mt-1">{role === 'super_admin' ? 'סופר אדמין' : 'מנהל'}</p>
+          </div>
+          <Button 
+            onClick={onLogout} 
+            variant="outline" 
+            className="bg-white text-blue-600 hover:bg-blue-50 border-none shadow-md"
+          >
+            התנתק
+          </Button>
         </div>
-        <Button onClick={onLogout} variant="outline" size="default" className="w-full sm:w-auto">
-          התנתק
-        </Button>
       </div>
-      
-      <Tabs defaultValue="view" className="w-full">
-        <TabsList className={`grid w-full ${role === 'super_admin' ? 'grid-cols-3' : 'grid-cols-2'} h-12 bg-gray-100`}>
-          <TabsTrigger value="view" className="text-base">ניהול מחירים</TabsTrigger>
-          <TabsTrigger value="add" className="text-base">הוסף מחיר חדש</TabsTrigger>
-          {role === 'super_admin' && (
-            <TabsTrigger value="users" className="text-base">ניהול משתמשים</TabsTrigger>
-          )}
-        </TabsList>
+
+      {/* Tabs Navigation */}
+      <Tabs defaultValue="view" className="flex-1 flex flex-col">
+        <div className="bg-white border-b shadow-sm">
+          <TabsList className={`max-w-7xl mx-auto h-auto bg-transparent gap-2 p-2 ${role === 'super_admin' ? 'grid grid-cols-3' : 'grid grid-cols-2'}`}>
+            <TabsTrigger 
+              value="view" 
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
+            >
+              ניהול מחירים
+            </TabsTrigger>
+            <TabsTrigger 
+              value="add" 
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
+            >
+              הוסף מחיר חדש
+            </TabsTrigger>
+            {role === 'super_admin' && (
+              <TabsTrigger 
+                value="users" 
+                className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
+              >
+                ניהול משתמשים
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto bg-gray-50">
+          <div className="max-w-7xl mx-auto p-6">
         
         <TabsContent value="view" className="space-y-4 mt-6">
           {isLoading ? (
@@ -685,123 +968,16 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
         </TabsContent>
 
         {role === 'super_admin' && (
-          <TabsContent value="users" className="space-y-4 mt-6">
-            <div className="bg-white border-2 border-gray-200 rounded-xl p-4">
-              <h4 className="text-lg font-bold text-gray-900 mb-4">משתמשים במערכת</h4>
-              
-              {/* Mock users list - Stage 3: View only */}
-              <div className="space-y-3">
-                {/* Super Admin User */}
-                <div className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
-                          סופר אדמין
-                        </div>
-                        <h5 className="font-bold text-xl text-gray-900">נדב (אתה)</h5>
-                      </div>
-                      <p className="text-sm text-gray-600">גישה מלאה לכל המערכת</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="default"
-                        variant="outline"
-                        disabled
-                        className="flex-1 lg:flex-none lg:min-w-[100px]"
-                      >
-                        ערוך סיסמה
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Manager 1 */}
-                <div className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                          מנהל
-                        </div>
-                        <h5 className="font-bold text-xl text-gray-900">יוסי - מנהל מחירים</h5>
-                      </div>
-                      <p className="text-sm text-gray-600">הרשאות: עריכת מחירים בלבד</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="default"
-                        variant="outline"
-                        disabled
-                        className="flex-1 lg:flex-none lg:min-w-[100px]"
-                      >
-                        ערוך
-                      </Button>
-                      <Button
-                        size="default"
-                        variant="destructive"
-                        disabled
-                        className="flex-1 lg:flex-none lg:min-w-[100px]"
-                      >
-                        מחק
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Manager 2 */}
-                <div className="border-2 border-gray-200 p-5 rounded-xl bg-white shadow-sm hover:shadow-lg hover:border-blue-400 transition-all duration-200">
-                  <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                          מנהל
-                        </div>
-                        <h5 className="font-bold text-xl text-gray-900">שרה - מנהלת תמחור</h5>
-                      </div>
-                      <p className="text-sm text-gray-600">הרשאות: עריכת מחירים בלבד</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="default"
-                        variant="outline"
-                        disabled
-                        className="flex-1 lg:flex-none lg:min-w-[100px]"
-                      >
-                        ערוך
-                      </Button>
-                      <Button
-                        size="default"
-                        variant="destructive"
-                        disabled
-                        className="flex-1 lg:flex-none lg:min-w-[100px]"
-                      >
-                        מחק
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Add User Button */}
-              <div className="mt-6 pt-6 border-t-2 border-gray-200">
-                <Button 
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-md"
-                  disabled
-                >
-                  + הוסף משתמש חדש
-                </Button>
-                <p className="text-xs text-gray-500 text-center mt-2">
-                  פונקציונליות זו תופעל בשלבים הבאים
-                </p>
-              </div>
-            </div>
+          <TabsContent value="users" className="space-y-4">
+            <UsersManagement />
           </TabsContent>
         )}
-      </Tabs>
+        </div>
+      </div>
+    </Tabs>
+  </div>
 
-      {/* Edit Dialog */}
+    {/* Edit Dialog */}
       {editingConfig && (
         <Dialog open={!!editingConfig} onOpenChange={(open) => !open && setEditingConfig(null)}>
           <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" dir="rtl">
@@ -844,7 +1020,7 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </>
   );
 }
 
@@ -1032,6 +1208,38 @@ export default function Calculator() {
     }
   }, [startDate, endDate]);
 
+  // Admin Panel Full Screen Mode
+  if (isAdminModalOpen) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" dir="rtl">
+        {!isAdminLoggedIn ? (
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <Card className="w-full max-w-md shadow-xl">
+              <CardContent className="p-6">
+                <AdminLogin onLoginSuccess={(role: string) => {
+                  setIsAdminLoggedIn(true);
+                  setAdminRole(role);
+                }} />
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="h-screen flex flex-col">
+            <AdminPanel 
+              role={adminRole}
+              onLogout={() => {
+                setIsAdminLoggedIn(false);
+                setAdminRole("");
+                setAdminPassword("");
+                setIsAdminModalOpen(false);
+              }} 
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="main-container" dir="rtl" lang="he">
       <div className="content-wrapper p-1 sm:p-2 lg:p-4 xl:p-6">
@@ -1056,58 +1264,15 @@ export default function Calculator() {
                 
                 {/* Admin Access Button - Left Side */}
                 <div className="flex-shrink-0">
-                  <Dialog open={isAdminModalOpen} onOpenChange={setIsAdminModalOpen}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 rounded-lg shadow-sm touch-manipulation cursor-pointer flex items-center justify-center" 
-                        data-testid="button-admin-access"
-                        style={{ WebkitTapHighlightColor: 'transparent' }}
-                      >
-                        <Settings className="h-6 w-6 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-lg w-[98vw] max-h-[98vh] overflow-hidden" dir="rtl">
-                      <div className="flex flex-col h-full max-h-[95vh]" dir="rtl">
-                        <DialogHeader className="flex-shrink-0 pb-2">
-                          <DialogTitle className="text-center text-lg sm:text-xl font-bold" dir="rtl">פאנל ניהול המערכת</DialogTitle>
-                          <DialogDescription className="text-center text-sm text-gray-600">
-                            ניהול תצורת מחירים ופרמטרים
-                          </DialogDescription>
-                        </DialogHeader>
-                        
-                        <div className="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 sm:space-y-4">
-                          {!isAdminLoggedIn ? (
-                            <AdminLogin onLoginSuccess={(role: string) => {
-                              setIsAdminLoggedIn(true);
-                              setAdminRole(role);
-                            }} />
-                          ) : (
-                            <AdminPanel 
-                              role={adminRole}
-                              onLogout={() => {
-                                setIsAdminLoggedIn(false);
-                                setAdminRole("");
-                                setAdminPassword("");
-                              }} 
-                            />
-                          )}
-                        </div>
-                        
-                        <div className="flex-shrink-0 p-2 sm:p-4 border-t">
-                          <Button 
-                            onClick={() => {
-                              setIsAdminModalOpen(false);
-                            }}
-                            className="w-full bg-gray-600 hover:bg-gray-700 text-white min-h-[48px] touch-manipulation cursor-pointer"
-                            data-testid="button-close-admin"
-                          >
-                            סגור
-                          </Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  <Button 
+                    variant="outline" 
+                    className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 rounded-lg shadow-sm touch-manipulation cursor-pointer flex items-center justify-center" 
+                    data-testid="button-admin-access"
+                    onClick={() => setIsAdminModalOpen(true)}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    <Settings className="h-6 w-6 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
+                  </Button>
                 </div>
               </div>
               

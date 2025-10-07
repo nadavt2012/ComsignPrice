@@ -16,9 +16,10 @@ export const pricingConfigs = pgTable("pricing_configs", {
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey(),
+  username: text("username").notNull().unique(),
   displayName: text("display_name").notNull(),
   password: text("password").notNull(), // bcrypt hashed
-  role: text("role").notNull(), // 'admin' | 'manager'
+  role: text("role").notNull(), // 'super_admin' | 'manager'
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -30,6 +31,8 @@ export const insertPricingConfigSchema = createInsertSchema(pricingConfigs).omit
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+}).extend({
+  username: z.string().min(1, "Username is required"),
 });
 
 // ===== DRIZZLE TYPES =====

@@ -102,8 +102,12 @@ const createUserSchema = z.object({
     .refine((pwd) => /[A-Za-z]/.test(pwd), "סיסמה חייבת להכיל לפחות אות אחת")
     .refine((pwd) => /\d/.test(pwd), "סיסמה חייבת להכיל לפחות ספרה אחת")
     .refine((pwd) => !validator.contains(pwd, '<>{}[]()'), "סיסמה מכילה תווים לא חוקיים"),
-  role: z.enum(["admin", "manager"], {
-    errorMap: () => ({ message: "תפקיד חייב להיות 'admin' או 'manager'" })
+  username: z.string()
+    .min(3, "שם משתמש חייב להכיל לפחות 3 תווים")
+    .max(50, "שם משתמש ארוך מדי")
+    .regex(/^[a-z0-9_]+$/, "שם משתמש יכול להכיל רק אותיות קטנות, מספרים וקו תחתון"),
+  role: z.enum(["super_admin", "manager"], {
+    errorMap: () => ({ message: "תפקיד חייב להיות 'super_admin' או 'manager'" })
   }),
 });
 
@@ -120,8 +124,8 @@ const updateUserSchema = z.object({
     .refine((pwd) => /\d/.test(pwd), "סיסמה חייבת להכיל לפחות ספרה אחת")
     .refine((pwd) => !validator.contains(pwd, '<>{}[]()'), "סיסמה מכילה תווים לא חוקיים")
     .optional(),
-  role: z.enum(["admin", "manager"], {
-    errorMap: () => ({ message: "תפקיד חייב להיות 'admin' או 'manager'" })
+  role: z.enum(["super_admin", "manager"], {
+    errorMap: () => ({ message: "תפקיד חייב להיות 'super_admin' או 'manager'" })
   }).optional(),
 });
 
@@ -816,6 +820,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Don't send passwords to client
       const sanitizedUsers = users.map(user => ({
         id: user.id,
+        username: user.username,
         displayName: user.displayName,
         role: user.role,
         createdAt: user.createdAt
@@ -840,6 +845,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const hashedPassword = await bcrypt.hash(validatedData.password, 10);
       
       const newUser = await storage.createUser({
+        username: validatedData.username,
         displayName: validatedData.displayName,
         password: hashedPassword,
         role: validatedData.role
@@ -848,6 +854,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Don't send password back to client
       res.status(201).json({
         id: newUser.id,
+        username: newUser.username,
         displayName: newUser.displayName,
         role: newUser.role,
         createdAt: newUser.createdAt
