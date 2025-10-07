@@ -6,6 +6,8 @@ import compression from "compression";
 import winston from "winston";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { createHmac } from "crypto";
@@ -265,6 +267,7 @@ const apiLimiter = rateLimit({
 // Apply rate limiters
 app.use(globalLimiter);
 app.use('/api/auth', authLimiter);
+app.use('/api/admin/login', authLimiter); // Critical: Brute force protection for admin login
 app.use('/api', apiLimiter);
 
 // Health check endpoints for deployment monitoring - no CORS restrictions needed
@@ -309,6 +312,30 @@ app.use(express.urlencoded({
   extended: false, 
   limit: '1mb',
   parameterLimit: 20 // Prevent parameter pollution
+}));
+
+// Session Management with PostgreSQL Store (SECURITY FIX)
+const PgSession = connectPg(session);
+const sessionSecret = process.env.SESSION_SECRET || "ComsignSecureSessionSecret2025$#@!";
+
+app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL,
+    tableName: 'user_sessions',
+    createTableIfMissing: true
+  }),
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  name: 'comsign.sid', // Custom session cookie name
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true, // Prevent XSS access to cookies
+    sameSite: 'strict', // CSRF protection
+    maxAge: 12 * 60 * 60 * 1000, // 12 hours
+    path: '/'
+  },
+  rolling: true // Refresh session on activity
 }));
 
 // Memory Optimization Middleware (2025 Standard)

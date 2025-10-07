@@ -13,6 +13,36 @@ import bcrypt from "bcrypt";
 import { storage } from "./storage";
 import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate } from "@shared/schema";
 
+// ===== AUTHENTICATION MIDDLEWARE (SECURITY FIX) =====
+
+// Require authentication middleware
+const requireAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!req.session?.user) {
+    return res.status(401).json({ 
+      success: false, 
+      message: "נדרשת התחברות. אנא התחבר תחילה." 
+    });
+  }
+  next();
+};
+
+// Require super admin role
+const requireSuperAdmin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!req.session?.user) {
+    return res.status(401).json({ 
+      success: false, 
+      message: "נדרשת התחברות. אנא התחבר תחילה." 
+    });
+  }
+  if (req.session.user.role !== 'super_admin') {
+    return res.status(403).json({ 
+      success: false, 
+      message: "אין הרשאה. רק מנהל ראשי יכול לבצע פעולה זו." 
+    });
+  }
+  next();
+};
+
 // ===== ENHANCED VALIDATION SCHEMAS (2025 Standard) =====
 
 // Comprehensive calculation request validation
@@ -492,11 +522,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'viewer': 'צפייה בלבד'
         };
         
-        res.json({ 
-          success: true, 
-          message: `התחברת בהצלחה כ${roleLabels[authResult.role as keyof typeof roleLabels] || authResult.role}`,
-          role: authResult.role,
-          lastLogin: new Date().toISOString()
+        // Save user session (SECURITY FIX)
+        const lastLogin = new Date().toISOString();
+        req.session.user = {
+          role: authResult.role!,
+          lastLogin
+        };
+        
+        // Save session before sending response
+        req.session.save((err) => {
+          if (err) {
+            console.error('Session save error:', err);
+            return res.status(500).json({ success: false, message: "שגיאה בשמירת session" });
+          }
+          
+          res.json({ 
+            success: true, 
+            message: `התחברת בהצלחה כ${roleLabels[authResult.role as keyof typeof roleLabels] || authResult.role}`,
+            role: authResult.role,
+            lastLogin
+          });
         });
       } else {
         res.status(401).json({ success: false, message: "סיסמה שגויה" });
@@ -509,8 +554,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Get all pricing configurations
-  app.get("/api/admin/pricing", async (req, res) => {
+  // Admin logout endpoint (SECURITY FIX)
+  app.post("/api/admin/logout", (req: express.Request, res: express.Response) => {
+    req.session.destroy((err) => {
+      if (err) {
+        console.error('Session destroy error:', err);
+        return res.status(500).json({ success: false, message: "שגיאה בהתנתקות" });
+      }
+      res.clearCookie('comsign.sid');
+      res.json({ success: true, message: "התנתקת בהצלחה" });
+    });
+  });
+
+  // Admin - Get all pricing configurations (PROTECTED)
+  app.get("/api/admin/pricing", requireAuth, async (req, res) => {
     try {
       const configs = await storage.getPricingConfigs();
       res.json(configs);
@@ -519,8 +576,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Create new pricing configuration
-  app.post("/api/admin/pricing", async (req, res) => {
+  // Admin - Create new pricing configuration (PROTECTED)
+  app.post("/api/admin/pricing", requireAuth, async (req, res) => {
     try {
       const data = adminConfigUpdateSchema.parse(req.body) as AdminConfigUpdate;
       const newConfig = await storage.createPricingConfig(data);
@@ -539,8 +596,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Update pricing configuration
-  app.put("/api/admin/pricing/:id", async (req, res) => {
+  // Admin - Update pricing configuration (PROTECTED)
+  app.put("/api/admin/pricing/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const data = adminConfigUpdateSchema.parse(req.body) as AdminConfigUpdate;
@@ -564,8 +621,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Delete pricing configuration
-  app.delete("/api/admin/pricing/:id", async (req, res) => {
+  // Admin - Delete pricing configuration (SUPER ADMIN ONLY)
+  app.delete("/api/admin/pricing/:id", requireSuperAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const deleted = await storage.deletePricingConfig(id);
@@ -585,8 +642,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Change password
-  app.post("/api/admin/change-password", async (req, res) => {
+  // Admin - Change password (PROTECTED)
+  app.post("/api/admin/change-password", requireAuth, async (req, res) => {
     try {
       const { currentPassword, newPassword } = adminPasswordChangeSchema.parse(req.body);
       
@@ -605,8 +662,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Reset password to default
-  app.post("/api/admin/reset-password", async (req, res) => {
+  // Admin - Reset password to default (SUPER ADMIN ONLY)
+  app.post("/api/admin/reset-password", requireSuperAdmin, async (req, res) => {
     try {
       await storage.resetAdminPassword();
       res.json({ success: true, message: "Password reset to default" });
@@ -617,8 +674,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Get all pricing configurations for admin
-  app.get("/api/admin/configs", async (req, res) => {
+  // Get all pricing configurations for admin (PROTECTED)
+  app.get("/api/admin/configs", requireAuth, async (req, res) => {
     try {
       const configs = await storage.getPricingConfigs();
       res.json(configs);
@@ -627,8 +684,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete pricing configuration (Admin only)
-  app.delete("/api/admin/configs/:id", async (req, res) => {
+  // Delete pricing configuration (SUPER ADMIN ONLY)
+  app.delete("/api/admin/configs/:id", requireSuperAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       
@@ -644,8 +701,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update pricing configuration
-  app.patch("/api/admin/configs/:id", async (req, res) => {
+  // Update pricing configuration (PROTECTED)
+  app.patch("/api/admin/configs/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const updates = req.body;
@@ -665,8 +722,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Clear all pricing configurations (for testing)
-  app.post("/api/admin/clear-all", async (req, res) => {
+  // Admin - Clear all pricing configurations (SUPER ADMIN ONLY)
+  app.post("/api/admin/clear-all", requireSuperAdmin, async (req, res) => {
     try {
       const success = await storage.clearAllPricingConfigs();
       if (success) {
@@ -683,8 +740,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Force sync endpoint
-  app.post("/api/admin/force-sync", async (req, res) => {
+  // Admin - Force sync endpoint (SUPER ADMIN ONLY)
+  app.post("/api/admin/force-sync", requireSuperAdmin, async (req, res) => {
     try {
       if (typeof global.triggerSync === 'function') {
         global.triggerSync();
@@ -697,8 +754,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin password change endpoint (only for super admin)
-  app.post("/api/admin/change-password", async (req, res) => {
+  // Admin password change endpoint (SUPER ADMIN ONLY - for changing other users passwords)
+  app.post("/api/admin/change-user-password", requireSuperAdmin, async (req, res) => {
     try {
       const { currentPassword, newPassword, targetRole } = adminPasswordChangeSchema.parse(req.body);
       
@@ -812,8 +869,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ===== USER MANAGEMENT ROUTES (Stage 6) =====
   
-  // GET /api/users - Get all users (Admin only)
-  app.get("/api/users", async (req, res) => {
+  // GET /api/users - Get all users (SUPER ADMIN ONLY)
+  app.get("/api/users", requireSuperAdmin, async (req, res) => {
     try {
       const users = await storage.getUsers();
       
@@ -836,8 +893,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // POST /api/users - Create new user (Admin only)
-  app.post("/api/users", async (req, res) => {
+  // POST /api/users - Create new user (SUPER ADMIN ONLY)
+  app.post("/api/users", requireSuperAdmin, async (req, res) => {
     try {
       const validatedData = createUserSchema.parse(req.body);
       
@@ -875,8 +932,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // PATCH /api/users/:id - Update user (Admin only)
-  app.patch("/api/users/:id", async (req, res) => {
+  // PATCH /api/users/:id - Update user (SUPER ADMIN ONLY)
+  app.patch("/api/users/:id", requireSuperAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const validatedData = updateUserSchema.parse(req.body);
@@ -928,8 +985,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // DELETE /api/users/:id - Delete user (Admin only)
-  app.delete("/api/users/:id", async (req, res) => {
+  // DELETE /api/users/:id - Delete user (SUPER ADMIN ONLY)
+  app.delete("/api/users/:id", requireSuperAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       
