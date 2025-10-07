@@ -379,7 +379,7 @@ class DatabaseStorage implements IStorage {
     }
     
     // In production, you would update environment variables or database
-    console.log(`Password change requested for role: ${targetRole} - New password: ${newPassword}`);
+    console.log(`Password change requested for role: ${targetRole}`);
     console.log(`You need to update ${targetRole.toUpperCase()}_PASSWORD in your Secrets panel`);
     return true;
   }
