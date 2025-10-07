@@ -642,38 +642,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin - Change password (PROTECTED)
-  app.post("/api/admin/change-password", requireAuth, async (req, res) => {
-    try {
-      const { currentPassword, newPassword } = adminPasswordChangeSchema.parse(req.body);
-      
-      const isValidCurrent = await storage.verifyAdminPassword(currentPassword);
-      if (!isValidCurrent) {
-        return res.status(401).json({ message: "Current password is incorrect" });
-      }
-      
-      await storage.updateAdminPassword(newPassword);
-      res.json({ success: true, message: "Password updated successfully" });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to change password" });
-    }
-  });
-
-  // Admin - Reset password to default (SUPER ADMIN ONLY)
-  app.post("/api/admin/reset-password", requireSuperAdmin, async (req, res) => {
-    try {
-      await storage.resetAdminPassword();
-      res.json({ success: true, message: "Password reset to default" });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to reset password" });
-    }
-  });
-
-
-
   // Get all pricing configurations for admin (PROTECTED)
   app.get("/api/admin/configs", requireAuth, async (req, res) => {
     try {

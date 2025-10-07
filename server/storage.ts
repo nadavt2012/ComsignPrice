@@ -16,8 +16,6 @@ export interface IStorage {
   clearAllPricingConfigs(): Promise<boolean>;
   replaceAllPricingConfigsAtomic(configs: PricingConfig[]): Promise<number>;
   verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }>;
-  updateAdminPassword(newPassword: string): Promise<void>;
-  resetAdminPassword(): Promise<void>;
   changeSubAdminPassword(currentPassword: string, newPassword: string, targetRole: string): Promise<boolean>;
   
   // User management (Stage 4 - DB infrastructure)
@@ -30,8 +28,6 @@ export interface IStorage {
 
 class DatabaseStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
-  private adminPassword: string;
-  private managerPassword: string;
   
   // Enhanced Multi-Level Caching (2025 Standard)
   private configsCache: PricingConfig[] | null = null;
@@ -61,26 +57,6 @@ class DatabaseStorage implements IStorage {
   };
 
   constructor() {
-    // CRITICAL SECURITY: Enforce required secrets in production
-    if (process.env.NODE_ENV === 'production') {
-      if (!process.env.ADMIN_PASSWORD) {
-        throw new Error('ADMIN_PASSWORD environment variable is required in production');
-      }
-      if (!process.env.MANAGER_PASSWORD) {
-        throw new Error('MANAGER_PASSWORD environment variable is required in production');
-      }
-    }
-    
-    // Use environment variables or secure defaults only in development
-    this.adminPassword = process.env.ADMIN_PASSWORD || 
-      (process.env.NODE_ENV === 'development' ? "Nadav6716781" : "");
-    this.managerPassword = process.env.MANAGER_PASSWORD || 
-      (process.env.NODE_ENV === 'development' ? "manager123" : "");
-    
-    if (!this.adminPassword || !this.managerPassword) {
-      throw new Error('Authentication passwords not properly configured');
-    }
-    
     const sql = neon(process.env.DATABASE_URL!);
     this.db = drizzle(sql);
     this.initializeDefaultPricing();
@@ -345,41 +321,29 @@ class DatabaseStorage implements IStorage {
     }
   }
 
-  // Admin password validation with role detection (Stage 5 - Hybrid Auth)
+  // Admin password validation with role detection (SECURITY: DB-only authentication)
   async verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }> {
-    // Stage 5: Hybrid authentication (DB + ENV fallback)
-    
-    // First, check if we have users in the database
+    // SECURITY FIX: Only use database authentication (no ENV fallback)
     const dbUsers = await this.getUsers();
     
-    if (dbUsers.length > 0) {
-      // Use database authentication
-      for (const user of dbUsers) {
-        try {
-          const isMatch = await bcrypt.compare(password, user.password);
-          if (isMatch) {
-            return { 
-              valid: true, 
-              role: user.role // Return the actual role from DB
-            };
-          }
-        } catch (error) {
-          console.error('Error comparing password:', error);
-        }
-      }
-      // If no DB user matched, don't fall back to ENV (DB takes precedence)
+    if (dbUsers.length === 0) {
+      console.error('SECURITY ERROR: No users in database! Cannot authenticate.');
       return { valid: false };
     }
     
-    // Fallback to ENV-based authentication (backwards compatibility)
-    const superAdminPassword = process.env.ADMIN_PASSWORD || this.adminPassword;
-    if (password === superAdminPassword) {
-      return { valid: true, role: 'super_admin' };
-    }
-    
-    const managerPassword = process.env.MANAGER_PASSWORD;
-    if (managerPassword && password === managerPassword) {
-      return { valid: true, role: 'manager' };
+    // Database-only authentication
+    for (const user of dbUsers) {
+      try {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (isMatch) {
+          return { 
+            valid: true, 
+            role: user.role // Return the actual role from DB
+          };
+        }
+      } catch (error) {
+        console.error('Error comparing password:', error);
+      }
     }
     
     return { valid: false };
@@ -418,14 +382,6 @@ class DatabaseStorage implements IStorage {
     console.log(`Password change requested for role: ${targetRole} - New password: ${newPassword}`);
     console.log(`You need to update ${targetRole.toUpperCase()}_PASSWORD in your Secrets panel`);
     return true;
-  }
-
-  async updateAdminPassword(newPassword: string): Promise<void> {
-    this.adminPassword = newPassword;
-  }
-
-  async resetAdminPassword(): Promise<void> {
-    this.adminPassword = process.env.ADMIN_PASSWORD || "795915";
   }
 
   // ===== USER MANAGEMENT (Stage 4 - DB Infrastructure) =====
