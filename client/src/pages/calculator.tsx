@@ -403,7 +403,7 @@ function UsersManagement() {
   const { toast } = useToast();
 
   // Fetch users
-  const { data: users = [], isLoading } = useQuery({
+  const { data: users = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/users'],
   });
 
@@ -769,16 +769,17 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
     <>
     <div className="h-full flex flex-col bg-white" dir="rtl">
       {/* Header Bar */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 shadow-lg">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
-          <div>
-            <h1 className="text-2xl font-bold">פאנל ניהול המערכת</h1>
-            <p className="text-sm text-blue-100 mt-1">{role === 'super_admin' ? 'סופר אדמין' : 'מנהל'}</p>
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 shadow-lg" dir="rtl">
+        <div className="flex justify-between items-center max-w-7xl mx-auto" dir="rtl">
+          <div className="text-right" dir="rtl">
+            <h1 className="text-2xl font-bold" dir="rtl">פאנל ניהול המערכת</h1>
+            <p className="text-sm text-blue-100 mt-1" dir="rtl">{role === 'super_admin' ? 'סופר אדמין' : 'מנהל'}</p>
           </div>
           <Button 
             onClick={onLogout} 
             variant="outline" 
             className="bg-white text-blue-600 hover:bg-blue-50 border-none shadow-md"
+            dir="rtl"
           >
             התנתק
           </Button>
@@ -786,18 +787,20 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
       </div>
 
       {/* Tabs Navigation */}
-      <Tabs defaultValue="view" className="flex-1 flex flex-col">
-        <div className="bg-white border-b shadow-sm">
-          <TabsList className={`max-w-7xl mx-auto h-auto bg-transparent gap-2 p-2 ${role === 'super_admin' ? 'grid grid-cols-3' : 'grid grid-cols-2'}`}>
+      <Tabs defaultValue="view" className="flex-1 flex flex-col" dir="rtl">
+        <div className="bg-white border-b shadow-sm" dir="rtl">
+          <TabsList className={`max-w-7xl mx-auto h-auto bg-transparent gap-2 p-2 ${role === 'super_admin' ? 'grid grid-cols-3' : 'grid grid-cols-2'}`} dir="rtl">
             <TabsTrigger 
               value="view" 
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
+              dir="rtl"
             >
               ניהול מחירים
             </TabsTrigger>
             <TabsTrigger 
               value="add" 
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
+              dir="rtl"
             >
               הוסף מחיר חדש
             </TabsTrigger>
@@ -805,6 +808,7 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
               <TabsTrigger 
                 value="users" 
                 className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
+                dir="rtl"
               >
                 ניהול משתמשים
               </TabsTrigger>

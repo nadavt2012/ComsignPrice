@@ -360,7 +360,7 @@ class DatabaseStorage implements IStorage {
           if (isMatch) {
             return { 
               valid: true, 
-              role: user.role === 'admin' ? 'super_admin' : 'manager' 
+              role: user.role // Return the actual role from DB
             };
           }
         } catch (error) {
