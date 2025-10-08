@@ -462,34 +462,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
       }
 
-      // Day offset logic - calculate price based on used days (not remaining days)
+      // Day offset logic - calculate ONLY for ONE regular certificate (the broken/lost one)
       let dayOffsetInfo = "";
       if (data.dayOffset && data.dayOffset > 0) {
         // Calculate the total days in the validity period (years * 365)
         const totalValidityDays = data.years * 365;
         
-        // Calculate the price per day for each certificate type separately
+        // Calculate the price per day for ONE regular certificate only
         const basePricePerDay = basePrice / totalValidityDays;
-        const backupPricePerDay = backupPrice / totalValidityDays;
         
-        // Calculate new prices based on days used (dayOffset = days that passed)
-        const newRegularCertificatesCost = Math.round(basePricePerDay * data.dayOffset * regularCertificates);
-        const newBackupCertificatesCost = Math.round(backupPricePerDay * data.dayOffset * backupCertificates);
-        const newTotalBeforeToken = newRegularCertificatesCost + newBackupCertificatesCost;
+        // Calculate price for ONE certificate based on days used
+        const oneCertificateUsedPrice = Math.round(basePricePerDay * data.dayOffset);
         
-        // Calculate credit amount
-        const creditAmount = (regularCertificatesCost + backupCertificatesCost) - newTotalBeforeToken;
+        // Calculate credit for the remaining days of ONE certificate
+        const creditAmount = basePrice - oneCertificateUsedPrice;
         
-        // Update total price (excluding token which was already added)
-        totalPrice = newTotalBeforeToken;
+        // Deduct the credit from total (apply offset to one certificate only)
+        totalPrice = totalPrice - creditAmount;
         
-        // Re-add token cost if it was included
+        // Re-add token cost if it was included (token pricing unchanged by offset)
         if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
           const totalTokenCost = tokenPrice * totalCertificates;
           totalPrice += totalTokenCost;
         }
         
-        dayOffsetInfo = `חישוב לפי ${data.dayOffset} ימים מתוך ${totalValidityDays} ימי תוקף. זיכוי: ₪${creditAmount}`;
+        dayOffsetInfo = `קיזוז עבור תעודה אחת שנשברה: ${data.dayOffset} ימי שימוש מתוך ${totalValidityDays} ימי תוקף → זיכוי ₪${creditAmount}`;
       }
       
       const result: CalculationResult = {

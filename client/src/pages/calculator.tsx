@@ -1581,35 +1581,51 @@ export default function Calculator() {
             {/* Price Display - Only show when there's a result */}
             {calculationResult && calculationResult.totalPrice !== null && calculationResult.totalPrice !== undefined && (
               <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 p-2 sm:p-3 lg:p-3 xl:p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
-                <div className="text-center">
-                  <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר סופי</p>
-                  <div className="bg-white border-gray-200 rounded-lg p-2 sm:p-3 lg:p-3 xl:p-4 shadow-lg border">
-                    <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
-                      ₪{calculationResult.totalPrice.toLocaleString()}
-                    </p>
+                <div className="text-center space-y-2">
+                  
+                  {/* Main Price Display */}
+                  <div>
+                    <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר לתשלום</p>
+                    <div className="bg-white border-gray-200 rounded-lg p-2 sm:p-3 lg:p-3 xl:p-4 shadow-lg border">
+                      <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
+                        ₪{calculationResult.totalPrice.toLocaleString()}
+                      </p>
+                    </div>
                   </div>
-                {calculationResult?.discountInfo && (
-                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-600 mt-2 lg:mt-3 font-medium" data-testid="text-discount-info">
-                    {calculationResult.discountInfo}
-                  </p>
-                )}
-                {calculationResult?.tokenDisclaimer && (
-                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-red-600 mt-2 lg:mt-3 font-medium" data-testid="text-token-disclaimer">
-                    *{calculationResult.tokenDisclaimer}
-                  </p>
-                )}
-                {calculationResult?.dayOffsetInfo && (
-                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-blue-600 mt-2 lg:mt-3 font-medium" data-testid="text-day-offset-info">
-                    *{calculationResult.dayOffsetInfo}
-                  </p>
-                )}
-                {calculationResult?.originalPrice && calculationResult.originalPrice !== calculationResult.totalPrice && (
-                  <p className="text-xs sm:text-sm lg:text-base xl:text-lg text-gray-500 mt-1 lg:mt-2 line-through" data-testid="text-original-price">
-                    מחיר מקורי: ₪{calculationResult.originalPrice.toLocaleString()}
-                  </p>
-                )}
+
+                  {/* Backup Certificates - Separate Line */}
+                  {calculationResult?.discountInfo && (
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 lg:p-3">
+                      <p className="text-xs sm:text-sm lg:text-base text-purple-700 font-medium" data-testid="text-discount-info">
+                        📦 {calculationResult.discountInfo}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Day Offset Credit - Clear Display */}
+                  {calculationResult?.dayOffsetInfo && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-2 lg:p-3">
+                      <p className="text-xs sm:text-sm lg:text-base text-green-700 font-semibold" data-testid="text-day-offset-info">
+                        💰 {calculationResult.dayOffsetInfo}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Token Disclaimer */}
+                  {calculationResult?.tokenDisclaimer && (
+                    <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-2 font-medium" data-testid="text-token-disclaimer">
+                      {calculationResult.tokenDisclaimer}
+                    </p>
+                  )}
+
+                  {/* Original Price (if different) */}
+                  {calculationResult?.originalPrice && calculationResult.originalPrice !== calculationResult.totalPrice && (
+                    <p className="text-xs sm:text-sm lg:text-base text-gray-500 mt-1 line-through" data-testid="text-original-price">
+                      מחיר לפני קיזוז: ₪{calculationResult.originalPrice.toLocaleString()}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
             )}
 
             {/* Footer */}
