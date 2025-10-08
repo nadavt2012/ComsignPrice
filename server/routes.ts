@@ -462,21 +462,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
       }
 
-      // Day offset logic - calculate price based on unused days
+      // Day offset logic - calculate price based on used days (not remaining days)
       let dayOffsetInfo = "";
       if (data.dayOffset && data.dayOffset > 0) {
         // Calculate the total days in the validity period (years * 365)
         const totalValidityDays = data.years * 365;
         
-        // Calculate the price per day
-        const pricePerDay = totalPrice / totalValidityDays;
+        // Calculate the price per day for each certificate type separately
+        const basePricePerDay = basePrice / totalValidityDays;
+        const backupPricePerDay = backupPrice / totalValidityDays;
         
-        // New price = price per day * remaining days
-        const newPrice = Math.round(pricePerDay * data.dayOffset);
-        const creditAmount = totalPrice - newPrice;
+        // Calculate new prices based on days used (dayOffset = days that passed)
+        const newRegularCertificatesCost = Math.round(basePricePerDay * data.dayOffset * regularCertificates);
+        const newBackupCertificatesCost = Math.round(backupPricePerDay * data.dayOffset * backupCertificates);
+        const newTotalBeforeToken = newRegularCertificatesCost + newBackupCertificatesCost;
         
-        totalPrice = newPrice;
-        dayOffsetInfo = `זיכוי לפי ${data.dayOffset} ימים שנותרו מתוך ${totalValidityDays} ימי תוקף. זיכוי: ₪${creditAmount}`;
+        // Calculate credit amount
+        const creditAmount = (regularCertificatesCost + backupCertificatesCost) - newTotalBeforeToken;
+        
+        // Update total price (excluding token which was already added)
+        totalPrice = newTotalBeforeToken;
+        
+        // Re-add token cost if it was included
+        if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
+          const totalTokenCost = tokenPrice * totalCertificates;
+          totalPrice += totalTokenCost;
+        }
+        
+        dayOffsetInfo = `חישוב לפי ${data.dayOffset} ימים מתוך ${totalValidityDays} ימי תוקף. זיכוי: ₪${creditAmount}`;
       }
       
       const result: CalculationResult = {
