@@ -31,7 +31,8 @@ import {
   Search, ArrowUpDown, X
 } from "lucide-react";
 
-// Assets removed - using icon instead
+// Assets
+import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
 
 // Icon mapping function
 const getIconComponent = (iconName: string) => {
@@ -421,10 +422,7 @@ function UsersManagement() {
   // Create user mutation
   const createUserMutation = useMutation({
     mutationFn: async (data: { username: string; displayName: string; role: string; password: string }) => {
-      return apiRequest('/api/users', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      return apiRequest('POST', '/api/users', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
@@ -439,10 +437,7 @@ function UsersManagement() {
   // Update user mutation
   const updateUserMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      return apiRequest(`/api/users/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(data),
-      });
+      return apiRequest('PATCH', `/api/users/${id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
@@ -457,7 +452,7 @@ function UsersManagement() {
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/users/${id}`, { method: 'DELETE' });
+      return apiRequest('DELETE', `/api/users/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/users'] });
@@ -539,7 +534,7 @@ function UsersManagement() {
               <DialogTitle>הוסף משתמש חדש</DialogTitle>
             </DialogHeader>
             <UserForm
-              onSubmit={(data) => createUserMutation.mutate(data)}
+              onSubmit={(data: any) => createUserMutation.mutate(data)}
               onCancel={() => setShowAddUser(false)}
               isLoading={createUserMutation.isPending}
             />
@@ -556,7 +551,7 @@ function UsersManagement() {
             </DialogHeader>
             <UserForm
               initialData={editingUser}
-              onSubmit={(data) => updateUserMutation.mutate({ id: editingUser.id, data })}
+              onSubmit={(data: any) => updateUserMutation.mutate({ id: editingUser.id, data })}
               onCancel={() => setEditingUser(null)}
               isLoading={updateUserMutation.isPending}
             />
@@ -1272,12 +1267,12 @@ export default function Calculator() {
               <div className="flex items-center justify-between mb-1">
                 {/* Logo - Right Side */}
                 <div className="flex-shrink-0">
-                  <div 
-                    className="h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 bg-red-600 rounded-lg shadow-md flex items-center justify-center"
+                  <img 
+                    src={comsignLogo} 
+                    alt="Comsign Logo" 
+                    className="h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 object-contain rounded-lg shadow-sm"
                     data-testid="logo-comsign"
-                  >
-                    <CalcIcon className="h-8 w-8 lg:h-7 lg:w-7 xl:h-8 xl:w-8 text-white" />
-                  </div>
+                  />
                 </div>
                 
                 {/* Admin Access Button - Left Side */}
