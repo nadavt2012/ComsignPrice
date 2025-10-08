@@ -3,6 +3,13 @@
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
 **Recent Updates (October 2025):**
+- **Enhanced Display & Credit Calculation (Oct 8)**: Improved pricing display clarity and fixed credit calculation logic
+  - **Credit Logic Fix**: dayOffset credit now applies to ONLY ONE regular certificate (the broken/lost one), not all certificates
+  - **Clean Display**: Removed all emojis from pricing displays per user request
+  - **Simplified Text**: Changed "קיזוז עבור תעודה אחת שנשברה" to "קיזוז עבור תעודה אחת" (removed "שנשברה/אבדה")
+  - **Minus Sign Position**: Credit amounts now display with minus AFTER number (e.g., "זיכוי ₪416-" instead of "-₪416")
+  - **Unit Price Display**: Added "מחיר תעודה אחת" below total price for clarity
+  - **Separate Backup Display**: Backup certificates shown in dedicated purple box without emoji
 - **Critical Date Calculation Fix**: Fixed advanced calculation date logic to work perfectly with any date range
   - **Previous Bug**: System calculated days from TODAY to end date, causing errors with past/future dates
   - **New Logic**: Correctly calculates days between user-entered START and END dates (inclusive)

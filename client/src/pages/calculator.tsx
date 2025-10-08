@@ -73,6 +73,7 @@ interface CalculationRequest {
 
 interface CalculationResult {
   totalPrice: number;
+  basePrice: number;
   discountInfo?: string;
   tokenPrice?: number;
   tokenIncluded?: boolean;
@@ -1590,6 +1591,12 @@ export default function Calculator() {
                       <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
                         ₪{calculationResult.totalPrice.toLocaleString()}
                       </p>
+                      {/* Price per single certificate */}
+                      {calculationResult?.basePrice && (
+                        <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1" dir="rtl" data-testid="text-unit-price">
+                          מחיר תעודה אחת: ₪{calculationResult.basePrice.toLocaleString()}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1597,7 +1604,7 @@ export default function Calculator() {
                   {calculationResult?.discountInfo && (
                     <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 lg:p-3">
                       <p className="text-xs sm:text-sm lg:text-base text-purple-700 font-medium" data-testid="text-discount-info">
-                        📦 {calculationResult.discountInfo}
+                        {calculationResult.discountInfo}
                       </p>
                     </div>
                   )}
@@ -1606,7 +1613,7 @@ export default function Calculator() {
                   {calculationResult?.dayOffsetInfo && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-2 lg:p-3">
                       <p className="text-xs sm:text-sm lg:text-base text-green-700 font-semibold" data-testid="text-day-offset-info">
-                        💰 {calculationResult.dayOffsetInfo}
+                        {calculationResult.dayOffsetInfo}
                       </p>
                     </div>
                   )}

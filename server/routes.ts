@@ -486,7 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalPrice += totalTokenCost;
         }
         
-        dayOffsetInfo = `קיזוז עבור תעודה אחת שנשברה: ${data.dayOffset} ימי שימוש מתוך ${totalValidityDays} ימי תוקף → זיכוי ₪${creditAmount}`;
+        dayOffsetInfo = `קיזוז עבור תעודה אחת: ${data.dayOffset} ימי שימוש מתוך ${totalValidityDays} ימי תוקף → זיכוי ₪${creditAmount}-`;
       }
       
       const result: CalculationResult = {
