@@ -20,6 +20,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import type { CalculationResult } from "@shared/schema";
 
 // Icons
 import { 
@@ -69,17 +70,6 @@ interface CalculationRequest {
   backupCertificates: number;
   includeToken?: boolean;
   dayOffset?: number;
-}
-
-interface CalculationResult {
-  totalPrice: number;
-  basePrice: number;
-  discountInfo?: string;
-  tokenPrice?: number;
-  tokenIncluded?: boolean;
-  tokenDisclaimer?: string;
-  dayOffsetInfo?: string;
-  originalPrice?: number;
 }
 
 interface PricingConfig {
@@ -1591,8 +1581,8 @@ export default function Calculator() {
                       <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
                         ₪{calculationResult.totalPrice.toLocaleString()}
                       </p>
-                      {/* Price per single certificate */}
-                      {calculationResult?.basePrice && (
+                      {/* Price per single certificate - only show when more than 1 certificate */}
+                      {calculationResult?.basePrice && calculationResult?.totalCertificates > 1 && (
                         <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1" dir="rtl" data-testid="text-unit-price">
                           מחיר תעודה אחת: ₪{calculationResult.basePrice.toLocaleString()}
                         </p>
