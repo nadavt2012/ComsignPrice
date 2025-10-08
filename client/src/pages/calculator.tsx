@@ -31,8 +31,7 @@ import {
   Search, ArrowUpDown, X
 } from "lucide-react";
 
-// Assets
-import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
+// Assets removed - using icon instead
 
 // Icon mapping function
 const getIconComponent = (iconName: string) => {
@@ -1273,12 +1272,12 @@ export default function Calculator() {
               <div className="flex items-center justify-between mb-1">
                 {/* Logo - Right Side */}
                 <div className="flex-shrink-0">
-                  <img 
-                    src={comsignLogo} 
-                    alt="Comsign Logo" 
-                    className="h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 object-contain rounded-lg shadow-sm"
+                  <div 
+                    className="h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 bg-red-600 rounded-lg shadow-md flex items-center justify-center"
                     data-testid="logo-comsign"
-                  />
+                  >
+                    <CalcIcon className="h-8 w-8 lg:h-7 lg:w-7 xl:h-8 xl:w-8 text-white" />
+                  </div>
                 </div>
                 
                 {/* Admin Access Button - Left Side */}
