@@ -1208,9 +1208,9 @@ export default function Calculator() {
           return;
         }
         
-        // Calculate days between start and end dates
+        // Calculate days between start and end dates (inclusive of both dates)
         const diffTime = end.getTime() - start.getTime();
-        const daysBetween = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const daysBetween = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
         
         // Set the days (always positive since we validated end >= start)
         setDayOffset(daysBetween > 0 ? daysBetween : 0);
