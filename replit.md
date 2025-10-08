@@ -3,6 +3,12 @@
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
 **Recent Updates (October 2025):**
+- **Enhanced Branding & SEO**: Professional favicon and social sharing optimization
+  - **Multi-Size Favicon System**: Complete favicon implementation (16x16, 32x32, 48x48, ico format) with red calculator icon
+  - **Apple Touch Icon**: Dedicated 180x180 iOS home screen icon for PWA installation
+  - **Open Graph Meta Tags**: Full social sharing support (Facebook, LinkedIn) with Hebrew locale support
+  - **Twitter Card Integration**: Large image cards for professional Twitter/X sharing
+  - **Red-Themed Icons**: Consistent branding with #ef4444 red borders matching Comsign logo design
 - **Critical Security Hardening**: Comprehensive security audit and fixes to prevent vulnerabilities and unauthorized access
   - **Session-Based Authentication**: PostgreSQL-backed sessions with secure cookies (HttpOnly, Secure in production, SameSite=strict)
   - **Brute Force Protection**: Rate limiting on login endpoint (5 attempts per 15 minutes)
