@@ -66,8 +66,8 @@ const calculationRequestSchema = z.object({
   includeToken: z.boolean().optional(),
   dayOffset: z.number()
     .int("היסט ימים חייב להיות מספר שלם")
-    .min(-365, "היסט ימים מינימלי הוא -365")
-    .max(365, "היסט ימים מקסימלי הוא 365")
+    .min(0, "היסט ימים לא יכול להיות שלילי")
+    .max(3660, "היסט ימים מקסימלי הוא 3660 (כ-10 שנים)")
     .optional(),
 });
 
@@ -246,8 +246,8 @@ const calculateValidationChain: ValidationChain[] = [
   
   body('dayOffset')
     .optional()
-    .isInt({ min: -365, max: 365 })
-    .withMessage('היסט ימים חייב להיות בין -365 ל-365')
+    .isInt({ min: 0, max: 3660 })
+    .withMessage('היסט ימים חייב להיות בין 0 ל-3660')
 ];
 
 const adminLoginValidationChain: ValidationChain[] = [
