@@ -1365,17 +1365,35 @@ export default function Calculator() {
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
                   <span>כמות תעודות</span>
                 </Label>
-                <Input
-                  type="number"
-                  min="1"
-                  max="1000"
-                  value={certificates}
-                  onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                  className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
-                  placeholder="כמות תעודות"
-                  data-testid="input-certificates"
-                  inputMode="numeric"
-                />
+                <div className="flex items-center gap-2" dir="ltr">
+                  <Button
+                    type="button"
+                    onClick={() => setCertificates(Math.max(1, certificates - 1))}
+                    className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
+                    data-testid="button-decrease-certificates"
+                  >
+                    −
+                  </Button>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="1000"
+                    value={certificates}
+                    onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
+                    className="flex-1 p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation"
+                    placeholder="כמות תעודות"
+                    data-testid="input-certificates"
+                    inputMode="numeric"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => setCertificates(Math.min(1000, certificates + 1))}
+                    className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
+                    data-testid="button-increase-certificates"
+                  >
+                    +
+                  </Button>
+                </div>
               </div>
 
               {/* Backup Certificates - Only show if available */}
@@ -1384,17 +1402,35 @@ export default function Calculator() {
                   <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
                     <span>תעודות גיבוי</span>
                   </Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={backupCertificates}
-                    onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                    className="w-full p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation cursor-pointer"
-                    placeholder="תעודות גיבוי"
-                    data-testid="input-backup-certificates"
-                    inputMode="numeric"
-                  />
+                  <div className="flex items-center gap-2" dir="ltr">
+                    <Button
+                      type="button"
+                      onClick={() => setBackupCertificates(Math.max(0, backupCertificates - 1))}
+                      className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
+                      data-testid="button-decrease-backup-certificates"
+                    >
+                      −
+                    </Button>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={backupCertificates}
+                      onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
+                      className="flex-1 p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation"
+                      placeholder="תעודות גיבוי"
+                      data-testid="input-backup-certificates"
+                      inputMode="numeric"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => setBackupCertificates(Math.min(100, backupCertificates + 1))}
+                      className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
+                      data-testid="button-increase-backup-certificates"
+                    >
+                      +
+                    </Button>
+                  </div>
                 </div>
               )}
 
