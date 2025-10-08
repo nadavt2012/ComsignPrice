@@ -3,6 +3,12 @@
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
 **Recent Updates (October 2025):**
+- **Critical Date Calculation Fix**: Fixed advanced calculation date logic to work perfectly with any date range
+  - **Previous Bug**: System calculated days from TODAY to end date, causing errors with past/future dates
+  - **New Logic**: Correctly calculates days between user-entered START and END dates (inclusive)
+  - **Accurate Counting**: Includes both start and end dates (e.g., Jan 1-5 = 5 days, not 4)
+  - **Leap Year Support**: Properly handles leap years (e.g., 2024-01-01 to 2024-12-31 = 366 days)
+  - **Validation**: Prevents invalid ranges (end date must be >= start date) with clear error messages
 - **Enhanced Branding & SEO**: Professional favicon and social sharing optimization
   - **Multi-Size Favicon System**: Complete favicon implementation (16x16, 32x32, 48x48, ico format) with red calculator icon
   - **Apple Touch Icon**: Dedicated 180x180 iOS home screen icon for PWA installation
