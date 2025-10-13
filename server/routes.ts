@@ -456,7 +456,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tokenIncluded = true;
         tokenDisclaimer = totalCertificates === 1 
           ? `נוסף טוקן בעלות ₪${tokenPrice}` 
-          : `נוסף ${totalCertificates} טוקנים בעלות ₪${totalTokenCost} (₪${tokenPrice} לכל תעודה)`;
+          : `נוספו ${totalCertificates} טוקנים בעלות ₪${totalTokenCost} (₪${tokenPrice} לכל תעודה)`;
       } else if (pricingConfig.tokenIncluded === "optional") {
         // Token is optional but not included
         tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
