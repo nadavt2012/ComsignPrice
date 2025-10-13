@@ -1614,13 +1614,6 @@ export default function Calculator() {
                       {calculationResult.tokenDisclaimer}
                     </p>
                   )}
-
-                  {/* Original Price (if different) */}
-                  {calculationResult?.originalPrice && calculationResult.originalPrice !== calculationResult.totalPrice && (
-                    <p className="text-xs sm:text-sm lg:text-base text-gray-500 mt-1 line-through" data-testid="text-original-price">
-                      מחיר לפני קיזוז: ₪{calculationResult.originalPrice.toLocaleString()}
-                    </p>
-                  )}
                 </div>
               </div>
             )}
