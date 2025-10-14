@@ -463,35 +463,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Day offset logic - Credit for remaining days in old certificate
+      // IMPORTANT: dayOffset represents the NUMBER OF DAYS REMAINING in the old certificate (credit period)
       let dayOffsetInfo = "";
       if (data.dayOffset && data.dayOffset > 0) {
-        // dayOffset = remaining days in old certificate (for credit calculation)
-        const remainingDays = data.dayOffset;
+        const remainingDaysInOldCert = data.dayOffset;
         const totalValidityDays = data.years * 365;
         
-        // Debug: Log what we received
-        console.log('DEBUG dayOffset calculation:', {
-          receivedDayOffset: data.dayOffset,
-          remainingDays,
-          totalValidityDays,
-          basePrice,
-          years: data.years
-        });
-        
-        // Calculate price per day based on new certificate price
+        // Calculate price per day based on NEW certificate
         const basePricePerDay = basePrice / totalValidityDays;
         
-        // Calculate credit based on remaining days in old certificate
-        const creditAmount = Math.round(basePricePerDay * remainingDays);
+        // Calculate credit: price per day × remaining days in old certificate
+        const creditAmount = Math.round(basePricePerDay * remainingDaysInOldCert);
         
-        console.log('DEBUG credit calculation:', {
-          basePricePerDay,
-          creditAmount,
-          totalPriceBefore: totalPrice,
-          totalPriceAfter: totalPrice - creditAmount
-        });
-        
-        // Apply credit to total price
+        // Apply credit (reduce from total price)
         totalPrice = totalPrice - creditAmount;
         
         // Re-add token cost if it was included (token pricing unchanged by offset)
@@ -500,8 +484,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalPrice += totalTokenCost;
         }
         
-        // Clear message for user
-        dayOffsetInfo = `זיכוי עבור ${remainingDays} ימים שלא נוצלו: -₪${creditAmount}`;
+        // Clear user message
+        dayOffsetInfo = `זיכוי עבור ${remainingDaysInOldCert} ימים שלא נוצלו: -₪${creditAmount}`;
       }
       
       const result: CalculationResult = {
