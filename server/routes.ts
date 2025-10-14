@@ -462,35 +462,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tokenDisclaimer = "המחיר מתייחס לעלות הפרויקט וכרטיס עם קורא כרטיסים בלבד";
       }
 
-      // Day offset logic - calculate ONLY for ONE regular certificate (the broken/lost one)
+      // Day offset logic - Credit for remaining days in old certificate
       let dayOffsetInfo = "";
       if (data.dayOffset && data.dayOffset > 0) {
-        // Calculate the total days in the validity period (years * 365)
+        // dayOffset = remaining days in old certificate (for credit calculation)
+        const remainingDays = data.dayOffset;
         const totalValidityDays = data.years * 365;
         
-        // Check if used days exceed validity period
-        if (data.dayOffset >= totalValidityDays) {
-          // No credit - certificate was used for full period or beyond
-          dayOffsetInfo = `התעודה נוצלה במלואה (${data.dayOffset} ימים)`;
-        } else {
-          // Calculate credit for unused days
-          const unusedDays = totalValidityDays - data.dayOffset;
-          const basePricePerDay = basePrice / totalValidityDays;
-          const oneCertificateUsedPrice = Math.round(basePricePerDay * data.dayOffset);
-          const creditAmount = basePrice - oneCertificateUsedPrice;
-          
-          // Apply credit to total price
-          totalPrice = totalPrice - creditAmount;
-          
-          // Re-add token cost if it was included (token pricing unchanged by offset)
-          if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
-            const totalTokenCost = tokenPrice * totalCertificates;
-            totalPrice += totalTokenCost;
-          }
-          
-          // Clear message for user
-          dayOffsetInfo = `זיכוי עבור ${unusedDays} ימים שלא נוצלו: -₪${creditAmount}`;
+        // Calculate price per day based on new certificate price
+        const basePricePerDay = basePrice / totalValidityDays;
+        
+        // Calculate credit based on remaining days in old certificate
+        const creditAmount = Math.round(basePricePerDay * remainingDays);
+        
+        // Apply credit to total price
+        totalPrice = totalPrice - creditAmount;
+        
+        // Re-add token cost if it was included (token pricing unchanged by offset)
+        if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
+          const totalTokenCost = tokenPrice * totalCertificates;
+          totalPrice += totalTokenCost;
         }
+        
+        // Clear message for user
+        dayOffsetInfo = `זיכוי עבור ${remainingDays} ימים שלא נוצלו: -₪${creditAmount}`;
       }
       
       const result: CalculationResult = {
