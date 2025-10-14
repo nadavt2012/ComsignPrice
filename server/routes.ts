@@ -473,7 +473,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const basePricePerDay = basePrice / totalValidityDays;
         
         // Calculate credit: price per day × remaining days in old certificate
-        const creditAmount = Math.round(basePricePerDay * remainingDaysInOldCert);
+        let creditAmount = Math.round(basePricePerDay * remainingDaysInOldCert);
+        
+        // IMPORTANT: Cap credit at maximum of ONE certificate price (cannot exceed base price)
+        // This handles cases where remaining days exceed validity days (due to leap years)
+        creditAmount = Math.min(creditAmount, basePrice);
         
         // Apply credit (reduce from total price)
         totalPrice = totalPrice - creditAmount;
