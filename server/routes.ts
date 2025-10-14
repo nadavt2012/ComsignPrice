@@ -469,11 +469,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const remainingDays = data.dayOffset;
         const totalValidityDays = data.years * 365;
         
+        // Debug: Log what we received
+        console.log('DEBUG dayOffset calculation:', {
+          receivedDayOffset: data.dayOffset,
+          remainingDays,
+          totalValidityDays,
+          basePrice,
+          years: data.years
+        });
+        
         // Calculate price per day based on new certificate price
         const basePricePerDay = basePrice / totalValidityDays;
         
         // Calculate credit based on remaining days in old certificate
         const creditAmount = Math.round(basePricePerDay * remainingDays);
+        
+        console.log('DEBUG credit calculation:', {
+          basePricePerDay,
+          creditAmount,
+          totalPriceBefore: totalPrice,
+          totalPriceAfter: totalPrice - creditAmount
+        });
         
         // Apply credit to total price
         totalPrice = totalPrice - creditAmount;
