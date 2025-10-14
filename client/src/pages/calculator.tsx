@@ -1181,11 +1181,14 @@ export default function Calculator() {
   }, [backupCertificatesAvailable]);
 
   // Calculate remaining days when dates change
+  // Logic: Credit is for REMAINING days from TODAY until certificate expiry date
   useEffect(() => {
     try {
       if (startDate && endDate) {
         const start = new Date(startDate);
         const end = new Date(endDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time to start of day
         
         // Validate dates
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
@@ -1199,12 +1202,13 @@ export default function Calculator() {
           return;
         }
         
-        // Calculate days between start and end dates (inclusive of both dates)
-        const diffTime = end.getTime() - start.getTime();
-        const daysBetween = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end dates
+        // Calculate REMAINING days from TODAY to end date (inclusive)
+        // This represents the unused/remaining validity period
+        const diffTime = end.getTime() - today.getTime();
+        const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include end date
         
-        // Set the days (always positive since we validated end >= start)
-        setDayOffset(daysBetween > 0 ? daysBetween : 0);
+        // Set the remaining days (can be 0 if certificate already expired)
+        setDayOffset(remainingDays > 0 ? remainingDays : 0);
       } else {
         setDayOffset(0);
       }
