@@ -3,6 +3,12 @@
 This is a pricing calculator application built with a full-stack TypeScript architecture. The application allows users to calculate prices for different project types (lawyers, architects, engineers, magna, regular) based on varying time periods and certificate quantities. It features a React frontend with shadcn/ui components and an Express.js backend with PostgreSQL database integration using Drizzle ORM.
 
 **Recent Updates (October 2025):**
+- **Critical dayOffset Credit Cap Fix (Oct 14)**: Fixed calculation overflow when remaining days exceed validity period
+  - **Previous Bug**: Credit could exceed certificate price (e.g., 1,462 days credit vs 1,460 days validity = ₪476 credit on ₪475 certificate)
+  - **Root Cause**: Leap years cause remaining days (1,462) to exceed 4×365=1,460 days, resulting in negative final prices
+  - **Solution**: Implemented credit cap at maximum of ONE certificate price using `Math.min(creditAmount, basePrice)`
+  - **Business Logic**: Credit calculation based on new certificate price, capped to prevent over-crediting
+  - **Formula**: `creditAmount = Math.min(Math.round((basePrice / totalValidityDays) × remainingDays), basePrice)`
 - **Enhanced Display & Credit Calculation (Oct 8)**: Improved pricing display clarity and fixed credit calculation logic
   - **Credit Logic Fix**: dayOffset credit now applies to ONLY ONE regular certificate (the broken/lost one), not all certificates
   - **Clean Display**: Removed all emojis from pricing displays per user request
