@@ -468,29 +468,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculate the total days in the validity period (years * 365)
         const totalValidityDays = data.years * 365;
         
-        // Calculate the price per day for ONE regular certificate only
-        const basePricePerDay = basePrice / totalValidityDays;
-        
-        // Calculate price for ONE certificate based on days used
-        const oneCertificateUsedPrice = Math.round(basePricePerDay * data.dayOffset);
-        
-        // Calculate credit for the remaining days of ONE certificate
-        const creditAmount = basePrice - oneCertificateUsedPrice;
-        
-        // Calculate unused days (clear for user)
-        const unusedDays = totalValidityDays - data.dayOffset;
-        
-        // Deduct the credit from total (apply offset to one certificate only)
-        totalPrice = totalPrice - creditAmount;
-        
-        // Re-add token cost if it was included (token pricing unchanged by offset)
-        if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
-          const totalTokenCost = tokenPrice * totalCertificates;
-          totalPrice += totalTokenCost;
+        // Check if used days exceed validity period
+        if (data.dayOffset >= totalValidityDays) {
+          // No credit - certificate was used for full period or beyond
+          dayOffsetInfo = `התעודה נוצלה במלואה (${data.dayOffset} ימים)`;
+        } else {
+          // Calculate credit for unused days
+          const unusedDays = totalValidityDays - data.dayOffset;
+          const basePricePerDay = basePrice / totalValidityDays;
+          const oneCertificateUsedPrice = Math.round(basePricePerDay * data.dayOffset);
+          const creditAmount = basePrice - oneCertificateUsedPrice;
+          
+          // Apply credit to total price
+          totalPrice = totalPrice - creditAmount;
+          
+          // Re-add token cost if it was included (token pricing unchanged by offset)
+          if (pricingConfig.tokenIncluded === "optional" && data.includeToken) {
+            const totalTokenCost = tokenPrice * totalCertificates;
+            totalPrice += totalTokenCost;
+          }
+          
+          // Clear message for user
+          dayOffsetInfo = `זיכוי עבור ${unusedDays} ימים שלא נוצלו: -₪${creditAmount}`;
         }
-        
-        // Simple clear message for user
-        dayOffsetInfo = `זיכוי עבור ${unusedDays} ימים שלא נוצלו: -₪${creditAmount}`;
       }
       
       const result: CalculationResult = {
