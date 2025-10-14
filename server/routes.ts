@@ -477,6 +477,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Calculate credit for the remaining days of ONE certificate
         const creditAmount = basePrice - oneCertificateUsedPrice;
         
+        // Calculate unused days (clear for user)
+        const unusedDays = totalValidityDays - data.dayOffset;
+        
         // Deduct the credit from total (apply offset to one certificate only)
         totalPrice = totalPrice - creditAmount;
         
@@ -486,7 +489,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           totalPrice += totalTokenCost;
         }
         
-        dayOffsetInfo = `קיזוז עבור תעודה אחת: ${data.dayOffset} ימי שימוש מתוך ${totalValidityDays} ימי תוקף → זיכוי ₪${creditAmount}-`;
+        dayOffsetInfo = `זיכוי עבור ${unusedDays} ימים שלא נוצלו: -₪${creditAmount}`;
       }
       
       const result: CalculationResult = {
