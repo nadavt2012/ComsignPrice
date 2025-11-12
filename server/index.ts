@@ -541,26 +541,27 @@ async function publishSync(retryCount = 0): Promise<boolean> {
   lastSyncAttempt = now;
 
   try {
-    // Get all current pricing configs
+    // Get all current pricing configs and users
     const { storage } = await import('./storage');
     const configs = await storage.getPricingConfigs();
+    const users = await storage.getUsers();
     
     // Always sync, even if empty (to clear production when dev is empty)
-    log(`[SYNC] Syncing ${configs.length} configs to production...`);
+    log(`[SYNC] Syncing ${configs.length} configs and ${users.length} users to production...`);
     if (configs.length === 0) {
       log('[SYNC] Empty sync - will clear production to match development');
     }
 
     // Create HMAC signature
     const timestamp = Date.now().toString();
-    const payload = { configs };
+    const payload = { configs, users };
     const rawBody = JSON.stringify(payload);
     const signature = createHmac('sha256', syncSecret)
       .update(`${timestamp}.${rawBody}`)
       .digest('hex');
 
     // Send sync request
-    log(`[SYNC] Attempting to sync ${configs.length} configs to production...`);
+    log(`[SYNC] Attempting to sync ${configs.length} configs and ${users.length} users to production...`);
     
     const response = await fetch(prodSyncUrl, {
       method: 'POST',

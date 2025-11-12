@@ -816,7 +816,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Validate request body
-      const { configs } = req.body;
+      const { configs, users: usersToSync } = req.body;
       if (!Array.isArray(configs)) {
         return res.status(400).json({ 
           error: "Invalid data format",
@@ -824,15 +824,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Perform atomic replacement
+      // Perform atomic replacement for pricing configs
       const replacedCount = await storage.replaceAllPricingConfigsAtomic(configs);
       
       console.log(`[SYNC] Successfully replaced ${replacedCount} pricing configurations`);
       
+      // Optionally sync users if provided (backward compatible)
+      let usersReplaced = 0;
+      if (Array.isArray(usersToSync) && usersToSync.length > 0) {
+        usersReplaced = await storage.replaceAllUsersAtomic(usersToSync);
+        console.log(`[SYNC] Successfully replaced ${usersReplaced} users`);
+      }
+      
       res.json({
         success: true,
-        message: `עודכנו בהצלחה ${replacedCount} פרויקטים`,
+        message: usersReplaced > 0 
+          ? `עודכנו בהצלחה ${replacedCount} פרויקטים ו-${usersReplaced} משתמשים`
+          : `עודכנו בהצלחה ${replacedCount} פרויקטים`,
         replaced: replacedCount,
+        usersReplaced,
         timestamp: new Date().toISOString()
       });
       

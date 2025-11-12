@@ -24,6 +24,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
   deleteUser(id: string): Promise<boolean>;
+  replaceAllUsersAtomic(usersList: User[]): Promise<number>;
 }
 
 class DatabaseStorage implements IStorage {
@@ -447,6 +448,78 @@ class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error deleting user:', error);
       return false;
+    }
+  }
+
+  async replaceAllUsersAtomic(usersList: User[]): Promise<number> {
+    try {
+      const forceNonAtomic = process.env.NODE_ENV === 'production' || 
+                           process.env.REPLIT_DEPLOYMENT === 'true' || 
+                           process.env.DATABASE_URL?.includes('neon.tech');
+      
+      if (forceNonAtomic) {
+        console.log('[SYNC] Using non-atomic approach for users sync');
+        
+        await this.db.delete(users);
+        
+        let inserted = 0;
+        for (const user of usersList) {
+          await this.db.insert(users).values({
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName,
+            password: user.password,
+            role: user.role,
+            createdAt: user.createdAt
+          });
+          inserted++;
+        }
+        
+        return inserted;
+      }
+      
+      try {
+        let inserted = 0;
+        await this.db.transaction(async (tx) => {
+          await tx.delete(users);
+          
+          for (const user of usersList) {
+            await tx.insert(users).values({
+              id: user.id,
+              username: user.username,
+              displayName: user.displayName,
+              password: user.password,
+              role: user.role,
+              createdAt: user.createdAt
+            });
+            inserted++;
+          }
+        });
+        
+        return inserted;
+      } catch (transactionError: any) {
+        console.log('[SYNC] Transaction failed, using non-atomic fallback:', transactionError.message);
+        
+        await this.db.delete(users);
+        
+        let inserted = 0;
+        for (const user of usersList) {
+          await this.db.insert(users).values({
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName,
+            password: user.password,
+            role: user.role,
+            createdAt: user.createdAt
+          });
+          inserted++;
+        }
+        
+        return inserted;
+      }
+    } catch (error) {
+      console.error('Error in replaceAllUsersAtomic:', error);
+      throw error;
     }
   }
 }
