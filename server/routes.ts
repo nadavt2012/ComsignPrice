@@ -529,7 +529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (authResult.valid) {
         const roleLabels = {
           'super_admin': 'מנהל ראשי',
-          'manager': '', 
+          'manager': 'מנהל', 
           'viewer': 'צפייה בלבד'
         };
         
