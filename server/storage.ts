@@ -470,7 +470,7 @@ class DatabaseStorage implements IStorage {
             displayName: user.displayName,
             password: user.password,
             role: user.role,
-            createdAt: user.createdAt
+            createdAt: new Date(user.createdAt)
           });
           inserted++;
         }
@@ -490,7 +490,7 @@ class DatabaseStorage implements IStorage {
               displayName: user.displayName,
               password: user.password,
               role: user.role,
-              createdAt: user.createdAt
+              createdAt: new Date(user.createdAt)
             });
             inserted++;
           }
@@ -510,7 +510,7 @@ class DatabaseStorage implements IStorage {
             displayName: user.displayName,
             password: user.password,
             role: user.role,
-            createdAt: user.createdAt
+            createdAt: new Date(user.createdAt)
           });
           inserted++;
         }
