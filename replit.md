@@ -38,7 +38,8 @@ Preferred communication style: Simple, everyday language.
 - Dynamic icon system for project types.
 - Grouped project display for clarity.
 - **Interactive Year Selection**: Grid-based card layout (2-4 cards per project) replacing dropdown, showing both duration and pricing.
-- **Potential Savings Display**: Visual indicator showing total savings (per-certificate difference × backup quantity) only when backup certificates are selected.
+- **Potential Savings Display**: Visual indicator showing total savings (per-certificate difference × backup quantity) for both simple and advanced calculators.
+- **Advanced Calculator Modal**: Enhanced UI with clear labeling ("תעודה בכרטיס" vs "תעודה + טוקן"), tip box, improved table styling with gradients, live summary box, and better button design.
 
 ## Technical Implementations
 - **Pricing Logic**: Advanced date-based validity offset calculations for certificate refunds/credits, accurate token pricing, and multi-year pricing forms.
