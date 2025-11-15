@@ -1105,6 +1105,14 @@ export default function Calculator() {
     );
   }, [allConfigs, projectType, years]);
 
+  // Year options with prices for grid selection
+  const yearOptions = useMemo(() => {
+    if (!projectType || !allConfigs) return [];
+    return allConfigs
+      .filter(config => config.projectType === projectType)
+      .sort((a, b) => a.years - b.years);
+  }, [projectType, allConfigs]);
+
   // Check if backup certificates are available
   const backupCertificatesAvailable = useMemo(() => {
     if (!currentConfig) return false;
@@ -1335,29 +1343,54 @@ export default function Calculator() {
                 </Select>
               </div>
 
-              {/* Years Selection */}
+              {/* Years Selection - Grid Cards */}
               <div>
                 <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
-                  <span>כמות שנים</span>
+                  <span>בחר תקופה</span>
                 </Label>
-                <Select value={years} onValueChange={(value) => {
-                  try {
-                    setYears(value);
-                  } catch (error) {
-                    console.error('Error setting years:', error);
-                  }
-                }} disabled={!projectType || yearsLoading} dir="rtl">
-                  <SelectTrigger className="w-full p-4 lg:p-3 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 disabled:bg-white disabled:text-gray-900 disabled:border-gray-300 disabled:opacity-100 bg-white text-gray-900 min-h-[56px] lg:min-h-[44px] xl:min-h-[48px] touch-manipulation cursor-pointer transition-all duration-150 ease-out" dir="rtl" data-testid="select-years">
-                    <SelectValue placeholder={yearsLoading ? "טוען..." : yearsError ? "שגיאה בטעינה" : "בחר כמות שנים"} className="text-sm text-gray-900" dir="rtl" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px] lg:max-h-[180px] xl:max-h-[200px] overflow-y-auto">
-                    {availableYears.map((year) => (
-                      <SelectItem key={year} value={year.toString()} className="text-base py-3" data-testid={`option-years-${year}`}>
-                        {year} שנים
-                      </SelectItem>
+                {yearsLoading ? (
+                  <div className="text-center py-8 text-gray-600">טוען...</div>
+                ) : yearsError ? (
+                  <div className="text-center py-8 text-red-600">שגיאה בטעינה</div>
+                ) : !projectType ? (
+                  <div className="text-center py-8 text-gray-500">בחר סוג פרויקט תחילה</div>
+                ) : yearOptions.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">אין אפשרויות זמינות</div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2 lg:gap-3" dir="rtl">
+                    {yearOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setYears(option.years.toString())}
+                        className={`
+                          relative p-3 lg:p-4 rounded-xl border-2 transition-all duration-200 touch-manipulation
+                          ${years === option.years.toString()
+                            ? 'bg-red-50 border-red-500 shadow-lg shadow-red-100'
+                            : 'bg-white border-gray-300 hover:border-red-300 hover:shadow-md'
+                          }
+                        `}
+                        data-testid={`option-years-${option.years}`}
+                      >
+                        <div className="text-center space-y-1">
+                          <div className={`text-xl lg:text-2xl font-bold ${years === option.years.toString() ? 'text-red-600' : 'text-gray-800'}`}>
+                            {option.years} {option.years === 1 ? 'שנה' : 'שנים'}
+                          </div>
+                          <div className={`text-base lg:text-lg font-semibold ${years === option.years.toString() ? 'text-red-500' : 'text-green-600'}`}>
+                            ₪{option.basePrice.toLocaleString()}
+                          </div>
+                        </div>
+                        {years === option.years.toString() && (
+                          <div className="absolute top-2 left-2 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
+                      </button>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </div>
+                )}
               </div>
 
               {/* Certificate Quantity */}
@@ -1578,6 +1611,19 @@ export default function Calculator() {
               <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 p-2 sm:p-3 lg:p-3 xl:p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
                 <div className="text-center space-y-2">
                   
+                  {/* Potential Savings - Show if backup certificates are available */}
+                  {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && (
+                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2">
+                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1" dir="rtl">💰 פוטנציאל חיסכון</p>
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" dir="rtl" data-testid="text-potential-savings">
+                        ₪{(currentConfig.basePrice - currentConfig.backupCertificatePrice).toLocaleString()}
+                      </p>
+                      <p className="text-xs sm:text-sm text-green-700 mt-1" dir="rtl">
+                        חסכון על כל תעודת גיבוי לעומת תעודה רגילה
+                      </p>
+                    </div>
+                  )}
+
                   {/* Main Price Display */}
                   <div>
                     <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר לתשלום</p>
