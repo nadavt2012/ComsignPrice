@@ -11,7 +11,7 @@ import bcrypt from "bcrypt";
 
 // Local imports
 import { storage } from "./storage";
-import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate } from "@shared/schema";
+import type { CalculationRequest, CalculationResult, AdminLoginRequest, AdminConfigUpdate, AdvancedCalculationRequest } from "@shared/schema";
 
 // ===== AUTHENTICATION MIDDLEWARE (SECURITY FIX) =====
 
@@ -69,6 +69,39 @@ const calculationRequestSchema = z.object({
     .min(0, "היסט ימים לא יכול להיות שלילי")
     .max(3660, "היסט ימים מקסימלי הוא 3660 (כ-10 שנים)")
     .optional(),
+});
+
+const advancedLineItemSchema = z.object({
+  years: z.number()
+    .int("מספר שנים חייב להיות מספר שלם")
+    .min(1, "מספר שנים חייב להיות לפחות 1")
+    .max(10, "מספר שנים מקסימלי הוא 10"),
+  regularCertificates: z.number()
+    .int("מספר תעודות רגילות חייב להיות מספר שלם")
+    .min(0, "מספר תעודות רגילות לא יכול להיות שלילי")
+    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
+  tokenCertificates: z.number()
+    .int("מספר תעודות טוקן חייב להיות מספר שלם")
+    .min(0, "מספר תעודות טוקן לא יכול להיות שלילי")
+    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
+  backupCertificates: z.number()
+    .int("מספר תעודות גיבוי חייב להיות מספר שלם")
+    .min(0, "מספר תעודות גיבוי לא יכול להיות שלילי")
+    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
+  backupTokenCertificates: z.number()
+    .int("מספר תעודות גיבוי טוקן חייב להיות מספר שלם")
+    .min(0, "מספר תעודות גיבוי טוקן לא יכול להיות שלילי")
+    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
+});
+
+const advancedCalculationRequestSchema = z.object({
+  projectType: z.string()
+    .min(1, "סוג פרויקט נדרש")
+    .max(50, "סוג פרויקט ארוך מדי")
+    .regex(/^[a-zA-Z\u0590-\u05FF\s\(\)\-\u2013\u2014\u05F3\u05F4\u201C\u201D\u2033\u2034\"\'\.\,]+$/, "סוג פרויקט מכיל תווים לא חוקיים"),
+  items: z.array(advancedLineItemSchema)
+    .min(1, "חייב להיות לפחות פריט אחד")
+    .max(50, "מספר פריטים מקסימלי הוא 50"),
 });
 
 const adminLoginSchema = z.object({
@@ -511,6 +544,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.status(500).json({ 
         message: "Failed to calculate price",
+        error: process.env.NODE_ENV === 'development' ? String(error) : 'Internal server error'
+      });
+    }
+  });
+
+  // Advanced calculation endpoint
+  app.post("/api/calculate-advanced",
+    async (req: express.Request, res: express.Response) => {
+    try {
+      const data = advancedCalculationRequestSchema.parse(req.body) as AdvancedCalculationRequest;
+      
+      let totalPrice = 0;
+      let totalCertificates = 0;
+      let totalRegularCerts = 0;
+      let totalBackupCerts = 0;
+      let hasTokenItems = false;
+      
+      // Validate at least one certificate
+      const hasAnyCertificates = data.items.some(item => 
+        item.regularCertificates > 0 || 
+        item.tokenCertificates > 0 || 
+        item.backupCertificates > 0 || 
+        item.backupTokenCertificates > 0
+      );
+      
+      if (!hasAnyCertificates) {
+        return res.status(400).json({ 
+          message: "Invalid request",
+          error: "At least one certificate is required"
+        });
+      }
+      
+      // Process each line item
+      for (const item of data.items) {
+        const pricingConfig = await storage.getPricingConfig(data.projectType, item.years);
+        if (!pricingConfig) {
+          return res.status(404).json({ 
+            message: "Pricing configuration not found",
+            details: `No configuration found for project type '${data.projectType}' with ${item.years} years`
+          });
+        }
+        
+        const basePrice = pricingConfig.basePrice;
+        const backupPrice = pricingConfig.backupCertificatePrice;
+        const tokenPrice = pricingConfig.tokenPrice || 120;
+        const tokenIncluded = pricingConfig.tokenIncluded === "true";
+        
+        // Calculate cost for this line item
+        // Regular certificates (card only)
+        const regularCertsCost = item.regularCertificates * basePrice;
+        
+        // Token certificates (card + token, unless token is included)
+        // If token is included in base price, don't add extra token cost
+        const tokenCertsCost = tokenIncluded 
+          ? item.tokenCertificates * basePrice 
+          : item.tokenCertificates * (basePrice + tokenPrice);
+        
+        // Backup certificates (card only)
+        const backupCertsCost = item.backupCertificates * backupPrice;
+        
+        // Backup token certificates (card + token, unless token is included)
+        // If token is included in base price, don't add extra token cost
+        const backupTokenCertsCost = tokenIncluded 
+          ? item.backupTokenCertificates * backupPrice 
+          : item.backupTokenCertificates * (backupPrice + tokenPrice);
+        
+        // Add to totals
+        totalPrice += regularCertsCost + tokenCertsCost + backupCertsCost + backupTokenCertsCost;
+        totalCertificates += item.regularCertificates + item.tokenCertificates + item.backupCertificates + item.backupTokenCertificates;
+        totalRegularCerts += item.regularCertificates + item.tokenCertificates;
+        totalBackupCerts += item.backupCertificates + item.backupTokenCertificates;
+        
+        if (item.tokenCertificates > 0 || item.backupTokenCertificates > 0) {
+          hasTokenItems = true;
+        }
+      }
+      
+      const result: CalculationResult = {
+        totalPrice: Math.round(totalPrice),
+        basePrice: 0, // Not applicable for multi-line
+        totalCertificates,
+        discountedCertificates: totalBackupCerts,
+        discountInfo: totalBackupCerts > 0 ? `${totalBackupCerts} תעודות גיבוי` : "",
+        tokenIncluded: hasTokenItems,
+        tokenDisclaimer: hasTokenItems ? "חישוב כולל טוקנים" : "",
+        originalPrice: Math.round(totalPrice)
+      };
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Advanced calculation error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
+      res.status(500).json({ 
+        message: "Failed to calculate advanced price",
         error: process.env.NODE_ENV === 'development' ? String(error) : 'Internal server error'
       });
     }

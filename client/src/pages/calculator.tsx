@@ -1147,6 +1147,43 @@ export default function Calculator() {
     },
   });
 
+  const calculateAdvancedMutation = useMutation({
+    mutationFn: async (data: { projectType: string; items: AdvancedLineItem[] }): Promise<CalculationResult> => {
+      try {
+        const res = await apiRequest("POST", "/api/calculate-advanced", data);
+        return res.json();
+      } catch (error) {
+        console.error('Advanced calculation error:', error);
+        throw error;
+      }
+    },
+    onSuccess: (result) => {
+      setCalculationResult(result);
+      setIsAdvancedModalOpen(false);
+      toast({
+        title: "חישוב הושלם",
+        description: "החישוב המתקדם בוצע בהצלחה",
+      });
+    },
+    onError: (error: any) => {
+      console.error('Advanced mutation error:', error);
+      
+      // Try to extract error message from response
+      let errorMessage = "אנא בדוק את הנתונים ונסה שנית";
+      if (error?.message && error.message.includes("Pricing configuration not found")) {
+        errorMessage = "אחת או יותר מתקופות השנים שבחרת אינה זמינה לסוג הפרויקט הזה";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "שגיאה בחישוב מתקדם",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Auto-calculate when inputs change - instant for better UX
   useEffect(() => {
     try {
@@ -1656,13 +1693,42 @@ export default function Calculator() {
                     <div className="flex gap-3">
                       <Button
                         onClick={() => {
-                          // TODO: Calculate advanced
-                          setIsAdvancedModalOpen(false);
+                          if (!projectType) {
+                            toast({
+                              title: "שגיאה",
+                              description: "אנא בחר סוג פרויקט תחילה",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          
+                          // Validate that at least one item has certificates
+                          const hasAnyValue = advancedItems.some(item => 
+                            item.regularCertificates > 0 || 
+                            item.tokenCertificates > 0 || 
+                            item.backupCertificates > 0 || 
+                            item.backupTokenCertificates > 0
+                          );
+                          
+                          if (!hasAnyValue) {
+                            toast({
+                              title: "שגיאה",
+                              description: "אנא הזן לפחות תעודה אחת",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          
+                          calculateAdvancedMutation.mutate({
+                            projectType,
+                            items: advancedItems,
+                          });
                         }}
+                        disabled={calculateAdvancedMutation.isPending}
                         className="flex-1 bg-red-600 hover:bg-red-700 text-white min-h-[48px] font-semibold rounded-lg"
                         data-testid="button-apply-advanced"
                       >
-                        חשב
+                        {calculateAdvancedMutation.isPending ? "מחשב..." : "חשב"}
                       </Button>
                       <Button
                         onClick={() => {

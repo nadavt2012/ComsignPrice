@@ -70,7 +70,11 @@ export interface CalculationRequest {
   backupCertificates: number;
   includeToken?: boolean;
   dayOffset?: number;
-  advancedItems?: AdvancedLineItem[]; // For advanced calculation
+}
+
+export interface AdvancedCalculationRequest {
+  projectType: string;
+  items: AdvancedLineItem[];
 }
 
 export interface CalculationResult {
