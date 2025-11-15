@@ -38,11 +38,11 @@ Preferred communication style: Simple, everyday language.
 - Dynamic icon system for project types.
 - Grouped project display for clarity.
 - **Interactive Year Selection**: Grid-based card layout (2-4 cards per project) replacing dropdown, showing both duration and pricing.
-- **Potential Savings Display**: Visual indicator showing savings difference between regular and backup certificates.
+- **Potential Savings Display**: Visual indicator showing total savings (per-certificate difference × backup quantity) only when backup certificates are selected.
 
 ## Technical Implementations
 - **Pricing Logic**: Advanced date-based validity offset calculations for certificate refunds/credits, accurate token pricing, and multi-year pricing forms.
-- **Performance**: 150ms debouncing, 5-minute intelligent caching, hardware acceleration.
+- **Performance**: Instant auto-calculation, 5-minute intelligent caching, hardware acceleration.
 - **Deployment**: Automatic version numbering for deployments (e.g., `v3.0.2`), with a script to generate versions and a React hook to display them.
 - **Security Headers**: Strict CSP, COEP/COOP/CORP, certificate transparency, permissions policies.
 
