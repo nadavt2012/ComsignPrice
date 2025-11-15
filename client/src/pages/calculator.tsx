@@ -1589,7 +1589,13 @@ export default function Calculator() {
                           </tr>
                         </thead>
                         <tbody>
-                          {advancedItems.map((item, index) => (
+                          {advancedItems.map((item, index) => {
+                            const itemConfig = allConfigs.find(
+                              config => config.projectType === projectType && config.years === item.years
+                            );
+                            const isBackupAvailable = itemConfig ? itemConfig.backupCertificatePrice > 0 : false;
+                            
+                            return (
                             <tr key={index} className="border-t border-red-100 hover:bg-red-50/30 transition-colors">
                               {/* תקופה */}
                               <td className="p-3 border-l border-red-100">
@@ -1598,6 +1604,14 @@ export default function Calculator() {
                                   onValueChange={(val) => {
                                     const newItems = [...advancedItems];
                                     newItems[index].years = parseInt(val);
+                                    
+                                    const newConfig = allConfigs.find(
+                                      config => config.projectType === projectType && config.years === parseInt(val)
+                                    );
+                                    if (newConfig && newConfig.backupCertificatePrice === 0) {
+                                      newItems[index].backupCertificates = 0;
+                                    }
+                                    
                                     setAdvancedItems(newItems);
                                   }}
                                 >
@@ -1658,8 +1672,9 @@ export default function Calculator() {
                                       newItems[index].backupType = val;
                                       setAdvancedItems(newItems);
                                     }}
+                                    disabled={!isBackupAvailable}
                                   >
-                                    <SelectTrigger className="w-28 min-h-[44px] border-red-200 focus:border-red-400 focus:ring-red-400">
+                                    <SelectTrigger className="w-28 min-h-[44px] border-red-200 focus:border-red-400 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed">
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -1676,8 +1691,9 @@ export default function Calculator() {
                                       newItems[index].backupCertificates = parseInt(e.target.value) || 0;
                                       setAdvancedItems(newItems);
                                     }}
-                                    className="flex-1 min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400"
-                                    placeholder="כמות"
+                                    disabled={!isBackupAvailable}
+                                    className="flex-1 min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                    placeholder={isBackupAvailable ? "כמות" : "לא זמין"}
                                   />
                                 </div>
                               </td>
@@ -1699,7 +1715,8 @@ export default function Calculator() {
                                 </Button>
                               </td>
                             </tr>
-                          ))}
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
