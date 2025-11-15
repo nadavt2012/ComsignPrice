@@ -1572,9 +1572,9 @@ export default function Calculator() {
                         <thead className="bg-red-50">
                           <tr>
                             <th className="p-2 text-right font-semibold text-red-800">שנים</th>
-                            <th className="p-2 text-right font-semibold text-red-800">תעודות רגילות</th>
+                            <th className="p-2 text-right font-semibold text-red-800">תעודה בכרטיס</th>
                             <th className="p-2 text-right font-semibold text-red-800">תעודות טוקן</th>
-                            <th className="p-2 text-right font-semibold text-red-800">גיבוי רגיל</th>
+                            <th className="p-2 text-right font-semibold text-red-800">גיבוי בכרטיס</th>
                             <th className="p-2 text-right font-semibold text-red-800">גיבוי טוקן</th>
                             <th className="p-2 text-center font-semibold text-red-800 w-16"></th>
                           </tr>
@@ -1753,7 +1753,8 @@ export default function Calculator() {
                 <div className="text-center space-y-2">
                   
                   {/* Potential Savings - Show if backup certificates are selected */}
-                  {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && backupCertificates > 0 && (
+                  {/* For simple calculator */}
+                  {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && backupCertificates > 0 && !calculationResult.totalSavings && (
                     <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2">
                       <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1" dir="rtl">פוטנציאל חיסכון</p>
                       <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" dir="rtl" data-testid="text-potential-savings">
@@ -1761,6 +1762,19 @@ export default function Calculator() {
                       </p>
                       <p className="text-xs sm:text-sm text-green-700 mt-1" dir="rtl">
                         חסכון כולל על {backupCertificates} {backupCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {/* For advanced calculator - show totalSavings from backend */}
+                  {calculationResult.totalSavings && calculationResult.totalSavings > 0 && (
+                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2">
+                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1" dir="rtl">פוטנציאל חיסכון</p>
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" dir="rtl" data-testid="text-potential-savings">
+                        ₪{calculationResult.totalSavings.toLocaleString()}
+                      </p>
+                      <p className="text-xs sm:text-sm text-green-700 mt-1" dir="rtl">
+                        חסכון כולל על {calculationResult.discountedCertificates} {calculationResult.discountedCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
                       </p>
                     </div>
                   )}

@@ -560,6 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let totalRegularCerts = 0;
       let totalBackupCerts = 0;
       let hasTokenItems = false;
+      let totalSavings = 0;
       
       // Validate at least one certificate
       const hasAnyCertificates = data.items.some(item => 
@@ -610,6 +611,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ? item.backupTokenCertificates * backupPrice 
           : item.backupTokenCertificates * (backupPrice + tokenPrice);
         
+        // Calculate savings for this line item (if backup price is lower than base price)
+        if (backupPrice > 0 && backupPrice < basePrice) {
+          const savingsPerBackup = basePrice - backupPrice;
+          const totalBackupsInLine = item.backupCertificates + item.backupTokenCertificates;
+          totalSavings += savingsPerBackup * totalBackupsInLine;
+        }
+        
         // Add to totals
         totalPrice += regularCertsCost + tokenCertsCost + backupCertsCost + backupTokenCertsCost;
         totalCertificates += item.regularCertificates + item.tokenCertificates + item.backupCertificates + item.backupTokenCertificates;
@@ -629,7 +637,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         discountInfo: totalBackupCerts > 0 ? `${totalBackupCerts} תעודות גיבוי` : "",
         tokenIncluded: hasTokenItems,
         tokenDisclaimer: hasTokenItems ? "חישוב כולל טוקנים" : "",
-        originalPrice: Math.round(totalPrice)
+        originalPrice: Math.round(totalPrice),
+        totalSavings: totalSavings > 0 ? Math.round(totalSavings) : undefined
       };
       
       res.json(result);

@@ -90,6 +90,7 @@ export interface CalculationResult {
   originalPrice?: number;
   backupCertificatePrice?: number;
   tokenIncludedType?: string; // "true", "false", "optional"
+  totalSavings?: number; // פוטנציאל חיסכון מגיבויים
 }
 
 // ===== ADMIN MANAGEMENT TYPES =====
