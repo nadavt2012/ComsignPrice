@@ -1571,8 +1571,140 @@ export default function Calculator() {
                   </DialogHeader>
                   
                   <div className="space-y-4 p-2" dir="rtl">
-                    {/* Table */}
-                    <div className="border-2 border-red-100 rounded-xl overflow-hidden shadow-sm">
+                    
+                    {/* Mobile View - Cards */}
+                    <div className="md:hidden space-y-3">
+                      {advancedItems.map((item, index) => {
+                        const itemConfig = allConfigs.find(
+                          config => config.projectType === projectType && config.years === item.years
+                        );
+                        const isBackupAvailable = itemConfig ? itemConfig.backupCertificatePrice > 0 : false;
+                        
+                        return (
+                          <div key={index} className="border-2 border-red-100 rounded-xl p-4 bg-white shadow-sm space-y-4">
+                            {/* Header with period and delete */}
+                            <div className="flex items-center justify-between gap-3 pb-3 border-b border-red-100">
+                              <div className="flex-1">
+                                <Label className="text-xs font-semibold text-gray-600 mb-1 block">תקופה</Label>
+                                <Select 
+                                  value={item.years.toString()}
+                                  onValueChange={(val) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].years = parseInt(val);
+                                    const newConfig = allConfigs.find(
+                                      config => config.projectType === projectType && config.years === parseInt(val)
+                                    );
+                                    if (newConfig && newConfig.backupCertificatePrice === 0) {
+                                      newItems[index].backupCertificates = 0;
+                                    }
+                                    setAdvancedItems(newItems);
+                                  }}
+                                >
+                                  <SelectTrigger className="w-full min-h-[48px] border-red-200 focus:border-red-400 focus:ring-red-400">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {yearOptions.map((opt) => (
+                                      <SelectItem key={opt.years} value={opt.years.toString()}>
+                                        {opt.years} {opt.years === 1 ? 'שנה' : 'שנים'}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const newItems = advancedItems.filter((_, i) => i !== index);
+                                  setAdvancedItems(newItems.length > 0 ? newItems : [{ years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                                }}
+                                disabled={advancedItems.length === 1}
+                                className="h-12 w-12 p-0 hover:bg-red-100 hover:text-red-700 disabled:opacity-30"
+                                title="מחק שורה"
+                              >
+                                <X className="h-6 w-6" />
+                              </Button>
+                            </div>
+                            
+                            {/* Certificates */}
+                            <div>
+                              <Label className="text-xs font-semibold text-gray-600 mb-2 block">תעודות</Label>
+                              <div className="flex gap-3 items-center">
+                                <Select 
+                                  value={item.certificateType}
+                                  onValueChange={(val: "card" | "token") => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].certificateType = val;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                >
+                                  <SelectTrigger className="w-32 min-h-[48px] border-red-200 focus:border-red-400 focus:ring-red-400">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="card">בכרטיס</SelectItem>
+                                    <SelectItem value="token">בטוקן</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={item.regularCertificates}
+                                  onChange={(e) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].regularCertificates = parseInt(e.target.value) || 0;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                  className="flex-1 min-h-[48px] text-center text-lg font-semibold border-red-200 focus:border-red-400 focus:ring-red-400"
+                                  placeholder="כמות"
+                                />
+                              </div>
+                            </div>
+                            
+                            {/* Backup */}
+                            <div>
+                              <Label className="text-xs font-semibold text-gray-600 mb-2 block">גיבוי</Label>
+                              <div className="flex gap-3 items-center">
+                                <Select 
+                                  value={item.backupType}
+                                  onValueChange={(val: "card" | "token") => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].backupType = val;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                  disabled={!isBackupAvailable}
+                                >
+                                  <SelectTrigger className="w-32 min-h-[48px] border-red-200 focus:border-red-400 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="card">בכרטיס</SelectItem>
+                                    <SelectItem value="token">בטוקן</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={item.backupCertificates}
+                                  onChange={(e) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].backupCertificates = parseInt(e.target.value) || 0;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                  disabled={!isBackupAvailable}
+                                  className="flex-1 min-h-[48px] text-center text-lg font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                  placeholder={isBackupAvailable ? "כמות" : "לא זמין"}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Desktop View - Table */}
+                    <div className="hidden md:block border-2 border-red-100 rounded-xl overflow-hidden shadow-sm">
                       <table className="w-full text-sm">
                         <thead className="bg-gradient-to-l from-red-50 to-red-100">
                           <tr>
