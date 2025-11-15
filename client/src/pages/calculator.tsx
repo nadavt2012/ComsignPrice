@@ -1035,9 +1035,7 @@ export default function Calculator() {
   const [includeToken, setIncludeToken] = useState(false);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
-  const [advancedItems, setAdvancedItems] = useState<AdvancedLineItem[]>([
-    { years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }
-  ]);
+  const [advancedItems, setAdvancedItems] = useState<AdvancedLineItem[]>([]);
   const [dayOffset, setDayOffset] = useState(0);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -1545,7 +1543,13 @@ export default function Calculator() {
 
             {/* Advanced Calculation Button */}
             <div className="mt-4 text-center">
-              <Dialog open={isAdvancedModalOpen} onOpenChange={setIsAdvancedModalOpen}>
+              <Dialog open={isAdvancedModalOpen} onOpenChange={(open) => {
+                setIsAdvancedModalOpen(open);
+                if (open && advancedItems.length === 0) {
+                  const defaultYears = yearOptions.length > 0 ? yearOptions[0].years : 1;
+                  setAdvancedItems([{ years: defaultYears, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                }
+              }}>
                 <DialogTrigger asChild>
                   <Button 
                     variant="outline" 
@@ -1617,7 +1621,12 @@ export default function Calculator() {
                                 size="sm"
                                 onClick={() => {
                                   const newItems = advancedItems.filter((_, i) => i !== index);
-                                  setAdvancedItems(newItems.length > 0 ? newItems : [{ years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                                  if (newItems.length === 0) {
+                                    const defaultYears = yearOptions.length > 0 ? yearOptions[0].years : 1;
+                                    setAdvancedItems([{ years: defaultYears, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                                  } else {
+                                    setAdvancedItems(newItems);
+                                  }
                                 }}
                                 disabled={advancedItems.length === 1}
                                 className="h-12 w-12 p-0 hover:bg-red-100 hover:text-red-700 disabled:opacity-30"
@@ -1837,7 +1846,12 @@ export default function Calculator() {
                                   size="sm"
                                   onClick={() => {
                                     const newItems = advancedItems.filter((_, i) => i !== index);
-                                    setAdvancedItems(newItems.length > 0 ? newItems : [{ years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                                    if (newItems.length === 0) {
+                                      const defaultYears = yearOptions.length > 0 ? yearOptions[0].years : 1;
+                                      setAdvancedItems([{ years: defaultYears, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                                    } else {
+                                      setAdvancedItems(newItems);
+                                    }
                                   }}
                                   disabled={advancedItems.length === 1}
                                   className="h-10 w-10 p-0 hover:bg-red-100 hover:text-red-700 disabled:opacity-30"
@@ -1856,10 +1870,12 @@ export default function Calculator() {
                     {/* Add Row Button */}
                     <Button
                       onClick={() => {
-                        setAdvancedItems([...advancedItems, { years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                        const defaultYears = yearOptions.length > 0 ? yearOptions[0].years : 1;
+                        setAdvancedItems([...advancedItems, { years: defaultYears, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
                       }}
                       variant="outline"
                       className="w-full border-2 border-dashed border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 min-h-[48px] font-semibold rounded-lg transition-all"
+                      data-testid="button-add-period"
                     >
                       <span className="text-lg mr-2">+</span> הוסף תקופה נוספת
                     </Button>
@@ -1924,7 +1940,8 @@ export default function Calculator() {
                       </Button>
                       <Button
                         onClick={() => {
-                          setAdvancedItems([{ years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
+                          const defaultYears = yearOptions.length > 0 ? yearOptions[0].years : 1;
+                          setAdvancedItems([{ years: defaultYears, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
                           setIsAdvancedModalOpen(false);
                         }}
                         variant="outline"
