@@ -1144,36 +1144,32 @@ export default function Calculator() {
     },
   });
 
-  // Auto-calculate when inputs change with optimized debounce
+  // Auto-calculate when inputs change - instant for better UX
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        if (projectType && years && certificates > 0) {
-          const parsedYears = parseInt(years);
-          if (isNaN(parsedYears) || parsedYears <= 0) {
-            setCalculationResult(null);
-            return;
-          }
-          
-          const data: CalculationRequest = {
-            projectType,
-            years: parsedYears,
-            certificates,
-            backupCertificates,
-            includeToken,
-            dayOffset,
-          };
-          calculateMutation.mutate(data);
-        } else {
+    try {
+      if (projectType && years && certificates > 0) {
+        const parsedYears = parseInt(years);
+        if (isNaN(parsedYears) || parsedYears <= 0) {
           setCalculationResult(null);
+          return;
         }
-      } catch (error) {
-        console.error('Auto-calculation error:', error);
+        
+        const data: CalculationRequest = {
+          projectType,
+          years: parsedYears,
+          certificates,
+          backupCertificates,
+          includeToken,
+          dayOffset,
+        };
+        calculateMutation.mutate(data);
+      } else {
         setCalculationResult(null);
       }
-    }, 150); // Faster 150ms debounce for better UX
-
-    return () => clearTimeout(timer);
+    } catch (error) {
+      console.error('Auto-calculation error:', error);
+      setCalculationResult(null);
+    }
   }, [projectType, years, certificates, backupCertificates, includeToken, dayOffset]);
 
   // Reset years when project type changes
@@ -1611,15 +1607,15 @@ export default function Calculator() {
               <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 p-2 sm:p-3 lg:p-3 xl:p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
                 <div className="text-center space-y-2">
                   
-                  {/* Potential Savings - Show if backup certificates are available */}
-                  {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && (
+                  {/* Potential Savings - Show if backup certificates are selected */}
+                  {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && backupCertificates > 0 && (
                     <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2">
-                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1" dir="rtl">💰 פוטנציאל חיסכון</p>
+                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1" dir="rtl">פוטנציאל חיסכון</p>
                       <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" dir="rtl" data-testid="text-potential-savings">
-                        ₪{(currentConfig.basePrice - currentConfig.backupCertificatePrice).toLocaleString()}
+                        ₪{((currentConfig.basePrice - currentConfig.backupCertificatePrice) * backupCertificates).toLocaleString()}
                       </p>
                       <p className="text-xs sm:text-sm text-green-700 mt-1" dir="rtl">
-                        חסכון על כל תעודת גיבוי לעומת תעודה רגילה
+                        חסכון כולל על {backupCertificates} {backupCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
                       </p>
                     </div>
                   )}
