@@ -76,22 +76,20 @@ const advancedLineItemSchema = z.object({
     .int("מספר שנים חייב להיות מספר שלם")
     .min(1, "מספר שנים חייב להיות לפחות 1")
     .max(10, "מספר שנים מקסימלי הוא 10"),
+  certificateType: z.enum(["card", "token"], {
+    errorMap: () => ({ message: "סוג תעודה חייב להיות 'card' או 'token'" })
+  }),
   regularCertificates: z.number()
-    .int("מספר תעודות רגילות חייב להיות מספר שלם")
-    .min(0, "מספר תעודות רגילות לא יכול להיות שלילי")
+    .int("מספר תעודות חייב להיות מספר שלם")
+    .min(0, "מספר תעודות לא יכול להיות שלילי")
     .max(1000, "מספר תעודות מקסימלי הוא 1000"),
-  tokenCertificates: z.number()
-    .int("מספר תעודות טוקן חייב להיות מספר שלם")
-    .min(0, "מספר תעודות טוקן לא יכול להיות שלילי")
-    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
+  backupType: z.enum(["card", "token"], {
+    errorMap: () => ({ message: "סוג גיבוי חייב להיות 'card' או 'token'" })
+  }),
   backupCertificates: z.number()
     .int("מספר תעודות גיבוי חייב להיות מספר שלם")
     .min(0, "מספר תעודות גיבוי לא יכול להיות שלילי")
-    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
-  backupTokenCertificates: z.number()
-    .int("מספר תעודות גיבוי טוקן חייב להיות מספר שלם")
-    .min(0, "מספר תעודות גיבוי טוקן לא יכול להיות שלילי")
-    .max(1000, "מספר תעודות מקסימלי הוא 1000"),
+    .max(1000, "מספר תעודות גיבוי מקסימלי הוא 1000"),
 });
 
 const advancedCalculationRequestSchema = z.object({
@@ -565,9 +563,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate at least one certificate
       const hasAnyCertificates = data.items.some(item => 
         item.regularCertificates > 0 || 
-        item.tokenCertificates > 0 || 
-        item.backupCertificates > 0 || 
-        item.backupTokenCertificates > 0
+        item.backupCertificates > 0
       );
       
       if (!hasAnyCertificates) {
@@ -592,41 +588,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const tokenPrice = pricingConfig.tokenPrice || 120;
         const tokenIncluded = pricingConfig.tokenIncluded === "true";
         
-        // Calculate cost for this line item
-        // Regular certificates (card only)
-        const regularCertsCost = item.regularCertificates * basePrice;
+        // Calculate cost for regular certificates
+        let regularCertsCost = 0;
+        if (item.regularCertificates > 0) {
+          if (item.certificateType === "card") {
+            // Card only
+            regularCertsCost = item.regularCertificates * basePrice;
+          } else {
+            // Card + token (unless token is included in base price)
+            regularCertsCost = tokenIncluded 
+              ? item.regularCertificates * basePrice 
+              : item.regularCertificates * (basePrice + tokenPrice);
+            hasTokenItems = true;
+          }
+        }
         
-        // Token certificates (card + token, unless token is included)
-        // If token is included in base price, don't add extra token cost
-        const tokenCertsCost = tokenIncluded 
-          ? item.tokenCertificates * basePrice 
-          : item.tokenCertificates * (basePrice + tokenPrice);
-        
-        // Backup certificates (card only)
-        const backupCertsCost = item.backupCertificates * backupPrice;
-        
-        // Backup token certificates (card + token, unless token is included)
-        // If token is included in base price, don't add extra token cost
-        const backupTokenCertsCost = tokenIncluded 
-          ? item.backupTokenCertificates * backupPrice 
-          : item.backupTokenCertificates * (backupPrice + tokenPrice);
+        // Calculate cost for backup certificates
+        let backupCertsCost = 0;
+        if (item.backupCertificates > 0) {
+          if (item.backupType === "card") {
+            // Card only
+            backupCertsCost = item.backupCertificates * backupPrice;
+          } else {
+            // Card + token (unless token is included in backup price)
+            backupCertsCost = tokenIncluded 
+              ? item.backupCertificates * backupPrice 
+              : item.backupCertificates * (backupPrice + tokenPrice);
+            hasTokenItems = true;
+          }
+        }
         
         // Calculate savings for this line item (if backup price is lower than base price)
-        if (backupPrice > 0 && backupPrice < basePrice) {
+        if (item.backupCertificates > 0 && backupPrice > 0 && backupPrice < basePrice) {
           const savingsPerBackup = basePrice - backupPrice;
-          const totalBackupsInLine = item.backupCertificates + item.backupTokenCertificates;
-          totalSavings += savingsPerBackup * totalBackupsInLine;
+          totalSavings += savingsPerBackup * item.backupCertificates;
         }
         
         // Add to totals
-        totalPrice += regularCertsCost + tokenCertsCost + backupCertsCost + backupTokenCertsCost;
-        totalCertificates += item.regularCertificates + item.tokenCertificates + item.backupCertificates + item.backupTokenCertificates;
-        totalRegularCerts += item.regularCertificates + item.tokenCertificates;
-        totalBackupCerts += item.backupCertificates + item.backupTokenCertificates;
-        
-        if (item.tokenCertificates > 0 || item.backupTokenCertificates > 0) {
-          hasTokenItems = true;
-        }
+        totalPrice += regularCertsCost + backupCertsCost;
+        totalCertificates += item.regularCertificates + item.backupCertificates;
+        totalRegularCerts += item.regularCertificates;
+        totalBackupCerts += item.backupCertificates;
       }
       
       const result: CalculationResult = {

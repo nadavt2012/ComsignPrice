@@ -57,10 +57,10 @@ export interface PricingConfigManual {
 // ===== CALCULATION TYPES =====
 export interface AdvancedLineItem {
   years: number;
-  regularCertificates: number; // תעודות רגילות בכרטיס
-  tokenCertificates: number; // תעודות עם טוקן
-  backupCertificates: number; // תעודות גיבוי בכרטיס
-  backupTokenCertificates: number; // תעודות גיבוי עם טוקן
+  certificateType: "card" | "token"; // סוג תעודה: בכרטיס או בטוקן
+  regularCertificates: number; // כמות תעודות רגילות
+  backupType: "card" | "token"; // סוג גיבוי: בכרטיס או בטוקן
+  backupCertificates: number; // כמות תעודות גיבוי
 }
 
 export interface CalculationRequest {

@@ -1036,7 +1036,7 @@ export default function Calculator() {
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
   const [advancedItems, setAdvancedItems] = useState<AdvancedLineItem[]>([
-    { years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }
+    { years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }
   ]);
   const [dayOffset, setDayOffset] = useState(0);
   const [startDate, setStartDate] = useState("");
@@ -1576,22 +1576,14 @@ export default function Calculator() {
                       <table className="w-full text-sm">
                         <thead className="bg-gradient-to-l from-red-50 to-red-100">
                           <tr>
-                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">תקופה</th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200 w-32">תקופה</th>
                             <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
-                              <div>תעודה בכרטיס</div>
-                              <div className="text-xs font-normal text-red-700 mt-0.5">ללא טוקן</div>
+                              <div>תעודות</div>
+                              <div className="text-xs font-normal text-red-700 mt-0.5">בכרטיס או בטוקן</div>
                             </th>
                             <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
-                              <div>תעודה + טוקן</div>
-                              <div className="text-xs font-normal text-red-700 mt-0.5">עם טוקן</div>
-                            </th>
-                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
-                              <div>גיבוי בכרטיס</div>
-                              <div className="text-xs font-normal text-red-700 mt-0.5">ללא טוקן</div>
-                            </th>
-                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
-                              <div>גיבוי + טוקן</div>
-                              <div className="text-xs font-normal text-red-700 mt-0.5">עם טוקן</div>
+                              <div>גיבוי</div>
+                              <div className="text-xs font-normal text-red-700 mt-0.5">בכרטיס או בטוקן</div>
                             </th>
                             <th className="p-3 text-center font-bold text-red-900 w-16">מחק</th>
                           </tr>
@@ -1599,6 +1591,7 @@ export default function Calculator() {
                         <tbody>
                           {advancedItems.map((item, index) => (
                             <tr key={index} className="border-t border-red-100 hover:bg-red-50/30 transition-colors">
+                              {/* תקופה */}
                               <td className="p-3 border-l border-red-100">
                                 <Select 
                                   value={item.years.toString()}
@@ -1620,72 +1613,83 @@ export default function Calculator() {
                                   </SelectContent>
                                 </Select>
                               </td>
+                              
+                              {/* תעודות */}
                               <td className="p-3 border-l border-red-100">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={item.regularCertificates}
-                                  onChange={(e) => {
-                                    const newItems = [...advancedItems];
-                                    newItems[index].regularCertificates = parseInt(e.target.value) || 0;
-                                    setAdvancedItems(newItems);
-                                  }}
-                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:bg-gray-100 disabled:text-gray-400"
-                                  disabled={currentConfig?.tokenIncluded === "true"}
-                                  placeholder="0"
-                                />
+                                <div className="flex gap-2 items-center">
+                                  <Select 
+                                    value={item.certificateType}
+                                    onValueChange={(val: "card" | "token") => {
+                                      const newItems = [...advancedItems];
+                                      newItems[index].certificateType = val;
+                                      setAdvancedItems(newItems);
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-28 min-h-[44px] border-red-200 focus:border-red-400 focus:ring-red-400">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="card">בכרטיס</SelectItem>
+                                      <SelectItem value="token">בטוקן</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    value={item.regularCertificates}
+                                    onChange={(e) => {
+                                      const newItems = [...advancedItems];
+                                      newItems[index].regularCertificates = parseInt(e.target.value) || 0;
+                                      setAdvancedItems(newItems);
+                                    }}
+                                    className="flex-1 min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400"
+                                    placeholder="כמות"
+                                  />
+                                </div>
                               </td>
+                              
+                              {/* גיבוי */}
                               <td className="p-3 border-l border-red-100">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={item.tokenCertificates}
-                                  onChange={(e) => {
-                                    const newItems = [...advancedItems];
-                                    newItems[index].tokenCertificates = parseInt(e.target.value) || 0;
-                                    setAdvancedItems(newItems);
-                                  }}
-                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400"
-                                  placeholder="0"
-                                />
+                                <div className="flex gap-2 items-center">
+                                  <Select 
+                                    value={item.backupType}
+                                    onValueChange={(val: "card" | "token") => {
+                                      const newItems = [...advancedItems];
+                                      newItems[index].backupType = val;
+                                      setAdvancedItems(newItems);
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-28 min-h-[44px] border-red-200 focus:border-red-400 focus:ring-red-400">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="card">בכרטיס</SelectItem>
+                                      <SelectItem value="token">בטוקן</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    value={item.backupCertificates}
+                                    onChange={(e) => {
+                                      const newItems = [...advancedItems];
+                                      newItems[index].backupCertificates = parseInt(e.target.value) || 0;
+                                      setAdvancedItems(newItems);
+                                    }}
+                                    className="flex-1 min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400"
+                                    placeholder="כמות"
+                                  />
+                                </div>
                               </td>
-                              <td className="p-3 border-l border-red-100">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={item.backupCertificates}
-                                  onChange={(e) => {
-                                    const newItems = [...advancedItems];
-                                    newItems[index].backupCertificates = parseInt(e.target.value) || 0;
-                                    setAdvancedItems(newItems);
-                                  }}
-                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:bg-gray-100 disabled:text-gray-400"
-                                  disabled={!backupCertificatesAvailable || currentConfig?.tokenIncluded === "true"}
-                                  placeholder="0"
-                                />
-                              </td>
-                              <td className="p-3 border-l border-red-100">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  value={item.backupTokenCertificates}
-                                  onChange={(e) => {
-                                    const newItems = [...advancedItems];
-                                    newItems[index].backupTokenCertificates = parseInt(e.target.value) || 0;
-                                    setAdvancedItems(newItems);
-                                  }}
-                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:bg-gray-100 disabled:text-gray-400"
-                                  disabled={!backupCertificatesAvailable}
-                                  placeholder="0"
-                                />
-                              </td>
+                              
+                              {/* מחק */}
                               <td className="p-3 text-center">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => {
                                     const newItems = advancedItems.filter((_, i) => i !== index);
-                                    setAdvancedItems(newItems.length > 0 ? newItems : [{ years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
+                                    setAdvancedItems(newItems.length > 0 ? newItems : [{ years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
                                   }}
                                   disabled={advancedItems.length === 1}
                                   className="h-10 w-10 p-0 hover:bg-red-100 hover:text-red-700 disabled:opacity-30"
@@ -1703,7 +1707,7 @@ export default function Calculator() {
                     {/* Add Row Button */}
                     <Button
                       onClick={() => {
-                        setAdvancedItems([...advancedItems, { years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
+                        setAdvancedItems([...advancedItems, { years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
                       }}
                       variant="outline"
                       className="w-full border-2 border-dashed border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 min-h-[48px] font-semibold rounded-lg transition-all"
@@ -1712,18 +1716,18 @@ export default function Calculator() {
                     </Button>
                     
                     {/* Summary Info */}
-                    {advancedItems.some(item => item.regularCertificates > 0 || item.tokenCertificates > 0 || item.backupCertificates > 0 || item.backupTokenCertificates > 0) && (
+                    {advancedItems.some(item => item.regularCertificates > 0 || item.backupCertificates > 0) && (
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                         <div className="text-sm text-blue-800 text-center" dir="rtl">
                           <span className="font-bold">סה"כ תעודות:</span>{" "}
                           {advancedItems.reduce((sum, item) => 
-                            sum + item.regularCertificates + item.tokenCertificates + item.backupCertificates + item.backupTokenCertificates, 0
+                            sum + item.regularCertificates + item.backupCertificates, 0
                           )}
-                          {advancedItems.reduce((sum, item) => sum + item.backupCertificates + item.backupTokenCertificates, 0) > 0 && (
+                          {advancedItems.reduce((sum, item) => sum + item.backupCertificates, 0) > 0 && (
                             <>
                               {" | "}
                               <span className="font-bold">תעודות גיבוי:</span>{" "}
-                              {advancedItems.reduce((sum, item) => sum + item.backupCertificates + item.backupTokenCertificates, 0)}
+                              {advancedItems.reduce((sum, item) => sum + item.backupCertificates, 0)}
                             </>
                           )}
                         </div>
@@ -1746,9 +1750,7 @@ export default function Calculator() {
                           // Validate that at least one item has certificates
                           const hasAnyValue = advancedItems.some(item => 
                             item.regularCertificates > 0 || 
-                            item.tokenCertificates > 0 || 
-                            item.backupCertificates > 0 || 
-                            item.backupTokenCertificates > 0
+                            item.backupCertificates > 0
                           );
                           
                           if (!hasAnyValue) {
@@ -1773,7 +1775,7 @@ export default function Calculator() {
                       </Button>
                       <Button
                         onClick={() => {
-                          setAdvancedItems([{ years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
+                          setAdvancedItems([{ years: 1, certificateType: "card", regularCertificates: 0, backupType: "card", backupCertificates: 0 }]);
                           setIsAdvancedModalOpen(false);
                         }}
                         variant="outline"
