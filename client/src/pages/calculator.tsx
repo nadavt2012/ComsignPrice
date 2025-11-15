@@ -1555,34 +1555,51 @@ export default function Calculator() {
                     חישוב מתקדם
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
+                <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
                   <DialogHeader>
-                    <DialogTitle className="text-xl font-bold text-center text-red-600" dir="rtl">
+                    <DialogTitle className="text-2xl font-bold text-center text-red-600 mb-2" dir="rtl">
                       חישוב מתקדם
                     </DialogTitle>
-                    <DialogDescription className="text-sm text-gray-600 text-center mt-2">
-                      צור תמהיל מותאם אישית של תעודות לפי תקופות ו סוגים שונים
+                    <DialogDescription className="text-sm text-gray-700 text-center" dir="rtl">
+                      בנה תמהיל מותאם אישית של תעודות עם תקופות זמן שונות
                     </DialogDescription>
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs text-blue-800 text-center" dir="rtl">
+                        💡 <strong>טיפ:</strong> הוסף שורות עבור תקופות זמן שונות, מלא את מספר התעודות לכל סוג, ולחץ על "חשב"
+                      </p>
+                    </div>
                   </DialogHeader>
                   
                   <div className="space-y-4 p-2" dir="rtl">
                     {/* Table */}
-                    <div className="border rounded-lg overflow-hidden">
+                    <div className="border-2 border-red-100 rounded-xl overflow-hidden shadow-sm">
                       <table className="w-full text-sm">
-                        <thead className="bg-red-50">
+                        <thead className="bg-gradient-to-l from-red-50 to-red-100">
                           <tr>
-                            <th className="p-2 text-right font-semibold text-red-800">שנים</th>
-                            <th className="p-2 text-right font-semibold text-red-800">תעודה בכרטיס</th>
-                            <th className="p-2 text-right font-semibold text-red-800">תעודות טוקן</th>
-                            <th className="p-2 text-right font-semibold text-red-800">גיבוי בכרטיס</th>
-                            <th className="p-2 text-right font-semibold text-red-800">גיבוי טוקן</th>
-                            <th className="p-2 text-center font-semibold text-red-800 w-16"></th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">תקופה</th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
+                              <div>תעודה בכרטיס</div>
+                              <div className="text-xs font-normal text-red-700 mt-0.5">ללא טוקן</div>
+                            </th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
+                              <div>תעודה + טוקן</div>
+                              <div className="text-xs font-normal text-red-700 mt-0.5">עם טוקן</div>
+                            </th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
+                              <div>גיבוי בכרטיס</div>
+                              <div className="text-xs font-normal text-red-700 mt-0.5">ללא טוקן</div>
+                            </th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
+                              <div>גיבוי + טוקן</div>
+                              <div className="text-xs font-normal text-red-700 mt-0.5">עם טוקן</div>
+                            </th>
+                            <th className="p-3 text-center font-bold text-red-900 w-16">מחק</th>
                           </tr>
                         </thead>
                         <tbody>
                           {advancedItems.map((item, index) => (
-                            <tr key={index} className="border-t">
-                              <td className="p-2">
+                            <tr key={index} className="border-t border-red-100 hover:bg-red-50/30 transition-colors">
+                              <td className="p-3 border-l border-red-100">
                                 <Select 
                                   value={item.years.toString()}
                                   onValueChange={(val) => {
@@ -1591,7 +1608,7 @@ export default function Calculator() {
                                     setAdvancedItems(newItems);
                                   }}
                                 >
-                                  <SelectTrigger className="w-full min-h-[40px]">
+                                  <SelectTrigger className="w-full min-h-[44px] border-red-200 focus:border-red-400 focus:ring-red-400">
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -1603,7 +1620,7 @@ export default function Calculator() {
                                   </SelectContent>
                                 </Select>
                               </td>
-                              <td className="p-2">
+                              <td className="p-3 border-l border-red-100">
                                 <Input
                                   type="number"
                                   min="0"
@@ -1613,11 +1630,12 @@ export default function Calculator() {
                                     newItems[index].regularCertificates = parseInt(e.target.value) || 0;
                                     setAdvancedItems(newItems);
                                   }}
-                                  className="w-full min-h-[40px] text-center"
+                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:bg-gray-100 disabled:text-gray-400"
                                   disabled={currentConfig?.tokenIncluded === "true"}
+                                  placeholder="0"
                                 />
                               </td>
-                              <td className="p-2">
+                              <td className="p-3 border-l border-red-100">
                                 <Input
                                   type="number"
                                   min="0"
@@ -1627,10 +1645,11 @@ export default function Calculator() {
                                     newItems[index].tokenCertificates = parseInt(e.target.value) || 0;
                                     setAdvancedItems(newItems);
                                   }}
-                                  className="w-full min-h-[40px] text-center"
+                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400"
+                                  placeholder="0"
                                 />
                               </td>
-                              <td className="p-2">
+                              <td className="p-3 border-l border-red-100">
                                 <Input
                                   type="number"
                                   min="0"
@@ -1640,11 +1659,12 @@ export default function Calculator() {
                                     newItems[index].backupCertificates = parseInt(e.target.value) || 0;
                                     setAdvancedItems(newItems);
                                   }}
-                                  className="w-full min-h-[40px] text-center"
+                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:bg-gray-100 disabled:text-gray-400"
                                   disabled={!backupCertificatesAvailable || currentConfig?.tokenIncluded === "true"}
+                                  placeholder="0"
                                 />
                               </td>
-                              <td className="p-2">
+                              <td className="p-3 border-l border-red-100">
                                 <Input
                                   type="number"
                                   min="0"
@@ -1654,11 +1674,12 @@ export default function Calculator() {
                                     newItems[index].backupTokenCertificates = parseInt(e.target.value) || 0;
                                     setAdvancedItems(newItems);
                                   }}
-                                  className="w-full min-h-[40px] text-center"
+                                  className="w-full min-h-[44px] text-center text-base font-semibold border-red-200 focus:border-red-400 focus:ring-red-400 disabled:bg-gray-100 disabled:text-gray-400"
                                   disabled={!backupCertificatesAvailable}
+                                  placeholder="0"
                                 />
                               </td>
-                              <td className="p-2 text-center">
+                              <td className="p-3 text-center">
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -1667,9 +1688,10 @@ export default function Calculator() {
                                     setAdvancedItems(newItems.length > 0 ? newItems : [{ years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
                                   }}
                                   disabled={advancedItems.length === 1}
-                                  className="h-8 w-8 p-0"
+                                  className="h-10 w-10 p-0 hover:bg-red-100 hover:text-red-700 disabled:opacity-30"
+                                  title="מחק שורה"
                                 >
-                                  <X className="h-4 w-4" />
+                                  <X className="h-5 w-5" />
                                 </Button>
                               </td>
                             </tr>
@@ -1684,13 +1706,32 @@ export default function Calculator() {
                         setAdvancedItems([...advancedItems, { years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
                       }}
                       variant="outline"
-                      className="w-full border-2 border-red-300 text-red-600 hover:bg-red-50"
+                      className="w-full border-2 border-dashed border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 min-h-[48px] font-semibold rounded-lg transition-all"
                     >
-                      + הוסף שורה
+                      <span className="text-lg mr-2">+</span> הוסף תקופה נוספת
                     </Button>
                     
+                    {/* Summary Info */}
+                    {advancedItems.some(item => item.regularCertificates > 0 || item.tokenCertificates > 0 || item.backupCertificates > 0 || item.backupTokenCertificates > 0) && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="text-sm text-blue-800 text-center" dir="rtl">
+                          <span className="font-bold">סה"כ תעודות:</span>{" "}
+                          {advancedItems.reduce((sum, item) => 
+                            sum + item.regularCertificates + item.tokenCertificates + item.backupCertificates + item.backupTokenCertificates, 0
+                          )}
+                          {advancedItems.reduce((sum, item) => sum + item.backupCertificates + item.backupTokenCertificates, 0) > 0 && (
+                            <>
+                              {" | "}
+                              <span className="font-bold">תעודות גיבוי:</span>{" "}
+                              {advancedItems.reduce((sum, item) => sum + item.backupCertificates + item.backupTokenCertificates, 0)}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 pt-2">
                       <Button
                         onClick={() => {
                           if (!projectType) {
@@ -1725,10 +1766,10 @@ export default function Calculator() {
                           });
                         }}
                         disabled={calculateAdvancedMutation.isPending}
-                        className="flex-1 bg-red-600 hover:bg-red-700 text-white min-h-[48px] font-semibold rounded-lg"
+                        className="flex-1 bg-gradient-to-l from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white min-h-[52px] font-bold rounded-lg text-lg shadow-md hover:shadow-lg transition-all"
                         data-testid="button-apply-advanced"
                       >
-                        {calculateAdvancedMutation.isPending ? "מחשב..." : "חשב"}
+                        {calculateAdvancedMutation.isPending ? "מחשב..." : "חשב מחיר"}
                       </Button>
                       <Button
                         onClick={() => {
@@ -1736,7 +1777,7 @@ export default function Calculator() {
                           setIsAdvancedModalOpen(false);
                         }}
                         variant="outline"
-                        className="flex-1 min-h-[48px] font-semibold border-2 border-gray-300 hover:border-gray-400 rounded-lg"
+                        className="flex-1 min-h-[52px] font-semibold border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-lg text-base transition-all"
                         data-testid="button-reset-advanced"
                       >
                         ביטול
