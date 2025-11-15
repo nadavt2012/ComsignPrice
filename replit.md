@@ -37,6 +37,8 @@ Preferred communication style: Simple, everyday language.
 - Professional favicon and social sharing optimization (Open Graph, Twitter Cards).
 - Dynamic icon system for project types.
 - Grouped project display for clarity.
+- **Interactive Year Selection**: Grid-based card layout (2-4 cards per project) replacing dropdown, showing both duration and pricing.
+- **Potential Savings Display**: Visual indicator showing savings difference between regular and backup certificates.
 
 ## Technical Implementations
 - **Pricing Logic**: Advanced date-based validity offset calculations for certificate refunds/credits, accurate token pricing, and multi-year pricing forms.
