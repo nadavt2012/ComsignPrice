@@ -55,6 +55,14 @@ export interface PricingConfigManual {
 }
 
 // ===== CALCULATION TYPES =====
+export interface AdvancedLineItem {
+  years: number;
+  regularCertificates: number; // תעודות רגילות בכרטיס
+  tokenCertificates: number; // תעודות עם טוקן
+  backupCertificates: number; // תעודות גיבוי בכרטיס
+  backupTokenCertificates: number; // תעודות גיבוי עם טוקן
+}
+
 export interface CalculationRequest {
   projectType: string;
   years: number;
@@ -62,6 +70,7 @@ export interface CalculationRequest {
   backupCertificates: number;
   includeToken?: boolean;
   dayOffset?: number;
+  advancedItems?: AdvancedLineItem[]; // For advanced calculation
 }
 
 export interface CalculationResult {

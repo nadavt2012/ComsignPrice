@@ -20,7 +20,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import type { CalculationResult } from "@shared/schema";
+import type { CalculationResult, AdvancedLineItem } from "@shared/schema";
 
 // Icons
 import { 
@@ -1035,9 +1035,12 @@ export default function Calculator() {
   const [includeToken, setIncludeToken] = useState(false);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
+  const [advancedItems, setAdvancedItems] = useState<AdvancedLineItem[]>([
+    { years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }
+  ]);
+  const [dayOffset, setDayOffset] = useState(0);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [dayOffset, setDayOffset] = useState(0);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminRole, setAdminRole] = useState<string>("");
@@ -1515,86 +1518,162 @@ export default function Calculator() {
                     חישוב מתקדם
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-hidden" dir="rtl">
+                <DialogContent className="sm:max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
                   <DialogHeader>
                     <DialogTitle className="text-xl font-bold text-center text-red-600" dir="rtl">
-                      חישוב מתקדם - קיזוז ימי תוקף
+                      חישוב מתקדם
                     </DialogTitle>
                     <DialogDescription className="text-sm text-gray-600 text-center mt-2">
-                      הזן תאריך התחלה ותאריך סיום לחישוב מחיר לפי מספר הימים בתקופה
+                      צור תמהיל מותאם אישית של תעודות לפי תקופות ו סוגים שונים
                     </DialogDescription>
                   </DialogHeader>
                   
-                  <div className="space-y-2 p-2" dir="rtl">
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="start-date" className="text-sm font-semibold text-gray-700 mb-2 block text-right">
-                          תאריך התחלה
-                        </Label>
-                        <Input
-                          id="start-date"
-                          type="date"
-                          value={startDate}
-                          onChange={(e) => setStartDate(e.target.value)}
-                          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px]"
-                          data-testid="input-start-date"
-                          placeholder="לדוגמה: 01/01/2024"
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="end-date" className="text-sm font-semibold text-gray-700 mb-2 block text-right">
-                          תאריך סיום
-                        </Label>
-                        <Input
-                          id="end-date"
-                          type="date"
-                          value={endDate}
-                          onChange={(e) => setEndDate(e.target.value)}
-                          className="w-full p-3 border-2 border-gray-300 rounded-lg text-center min-h-[48px]"
-                          data-testid="input-end-date"
-                          placeholder="לדוגמה: 31/12/2024"
-                        />
-                      </div>
-                      
-                      {startDate && endDate && (
-                        <div className="p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                          <p className="text-center text-blue-800 font-medium">
-                            {dayOffset > 0 ? (
-                              <>מספר ימים בתקופה: {dayOffset} ימים</>
-                            ) : (
-                              <>תאריך הסיום חייב להיות אחרי תאריך ההתחלה</>
-                            )}
-                          </p>
-                          {dayOffset > 0 && (
-                            <p className="text-center text-blue-600 text-sm mt-1">
-                              המחיר יחושב לפי {dayOffset} ימים
-                            </p>
-                          )}
-                        </div>
-                      )}
+                  <div className="space-y-4 p-2" dir="rtl">
+                    {/* Table */}
+                    <div className="border rounded-lg overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead className="bg-red-50">
+                          <tr>
+                            <th className="p-2 text-right font-semibold text-red-800">שנים</th>
+                            <th className="p-2 text-right font-semibold text-red-800">תעודות רגילות</th>
+                            <th className="p-2 text-right font-semibold text-red-800">תעודות טוקן</th>
+                            <th className="p-2 text-right font-semibold text-red-800">גיבוי רגיל</th>
+                            <th className="p-2 text-right font-semibold text-red-800">גיבוי טוקן</th>
+                            <th className="p-2 text-center font-semibold text-red-800 w-16"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {advancedItems.map((item, index) => (
+                            <tr key={index} className="border-t">
+                              <td className="p-2">
+                                <Select 
+                                  value={item.years.toString()}
+                                  onValueChange={(val) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].years = parseInt(val);
+                                    setAdvancedItems(newItems);
+                                  }}
+                                >
+                                  <SelectTrigger className="w-full min-h-[40px]">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {yearOptions.map((opt) => (
+                                      <SelectItem key={opt.years} value={opt.years.toString()}>
+                                        {opt.years} {opt.years === 1 ? 'שנה' : 'שנים'}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </td>
+                              <td className="p-2">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={item.regularCertificates}
+                                  onChange={(e) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].regularCertificates = parseInt(e.target.value) || 0;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                  className="w-full min-h-[40px] text-center"
+                                  disabled={currentConfig?.tokenIncluded === "true"}
+                                />
+                              </td>
+                              <td className="p-2">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={item.tokenCertificates}
+                                  onChange={(e) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].tokenCertificates = parseInt(e.target.value) || 0;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                  className="w-full min-h-[40px] text-center"
+                                />
+                              </td>
+                              <td className="p-2">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={item.backupCertificates}
+                                  onChange={(e) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].backupCertificates = parseInt(e.target.value) || 0;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                  className="w-full min-h-[40px] text-center"
+                                  disabled={!backupCertificatesAvailable || currentConfig?.tokenIncluded === "true"}
+                                />
+                              </td>
+                              <td className="p-2">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={item.backupTokenCertificates}
+                                  onChange={(e) => {
+                                    const newItems = [...advancedItems];
+                                    newItems[index].backupTokenCertificates = parseInt(e.target.value) || 0;
+                                    setAdvancedItems(newItems);
+                                  }}
+                                  className="w-full min-h-[40px] text-center"
+                                  disabled={!backupCertificatesAvailable}
+                                />
+                              </td>
+                              <td className="p-2 text-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const newItems = advancedItems.filter((_, i) => i !== index);
+                                    setAdvancedItems(newItems.length > 0 ? newItems : [{ years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
+                                  }}
+                                  disabled={advancedItems.length === 1}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
+
+                    {/* Add Row Button */}
+                    <Button
+                      onClick={() => {
+                        setAdvancedItems([...advancedItems, { years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
+                      }}
+                      variant="outline"
+                      className="w-full border-2 border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                      + הוסף שורה
+                    </Button>
                     
+                    {/* Action Buttons */}
                     <div className="flex gap-3">
                       <Button
-                        onClick={() => setIsAdvancedModalOpen(false)}
+                        onClick={() => {
+                          // TODO: Calculate advanced
+                          setIsAdvancedModalOpen(false);
+                        }}
                         className="flex-1 bg-red-600 hover:bg-red-700 text-white min-h-[48px] font-semibold rounded-lg"
                         data-testid="button-apply-advanced"
                       >
-                        החל חישוב
+                        חשב
                       </Button>
                       <Button
                         onClick={() => {
-                          setStartDate("");
-                          setEndDate("");
-                          setDayOffset(0);
+                          setAdvancedItems([{ years: 1, regularCertificates: 0, tokenCertificates: 0, backupCertificates: 0, backupTokenCertificates: 0 }]);
                           setIsAdvancedModalOpen(false);
                         }}
                         variant="outline"
                         className="flex-1 min-h-[48px] font-semibold border-2 border-gray-300 hover:border-gray-400 rounded-lg"
                         data-testid="button-reset-advanced"
                       >
-                        איפוס
+                        ביטול
                       </Button>
                     </div>
                   </div>
