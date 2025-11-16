@@ -91,6 +91,8 @@ export interface CalculationResult {
   backupCertificatePrice?: number;
   tokenIncludedType?: string; // "true", "false", "optional"
   totalSavings?: number; // פוטנציאל חיסכון מגיבויים
+  totalTokens?: number; // סה"כ טוקנים שנוספו
+  tokenCost?: number; // עלות כוללת של הטוקנים
 }
 
 // ===== ADMIN MANAGEMENT TYPES =====

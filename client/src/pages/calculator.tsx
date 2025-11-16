@@ -1034,6 +1034,7 @@ export default function Calculator() {
   const [backupCertificates, setBackupCertificates] = useState(0);
   const [includeToken, setIncludeToken] = useState(false);
   const [calculationResult, setCalculationResult] = useState<CalculationResult | null>(null);
+  const [isAdvancedResult, setIsAdvancedResult] = useState(false); // דגל שמציין שהתוצאה היא מחישוב מתקדם
   const [isAdvancedModalOpen, setIsAdvancedModalOpen] = useState(false);
   const [advancedItems, setAdvancedItems] = useState<AdvancedLineItem[]>([]);
   const [dayOffset, setDayOffset] = useState(0);
@@ -1188,6 +1189,11 @@ export default function Calculator() {
 
   // Auto-calculate when inputs change - instant for better UX
   useEffect(() => {
+    // אם התוצאה הנוכחית היא מחישוב מתקדם, לא נריץ חישוב רגיל
+    if (isAdvancedResult) {
+      return;
+    }
+    
     try {
       if (projectType && years && certificates > 0) {
         const parsedYears = parseInt(years);
@@ -1204,6 +1210,7 @@ export default function Calculator() {
           includeToken,
           dayOffset,
         };
+        setIsAdvancedResult(false); // סימון שזו תוצאה רגילה
         calculateMutation.mutate(data);
       } else {
         setCalculationResult(null);
@@ -1212,7 +1219,7 @@ export default function Calculator() {
       console.error('Auto-calculation error:', error);
       setCalculationResult(null);
     }
-  }, [projectType, years, certificates, backupCertificates, includeToken, dayOffset]);
+  }, [projectType, years, certificates, backupCertificates, includeToken, dayOffset, isAdvancedResult]);
 
   // Reset years when project type changes
   useEffect(() => {
@@ -2028,6 +2035,26 @@ export default function Calculator() {
                     
                     {advancedResult && !calculateAdvancedMutation.isPending && (
                       <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300 rounded-lg p-4 shadow-lg">
+                        {/* Tokens Added */}
+                        {advancedResult.totalTokens && advancedResult.totalTokens > 0 && (
+                          <div className="bg-purple-50 border border-purple-300 rounded-lg p-3 mb-3">
+                            <div className="flex items-center justify-between" dir="rtl">
+                              <div>
+                                <p className="text-xs text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
+                                <p className="text-lg font-bold text-purple-600">
+                                  {advancedResult.totalTokens} טוקנים
+                                </p>
+                              </div>
+                              <div className="text-left">
+                                <p className="text-xs text-purple-700 font-semibold mb-1">עלות הטוקנים</p>
+                                <p className="text-lg font-bold text-purple-600">
+                                  ₪{advancedResult.tokenCost?.toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
                         {/* Savings if available */}
                         {advancedResult.totalSavings && advancedResult.totalSavings > 0 && (
                           <div className="bg-green-50 border border-green-300 rounded-lg p-2 mb-3">
@@ -2068,6 +2095,14 @@ export default function Calculator() {
                             });
                             return;
                           }
+                          
+                          // ניקוי החישוב הרגיל - כי בחרנו חישוב מתקדם
+                          setCertificates(1);
+                          setBackupCertificates(0);
+                          setIncludeToken(false);
+                          
+                          // סימון שזו תוצאה מחישוב מתקדם
+                          setIsAdvancedResult(true);
                           
                           // Transfer result to main screen
                           setCalculationResult(advancedResult);
@@ -2131,6 +2166,26 @@ export default function Calculator() {
                       <p className="text-xs sm:text-sm text-green-700 mt-1" dir="rtl">
                         חסכון כולל על {calculationResult.discountedCertificates} {calculationResult.discountedCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
                       </p>
+                    </div>
+                  )}
+                  
+                  {/* Tokens Added - Show if tokens were added */}
+                  {calculationResult.totalTokens && calculationResult.totalTokens > 0 && (
+                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-2">
+                      <div className="flex items-center justify-between" dir="rtl">
+                        <div>
+                          <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
+                          <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
+                            {calculationResult.totalTokens} טוקנים
+                          </p>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">עלות הטוקנים</p>
+                          <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
+                            ₪{calculationResult.tokenCost?.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
 

@@ -559,6 +559,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let totalBackupCerts = 0;
       let hasTokenItems = false;
       let totalSavings = 0;
+      let totalTokens = 0;
+      let totalTokenCost = 0;
       
       // Validate at least one certificate
       const hasAnyCertificates = data.items.some(item => 
@@ -595,10 +597,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Card only
             regularCertsCost = item.regularCertificates * basePrice;
           } else {
-            // Card + token (unless token is included in base price)
-            regularCertsCost = tokenIncluded 
-              ? item.regularCertificates * basePrice 
-              : item.regularCertificates * (basePrice + tokenPrice);
+            // Token type - count tokens regardless of tokenIncluded
+            totalTokens += item.regularCertificates;
+            
+            // Calculate cost: if token included in price, no extra charge; otherwise add token price
+            if (tokenIncluded) {
+              regularCertsCost = item.regularCertificates * basePrice;
+            } else {
+              totalTokenCost += item.regularCertificates * tokenPrice;
+              regularCertsCost = item.regularCertificates * (basePrice + tokenPrice);
+            }
             hasTokenItems = true;
           }
         }
@@ -610,10 +618,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             // Card only
             backupCertsCost = item.backupCertificates * backupPrice;
           } else {
-            // Card + token (unless token is included in backup price)
-            backupCertsCost = tokenIncluded 
-              ? item.backupCertificates * backupPrice 
-              : item.backupCertificates * (backupPrice + tokenPrice);
+            // Token type - count tokens regardless of tokenIncluded
+            totalTokens += item.backupCertificates;
+            
+            // Calculate cost: if token included in price, no extra charge; otherwise add token price
+            if (tokenIncluded) {
+              backupCertsCost = item.backupCertificates * backupPrice;
+            } else {
+              totalTokenCost += item.backupCertificates * tokenPrice;
+              backupCertsCost = item.backupCertificates * (backupPrice + tokenPrice);
+            }
             hasTokenItems = true;
           }
         }
@@ -654,7 +668,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tokenIncluded: hasTokenItems,
         tokenDisclaimer: hasTokenItems ? "חישוב כולל טוקנים" : "",
         originalPrice: Math.round(totalPrice),
-        totalSavings: totalSavings > 0 ? Math.round(totalSavings) : undefined
+        totalSavings: totalSavings > 0 ? Math.round(totalSavings) : undefined,
+        // רק אם יש טוקנים שהמחיר שלהם נוסף (לא כלול במחיר הבסיסי)
+        totalTokens: totalTokens > 0 ? totalTokens : undefined,
+        tokenCost: totalTokenCost > 0 ? Math.round(totalTokenCost) : undefined
       };
       
       res.json(result);
