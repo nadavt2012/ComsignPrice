@@ -39,7 +39,13 @@ Preferred communication style: Simple, everyday language.
 - Grouped project display for clarity.
 - **Interactive Year Selection**: Grid-based card layout (2-4 cards per project) replacing dropdown, showing both duration and pricing.
 - **Potential Savings Display**: Visual indicator showing total savings (per-certificate difference × backup quantity) for both simple and advanced calculators.
-- **Advanced Calculator Modal**: Enhanced UI with clear labeling ("תעודה בכרטיס" vs "תעודה + טוקן"), tip box, improved table styling with gradients, live summary box, and better button design.
+- **Advanced Calculator Modal**: 
+  - **Auto-Calculate**: Real-time price calculation with 500ms debounce - updates automatically as you type
+  - **Enhanced Input Controls**: Quick +/- buttons for fast data entry alongside number inputs  
+  - **Live Price Display**: Shows total price, savings, and certificate count instantly within the modal
+  - **Dual Layout**: Card-based view for mobile, table view for desktop
+  - **Smart UX**: Clear labeling ("תעודה בכרטיס" vs "תעודה + טוקן"), disabled state for unavailable backups
+  - **Improved Flow**: "אישור והמשך" button transfers result to main screen (fixes 0-price bug)
 
 ## Technical Implementations
 - **Pricing Logic**: Advanced date-based validity offset calculations for certificate refunds/credits, accurate token pricing, and multi-year pricing forms.
