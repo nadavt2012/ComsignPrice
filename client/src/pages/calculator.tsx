@@ -1573,7 +1573,10 @@ export default function Calculator() {
                     </DialogDescription>
                     <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-xs text-blue-800 text-center" dir="rtl">
-                        💡 <strong>טיפ:</strong> הוסף שורות עבור תקופות זמן שונות, מלא את מספר התעודות לכל סוג, ולחץ על "חשב"
+                        💡 <strong>טיפ:</strong> הוסף שורות עבור תקופות זמן שונות, מלא את מספר התעודות לכל סוג - החישוב יתעדכן אוטומטית
+                      </p>
+                      <p className="text-xs text-blue-700 text-center mt-2 font-semibold" dir="rtl">
+                        🔔 <span className="font-bold">תזכורת:</span> עלות כל טוקן שתוסיף היא ₪120
                       </p>
                     </div>
                   </DialogHeader>

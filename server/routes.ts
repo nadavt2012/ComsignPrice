@@ -618,10 +618,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         }
         
-        // Calculate savings for this line item (if backup price is lower than base price)
-        if (item.backupCertificates > 0 && backupPrice > 0 && backupPrice < basePrice) {
-          const savingsPerBackup = basePrice - backupPrice;
-          totalSavings += savingsPerBackup * item.backupCertificates;
+        // Calculate savings for this line item
+        // Savings = (regular cert price with/without token) - (backup cert price with/without token)
+        if (item.backupCertificates > 0 && backupPrice > 0) {
+          // Calculate actual price per regular certificate
+          const regularCertPrice = item.certificateType === "card" 
+            ? basePrice 
+            : (tokenIncluded ? basePrice : basePrice + tokenPrice);
+          
+          // Calculate actual price per backup certificate
+          const backupCertPrice = item.backupType === "card"
+            ? backupPrice
+            : (tokenIncluded ? backupPrice : backupPrice + tokenPrice);
+          
+          // Savings only if backup is cheaper than regular
+          if (backupCertPrice < regularCertPrice) {
+            const savingsPerBackup = regularCertPrice - backupCertPrice;
+            totalSavings += savingsPerBackup * item.backupCertificates;
+          }
         }
         
         // Add to totals
