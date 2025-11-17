@@ -37,20 +37,31 @@ Preferred communication style: Simple, everyday language.
 - Professional favicon and social sharing optimization (Open Graph, Twitter Cards).
 - Dynamic icon system for project types.
 - Grouped project display for clarity.
+- **RTL Support**: Full right-to-left text alignment for Hebrew content throughout the application.
 - **Interactive Year Selection**: Grid-based card layout (2-4 cards per project) replacing dropdown, showing both duration and pricing.
 - **Potential Savings Display**: Visual indicator showing total savings (per-certificate difference × backup quantity) for both simple and advanced calculators.
+- **Token Display**: Purple information box showing exact number of tokens added and their cost (₪120 each when not included in base price).
 - **Advanced Calculator Modal**: 
   - **Auto-Calculate**: Real-time price calculation with 500ms debounce - updates automatically as you type
   - **Enhanced Input Controls**: Quick +/- buttons for fast data entry alongside number inputs  
-  - **Live Price Display**: Shows total price, savings, and certificate count instantly within the modal
+  - **Live Price Display**: Shows total price, savings, token count, and token cost instantly within the modal
   - **Dual Layout**: Card-based view for mobile, table view for desktop
   - **Smart UX**: Clear labeling ("תעודה בכרטיס" vs "תעודה + טוקן"), disabled state for unavailable backups
-  - **Improved Flow**: "אישור והמשך" button transfers result to main screen (fixes 0-price bug)
+  - **Improved Flow**: "אישור והמשך" button transfers result to main screen with persistent display
+  - **Result Persistence**: Advanced calculation results persist on main screen until manually changed
 
 ## Technical Implementations
-- **Pricing Logic**: Advanced date-based validity offset calculations for certificate refunds/credits, accurate token pricing, and multi-year pricing forms.
-- **Performance**: Instant auto-calculation, 5-minute intelligent caching, hardware acceleration.
-- **Deployment**: Automatic version numbering for deployments (e.g., `v3.0.2`), with a script to generate versions and a React hook to display them.
+- **Pricing Logic**: 
+  - Advanced date-based validity offset calculations for certificate refunds/credits
+  - Accurate token pricing with support for three states: included (`tokenIncluded="true"`), not included (`tokenIncluded="false"`), and optional (`tokenIncluded="optional"`)
+  - Multi-year pricing forms with per-project configuration
+  - Savings calculation compares full certificate prices (including tokens when selected) vs backup prices
+- **Token Tracking**: 
+  - Counts total tokens based on certificate/backup type selection (`certificateType === "token"` or `backupType === "token"`)
+  - Calculates token cost only when `tokenIncluded !== "true"` (₪120 per token)
+  - Displays token information in purple box with count and cost breakdown
+- **Performance**: Instant auto-calculation, 5-minute intelligent caching, hardware acceleration, optimized React re-renders.
+- **Deployment**: Automatic version numbering (current: v3.0.17), with a script to generate versions and a React hook to display them.
 - **Security Headers**: Strict CSP, COEP/COOP/CORP, certificate transparency, permissions policies.
 
 # External Dependencies

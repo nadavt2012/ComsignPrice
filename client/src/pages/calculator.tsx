@@ -2037,9 +2037,9 @@ export default function Calculator() {
                       <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300 rounded-lg p-4 shadow-lg">
                         {/* Tokens Added */}
                         {advancedResult.totalTokens && advancedResult.totalTokens > 0 && (
-                          <div className="bg-purple-50 border border-purple-300 rounded-lg p-3 mb-3">
-                            <div className="flex items-center justify-between" dir="rtl">
-                              <div>
+                          <div className="bg-purple-50 border border-purple-300 rounded-lg p-3 mb-3" dir="rtl">
+                            <div className="flex items-center justify-between">
+                              <div className="text-right">
                                 <p className="text-xs text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
                                 <p className="text-lg font-bold text-purple-600">
                                   {advancedResult.totalTokens} טוקנים
@@ -2171,9 +2171,9 @@ export default function Calculator() {
                   
                   {/* Tokens Added - Show if tokens were added */}
                   {calculationResult.totalTokens && calculationResult.totalTokens > 0 && (
-                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-2">
-                      <div className="flex items-center justify-between" dir="rtl">
-                        <div>
+                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-2" dir="rtl">
+                      <div className="flex items-center justify-between">
+                        <div className="text-right">
                           <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
                           <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
                             {calculationResult.totalTokens} טוקנים
