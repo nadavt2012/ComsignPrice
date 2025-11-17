@@ -55,13 +55,13 @@ Preferred communication style: Simple, everyday language.
   - Advanced date-based validity offset calculations for certificate refunds/credits
   - Accurate token pricing with support for three states: included (`tokenIncluded="true"`), not included (`tokenIncluded="false"`), and optional (`tokenIncluded="optional"`)
   - Multi-year pricing forms with per-project configuration
-  - Savings calculation compares full certificate prices (including tokens when selected) vs backup prices
+  - **Savings calculation**: Based ONLY on base price difference (regular vs backup), excluding token costs. Token selection affects final price but NOT potential savings amount.
 - **Token Tracking**: 
   - Counts total tokens based on certificate/backup type selection (`certificateType === "token"` or `backupType === "token"`)
   - Calculates token cost only when `tokenIncluded !== "true"` (₪120 per token)
   - Displays token information in purple box with count and cost breakdown
 - **Performance**: Instant auto-calculation, 5-minute intelligent caching, hardware acceleration, optimized React re-renders.
-- **Deployment**: Automatic version numbering (current: v3.0.17), with a script to generate versions and a React hook to display them.
+- **Deployment**: Automatic version numbering (current: v3.0.18), with a script to generate versions and a React hook to display them.
 - **Security Headers**: Strict CSP, COEP/COOP/CORP, certificate transparency, permissions policies.
 
 # External Dependencies

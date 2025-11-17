@@ -1,10 +1,10 @@
 {
-  "version": "v3.0.17",
+  "version": "v3.0.18",
   "versionNumbers": {
     "major": 3,
     "minor": 0,
-    "patch": 17
+    "patch": 18
   },
-  "buildTime": "2025-11-17T10:30:00.000Z",
-  "buildTimestamp": 1731839400000
+  "buildTime": "2025-11-17T19:29:22.034Z",
+  "buildTimestamp": 1763407762034
 }
