@@ -61,7 +61,7 @@ Preferred communication style: Simple, everyday language.
   - Calculates token cost only when `tokenIncluded !== "true"` (₪120 per token)
   - Displays token information in purple box with count and cost breakdown
 - **Performance**: Instant auto-calculation, 5-minute intelligent caching, hardware acceleration, optimized React re-renders.
-- **Deployment**: Automatic version numbering (current: v3.0.18), with a script to generate versions and a React hook to display them.
+- **Deployment**: Automatic version numbering (current: v3.0.19), with a script to generate versions and a React hook to display them.
 - **Security Headers**: Strict CSP, COEP/COOP/CORP, certificate transparency, permissions policies.
 
 # External Dependencies

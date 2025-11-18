@@ -2037,29 +2037,23 @@ export default function Calculator() {
                       <div className="bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300 rounded-lg p-4 shadow-lg">
                         {/* Tokens Added */}
                         {advancedResult.totalTokens && advancedResult.totalTokens > 0 && (
-                          <div className="bg-purple-50 border border-purple-300 rounded-lg p-3 mb-3" dir="rtl">
-                            <div className="flex items-center justify-between">
-                              <div className="text-right">
-                                <p className="text-xs text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
-                                <p className="text-lg font-bold text-purple-600">
-                                  {advancedResult.totalTokens} טוקנים
-                                </p>
-                              </div>
-                              <div className="text-left">
-                                <p className="text-xs text-purple-700 font-semibold mb-1">עלות הטוקנים</p>
-                                <p className="text-lg font-bold text-purple-600">
-                                  ₪{advancedResult.tokenCost?.toLocaleString()}
-                                </p>
-                              </div>
-                            </div>
+                          <div className="bg-purple-50 border border-purple-300 rounded-lg p-3 mb-3 text-center" dir="rtl">
+                            <p className="text-xs text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
+                            <p className="text-lg font-bold text-purple-600">
+                              {advancedResult.totalTokens} טוקנים
+                            </p>
+                            <p className="text-xs text-purple-700 font-semibold mt-2 mb-1">עלות הטוקנים</p>
+                            <p className="text-lg font-bold text-purple-600">
+                              ₪{advancedResult.tokenCost?.toLocaleString()}
+                            </p>
                           </div>
                         )}
                         
                         {/* Savings if available */}
                         {advancedResult.totalSavings && advancedResult.totalSavings > 0 && (
-                          <div className="bg-green-50 border border-green-300 rounded-lg p-2 mb-3">
-                            <p className="text-xs text-green-700 font-semibold mb-1" dir="rtl">פוטנציאל חיסכון</p>
-                            <p className="text-xl font-bold text-green-600" dir="rtl">
+                          <div className="bg-green-50 border border-green-300 rounded-lg p-2 mb-3 text-center" dir="rtl">
+                            <p className="text-xs text-green-700 font-semibold mb-1">פוטנציאל חיסכון</p>
+                            <p className="text-xl font-bold text-green-600">
                               ₪{advancedResult.totalSavings.toLocaleString()}
                             </p>
                           </div>
@@ -2145,12 +2139,12 @@ export default function Calculator() {
                   {/* Potential Savings - Show if backup certificates are selected */}
                   {/* For simple calculator */}
                   {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && backupCertificates > 0 && !calculationResult.totalSavings && (
-                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2">
-                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1" dir="rtl">פוטנציאל חיסכון</p>
-                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" dir="rtl" data-testid="text-potential-savings">
+                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2 text-center" dir="rtl">
+                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1">פוטנציאל חיסכון</p>
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" data-testid="text-potential-savings">
                         ₪{((currentConfig.basePrice - currentConfig.backupCertificatePrice) * backupCertificates).toLocaleString()}
                       </p>
-                      <p className="text-xs sm:text-sm text-green-700 mt-1" dir="rtl">
+                      <p className="text-xs sm:text-sm text-green-700 mt-1">
                         חסכון כולל על {backupCertificates} {backupCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
                       </p>
                     </div>
@@ -2158,12 +2152,12 @@ export default function Calculator() {
                   
                   {/* For advanced calculator - show totalSavings from backend */}
                   {calculationResult.totalSavings && calculationResult.totalSavings > 0 && (
-                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2">
-                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1" dir="rtl">פוטנציאל חיסכון</p>
-                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" dir="rtl" data-testid="text-potential-savings">
+                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2 text-center" dir="rtl">
+                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1">פוטנציאל חיסכון</p>
+                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" data-testid="text-potential-savings">
                         ₪{calculationResult.totalSavings.toLocaleString()}
                       </p>
-                      <p className="text-xs sm:text-sm text-green-700 mt-1" dir="rtl">
+                      <p className="text-xs sm:text-sm text-green-700 mt-1">
                         חסכון כולל על {calculationResult.discountedCertificates} {calculationResult.discountedCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
                       </p>
                     </div>
@@ -2171,21 +2165,15 @@ export default function Calculator() {
                   
                   {/* Tokens Added - Show if tokens were added */}
                   {calculationResult.totalTokens && calculationResult.totalTokens > 0 && (
-                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-2" dir="rtl">
-                      <div className="flex items-center justify-between">
-                        <div className="text-right">
-                          <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
-                          <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
-                            {calculationResult.totalTokens} טוקנים
-                          </p>
-                        </div>
-                        <div className="text-left">
-                          <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">עלות הטוקנים</p>
-                          <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
-                            ₪{calculationResult.tokenCost?.toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
+                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-2 text-center" dir="rtl">
+                      <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
+                      <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
+                        {calculationResult.totalTokens} טוקנים
+                      </p>
+                      <p className="text-xs sm:text-sm text-purple-700 font-semibold mt-2 mb-1">עלות הטוקנים</p>
+                      <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
+                        ₪{calculationResult.tokenCost?.toLocaleString()}
+                      </p>
                     </div>
                   )}
 
