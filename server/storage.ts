@@ -530,25 +530,25 @@ class MemStorage implements IStorage {
   private usersList: Map<string, User> = new Map();
 
   constructor() {
-    // Initialize with default pricing data
+    // Initialize with default pricing data (ORIGINAL DATA FROM DATABASE)
     const defaultConfigs: PricingConfig[] = [
-      { id: randomUUID(), projectType: "עורכי דין", years: 1, basePrice: 2400, backupCertificatePrice: 1200, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-      { id: randomUUID(), projectType: "עורכי דין", years: 2, basePrice: 3600, backupCertificatePrice: 1800, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-      { id: randomUUID(), projectType: "עורכי דין", years: 4, basePrice: 6000, backupCertificatePrice: 3000, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-      { id: randomUUID(), projectType: "עורכי דין", years: 5, basePrice: 7200, backupCertificatePrice: 3600, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-      { id: randomUUID(), projectType: "אדריכלים", years: 1, basePrice: 2880, backupCertificatePrice: 1440, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "אדריכלים", years: 2, basePrice: 4320, backupCertificatePrice: 2160, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "אדריכלים", years: 4, basePrice: 6720, backupCertificatePrice: 3360, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "אדריכלים", years: 5, basePrice: 8400, backupCertificatePrice: 4200, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "מהנדסים", years: 1, basePrice: 2640, backupCertificatePrice: 1320, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "מהנדסים", years: 2, basePrice: 3840, backupCertificatePrice: 1920, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "מהנדסים", years: 4, basePrice: 6240, backupCertificatePrice: 3120, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "מהנדסים", years: 5, basePrice: 7680, backupCertificatePrice: 3840, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "מגנא", years: 3, basePrice: 4800, backupCertificatePrice: 2400, icon: "GraduationCap", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "רגיל", years: 1, basePrice: 1920, backupCertificatePrice: 960, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "רגיל", years: 2, basePrice: 2880, backupCertificatePrice: 1440, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "רגיל", years: 4, basePrice: 4800, backupCertificatePrice: 2400, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
-      { id: randomUUID(), projectType: "רגיל", years: 5, basePrice: 6000, backupCertificatePrice: 3000, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "lawyers", years: 1, basePrice: 100, backupCertificatePrice: 50, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "lawyers", years: 2, basePrice: 150, backupCertificatePrice: 75, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "lawyers", years: 4, basePrice: 250, backupCertificatePrice: 125, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "lawyers", years: 5, basePrice: 300, backupCertificatePrice: 150, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "architects", years: 1, basePrice: 120, backupCertificatePrice: 60, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "architects", years: 2, basePrice: 180, backupCertificatePrice: 90, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "architects", years: 4, basePrice: 280, backupCertificatePrice: 140, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "architects", years: 5, basePrice: 350, backupCertificatePrice: 175, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "engineers", years: 1, basePrice: 110, backupCertificatePrice: 55, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "engineers", years: 2, basePrice: 160, backupCertificatePrice: 80, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "engineers", years: 4, basePrice: 260, backupCertificatePrice: 130, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "engineers", years: 5, basePrice: 320, backupCertificatePrice: 160, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "magna", years: 3, basePrice: 200, backupCertificatePrice: 100, icon: "GraduationCap", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "regular", years: 1, basePrice: 80, backupCertificatePrice: 40, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "regular", years: 2, basePrice: 120, backupCertificatePrice: 60, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "regular", years: 4, basePrice: 200, backupCertificatePrice: 100, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "regular", years: 5, basePrice: 250, backupCertificatePrice: 125, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
     ];
 
     defaultConfigs.forEach(config => {
