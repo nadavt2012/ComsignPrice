@@ -26,10 +26,11 @@ Preferred communication style: Simple, everyday language.
 - **Security**: Brute force protection, SQL injection prevention (Drizzle ORM + Zod), XSS/CSRF protection, secure cookie configuration, secrets management.
 
 ## Data Storage
-- **Database**: PostgreSQL (Neon serverless driver)
+- **Database**: PostgreSQL (Neon serverless driver) - Currently using MemStorage with production data
 - **ORM**: Drizzle ORM for type-safe operations
 - **Migrations**: Drizzle Kit
-- **Fallback**: In-memory storage for development.
+- **Current Mode**: In-memory storage (MemStorage) loaded with 28 production project configurations from backup files (production_import.sql, export_projects.sql).
+- **Project Types (12 total)**: מע״מ (ממשל זמין), אדריכלים (רישוי זמין), משרד העבודה ורווחה, בריאות (שקדיה), שע״מ, מכס (שער עולמי), מגנא, עורך דין (נט המשפט), נט המשפט (כתבים), אופטמטריסטים, פורטל ספקים, שמאים.
 
 ## UI/UX & Design
 - Clean, professional design with red-themed branding (matching Comsign logo).
@@ -61,7 +62,8 @@ Preferred communication style: Simple, everyday language.
   - Calculates token cost only when `tokenIncluded !== "true"` (₪120 per token)
   - Displays token information in purple box with count and cost breakdown
 - **Performance**: Instant auto-calculation, 5-minute intelligent caching, hardware acceleration, optimized React re-renders.
-- **Deployment**: Automatic version numbering (current: v3.0.19), with a script to generate versions and a React hook to display them.
+- **Deployment**: Automatic version numbering (current: v3.0.21), with a script to generate versions and a React hook to display them.
+- **Production Data**: System restored with all 28 original Hebrew project configurations from comsignprice.shop production backup files.
 - **Security Headers**: Strict CSP, COEP/COOP/CORP, certificate transparency, permissions policies.
 
 # External Dependencies
