@@ -524,4 +524,185 @@ class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// MemStorage - In-memory storage with default pricing data
+class MemStorage implements IStorage {
+  private configs: Map<string, PricingConfig> = new Map();
+  private usersList: Map<string, User> = new Map();
+
+  constructor() {
+    // Initialize with default pricing data
+    const defaultConfigs: PricingConfig[] = [
+      { id: randomUUID(), projectType: "עורכי דין", years: 1, basePrice: 2400, backupCertificatePrice: 1200, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "עורכי דין", years: 2, basePrice: 3600, backupCertificatePrice: 1800, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "עורכי דין", years: 4, basePrice: 6000, backupCertificatePrice: 3000, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "עורכי דין", years: 5, basePrice: 7200, backupCertificatePrice: 3600, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
+      { id: randomUUID(), projectType: "אדריכלים", years: 1, basePrice: 2880, backupCertificatePrice: 1440, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "אדריכלים", years: 2, basePrice: 4320, backupCertificatePrice: 2160, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "אדריכלים", years: 4, basePrice: 6720, backupCertificatePrice: 3360, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "אדריכלים", years: 5, basePrice: 8400, backupCertificatePrice: 4200, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "מהנדסים", years: 1, basePrice: 2640, backupCertificatePrice: 1320, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "מהנדסים", years: 2, basePrice: 3840, backupCertificatePrice: 1920, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "מהנדסים", years: 4, basePrice: 6240, backupCertificatePrice: 3120, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "מהנדסים", years: 5, basePrice: 7680, backupCertificatePrice: 3840, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "מגנא", years: 3, basePrice: 4800, backupCertificatePrice: 2400, icon: "GraduationCap", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "רגיל", years: 1, basePrice: 1920, backupCertificatePrice: 960, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "רגיל", years: 2, basePrice: 2880, backupCertificatePrice: 1440, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "רגיל", years: 4, basePrice: 4800, backupCertificatePrice: 2400, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      { id: randomUUID(), projectType: "רגיל", years: 5, basePrice: 6000, backupCertificatePrice: 3000, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+    ];
+
+    defaultConfigs.forEach(config => {
+      this.configs.set(config.id, config);
+    });
+
+    // Initialize default admin user
+    const defaultAdminId = randomUUID();
+    const defaultPassword = "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"; // "admin"
+    this.usersList.set(defaultAdminId, {
+      id: defaultAdminId,
+      username: "admin",
+      displayName: "מנהל ראשי",
+      password: defaultPassword,
+      role: "super_admin",
+      createdAt: new Date()
+    });
+  }
+
+  async getPricingConfigs(): Promise<PricingConfig[]> {
+    return Array.from(this.configs.values());
+  }
+
+  async getPricingConfig(projectType: string, years: number): Promise<PricingConfig | undefined> {
+    return Array.from(this.configs.values()).find(
+      config => config.projectType === projectType && config.years === years
+    );
+  }
+
+  async createPricingConfig(config: InsertPricingConfig): Promise<PricingConfig> {
+    const id = randomUUID();
+    const newConfig: PricingConfig = {
+      ...config,
+      id,
+      icon: config.icon || "User",
+      tokenPrice: config.tokenPrice || 120,
+      tokenIncluded: config.tokenIncluded || "optional"
+    };
+    this.configs.set(id, newConfig);
+    return newConfig;
+  }
+
+  async updatePricingConfig(id: string, updates: Partial<PricingConfig>): Promise<PricingConfig | undefined> {
+    const config = this.configs.get(id);
+    if (!config) return undefined;
+    
+    const updated = { ...config, ...updates, id };
+    this.configs.set(id, updated);
+    return updated;
+  }
+
+  async deletePricingConfig(id: string): Promise<boolean> {
+    return this.configs.delete(id);
+  }
+
+  async clearAllPricingConfigs(): Promise<boolean> {
+    this.configs.clear();
+    return true;
+  }
+
+  async replaceAllPricingConfigsAtomic(configs: PricingConfig[]): Promise<number> {
+    this.configs.clear();
+    configs.forEach(config => {
+      this.configs.set(config.id, config);
+    });
+    return configs.length;
+  }
+
+  async verifyAdminPassword(password: string): Promise<{ valid: boolean; role?: string }> {
+    // Check all users for matching password
+    for (const user of Array.from(this.usersList.values())) {
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        return { valid: true, role: user.role };
+      }
+    }
+    return { valid: false };
+  }
+
+  async changeSubAdminPassword(currentPassword: string, newPassword: string, targetRole: string): Promise<boolean> {
+    // Verify current password
+    const authResult = await this.verifyAdminPassword(currentPassword);
+    if (!authResult.valid) {
+      return false;
+    }
+
+    // Find user with target role
+    const user = Array.from(this.usersList.values()).find(u => u.role === targetRole);
+    if (!user) {
+      return false;
+    }
+
+    // Hash new password and update
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    this.usersList.set(user.id, user);
+    return true;
+  }
+
+  async getUsers(): Promise<User[]> {
+    return Array.from(this.usersList.values());
+  }
+
+  async getUser(id: string): Promise<User | undefined> {
+    return this.usersList.get(id);
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const id = randomUUID();
+    const newUser: User = {
+      ...user,
+      id,
+      createdAt: new Date()
+    };
+    this.usersList.set(id, newUser);
+    return newUser;
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    const user = this.usersList.get(id);
+    if (!user) return undefined;
+    
+    const updated = { ...user, ...updates, id };
+    this.usersList.set(id, updated);
+    return updated;
+  }
+
+  async deleteUser(id: string): Promise<boolean> {
+    return this.usersList.delete(id);
+  }
+
+  async replaceAllUsersAtomic(usersList: User[]): Promise<number> {
+    this.usersList.clear();
+    usersList.forEach(user => {
+      this.usersList.set(user.id, user);
+    });
+    return usersList.length;
+  }
+}
+
+// Use MemStorage when database is not available
+let storageInstance: IStorage;
+try {
+  // Try to connect to database
+  if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('ep-calm-sound')) {
+    storageInstance = new DatabaseStorage();
+    console.log('[STORAGE] Using DatabaseStorage');
+  } else {
+    storageInstance = new MemStorage();
+    console.log('[STORAGE] Using MemStorage with default data');
+  }
+} catch (error) {
+  console.error('[STORAGE] Database connection failed, using MemStorage:', error);
+  storageInstance = new MemStorage();
+}
+
+export const storage = storageInstance;
