@@ -568,7 +568,7 @@ class MemStorage implements IStorage {
 
     // Initialize default admin user
     const defaultAdminId = randomUUID();
-    const defaultPassword = "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"; // "admin"
+    const defaultPassword = "$2b$10$.xzM15K/PWPvt6H8VqwrjuAl9sPI6k26l2tHZ5o5GL45OpAKqKuT6"; // "admin"
     this.usersList.set(defaultAdminId, {
       id: defaultAdminId,
       username: "admin",
