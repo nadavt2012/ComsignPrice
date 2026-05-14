@@ -123,16 +123,15 @@ class DatabaseStorage implements IStorage {
         console.log('[STORAGE] Detected English placeholder data — migrating to Hebrew production data');
         await this.db.delete(pricingConfigs);
       } else if (existingConfigs.length > 0) {
-        return; // Already has valid Hebrew data
+        console.log(`[STORAGE] DB has ${existingConfigs.length}+ Hebrew configs — skipping seed`);
+        return;
       }
 
-      for (const config of hebrewConfigs) {
-        await this.db.insert(pricingConfigs).values({
-          ...config,
-          id: randomUUID(),
-        });
-      }
-      console.log(`[STORAGE] Initialized ${hebrewConfigs.length} Hebrew pricing configs`);
+      // Batch insert all Hebrew configs in a single statement (fast for serverless)
+      await this.db.insert(pricingConfigs).values(
+        hebrewConfigs.map(config => ({ ...config, id: randomUUID() }))
+      );
+      console.log(`[STORAGE] Seeded ${hebrewConfigs.length} Hebrew pricing configs`);
     } catch (error) {
       console.error('Error initializing default pricing:', error);
     }
