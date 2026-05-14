@@ -112,8 +112,7 @@ const adminLoginSchema = z.object({
 const adminConfigUpdateSchema = z.object({
   projectType: z.string()
     .min(1, "סוג פרויקט נדרש")
-    .max(50, "סוג פרויקט ארוך מדי")
-    .regex(/^[a-zA-Z\u0590-\u05FF\s]+$/, "סוג פרויקט מכיל תווים לא חוקיים"),
+    .max(50, "סוג פרויקט ארוך מדי"),
   years: z.number()
     .int("מספר שנים חייב להיות מספר שלם")
     .min(1, "מספר שנים חייב להיות לפחות 1")
