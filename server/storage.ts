@@ -69,7 +69,7 @@ class DatabaseStorage implements IStorage {
       // Initialize default admin user if no users exist
       const existingUsers = await this.db.select().from(users).limit(1);
       if (existingUsers.length === 0) {
-        const adminPassword = process.env.ADMIN_PASSWORD || 'Admin1234!';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'nadav5867';
         const hashedPassword = await bcrypt.hash(adminPassword, 10);
         await this.db.insert(users).values({
           id: randomUUID(),
@@ -597,13 +597,24 @@ class MemStorage implements IStorage {
 
     // Initialize default admin user
     const defaultAdminId = randomUUID();
-    const defaultPassword = "$2b$10$.xzM15K/PWPvt6H8VqwrjuAl9sPI6k26l2tHZ5o5GL45OpAKqKuT6"; // "admin"
+    const defaultPassword = "$2b$10$tbSN503BSI3BWwrkXkUIgueCL9Ov9nQzlJU3E8I9LiaaDmhP2PS6."; // "nadav5867"
     this.usersList.set(defaultAdminId, {
       id: defaultAdminId,
       username: "admin",
       displayName: "מנהל ראשי",
       password: defaultPassword,
       role: "super_admin",
+      createdAt: new Date()
+    });
+
+    // Initialize default manager user
+    const defaultManagerId = randomUUID();
+    this.usersList.set(defaultManagerId, {
+      id: defaultManagerId,
+      username: "manager",
+      displayName: "מנהל",
+      password: defaultPassword,
+      role: "manager",
       createdAt: new Date()
     });
   }

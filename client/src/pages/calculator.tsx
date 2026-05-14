@@ -1347,7 +1347,6 @@ export default function Calculator() {
                 <h1 className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-red-700 bg-clip-text text-transparent" dir="rtl" data-testid="title-main">
                   מחירון פרויקטים
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 font-medium" dir="rtl">קומסיין - אבטחת מידע</p>
               </div>
 
               {/* Decorative Line */}
