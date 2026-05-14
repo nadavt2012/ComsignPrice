@@ -1308,41 +1308,56 @@ export default function Calculator() {
 
   return (
     <div className="main-container" dir="rtl" lang="he">
-      <div className="content-wrapper px-4 py-6">
+      <div className="content-wrapper p-1 sm:p-2 lg:p-4 xl:p-6">
+        {/* Perfect centering for desktop - both horizontal and vertical */}
         <div className="flex justify-center items-center min-h-screen py-4">
-          <Card className="w-full max-w-sm sm:max-w-md bg-white border border-gray-100 rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)]" dir="rtl">
-            <CardContent className="p-5 sm:p-6 space-y-5" dir="rtl">
+          <Card className="premium-card w-full max-w-md sm:max-w-lg lg:max-w-xl xl:max-w-2xl" dir="rtl">
+            <CardContent className="p-2 sm:p-3 lg:p-4 xl:p-6 space-y-2 sm:space-y-3 lg:space-y-3 xl:space-y-4" dir="rtl">
             
-            {/* Header */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <img
-                  src={comsignLogo}
-                  alt="Comsign Logo"
-                  className="h-11 w-11 object-contain rounded-xl"
-                  data-testid="logo-comsign"
-                />
-                <Button
-                  variant="ghost"
-                  className="h-9 w-9 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 p-0 touch-manipulation cursor-pointer"
-                  data-testid="button-admin-access"
-                  onClick={() => setIsAdminModalOpen(true)}
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
+            {/* Header Section */}
+            <div className="space-y-1">
+              {/* Top Row - Logo, Settings */}
+              <div className="flex items-center justify-between mb-1">
+                {/* Logo - Right Side */}
+                <div className="flex-shrink-0">
+                  <img 
+                    src={comsignLogo} 
+                    alt="Comsign Logo" 
+                    className="h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 object-contain rounded-lg shadow-sm"
+                    data-testid="logo-comsign"
+                  />
+                </div>
+                
+                {/* Admin Access Button - Left Side */}
+                <div className="flex-shrink-0">
+                  <Button 
+                    variant="outline" 
+                    className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 h-14 w-14 lg:h-12 lg:w-12 xl:h-14 xl:w-14 rounded-lg shadow-sm touch-manipulation cursor-pointer flex items-center justify-center" 
+                    data-testid="button-admin-access"
+                    onClick={() => setIsAdminModalOpen(true)}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    <Settings className="h-6 w-6 lg:h-5 lg:w-5 xl:h-6 xl:w-6 text-red-600" />
+                  </Button>
+                </div>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-4" dir="rtl" data-testid="title-main">
-                מחירון פרויקטים
-              </h1>
-              <div className="h-px bg-gray-100"></div>
+              
+              {/* Title - Center */}
+              <div className="text-center mb-1">
+                <h1 className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-red-700 bg-clip-text text-transparent" dir="rtl" data-testid="title-main">
+                  מחירון פרויקטים
+                </h1>
+              </div>
+
+              {/* Decorative Line */}
+              <div className="h-px bg-gradient-to-r from-transparent via-red-400 to-transparent opacity-70 mx-2"></div>
             </div>
 
             {/* Calculator Form */}
-            <div className="space-y-5">
+            <div className="space-y-3 lg:space-y-1 xl:space-y-2">
               {/* Project Type Selection */}
               <div>
-                <Label className="text-sm font-medium text-gray-500 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
+                <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-project-type">
                   סוג הפרויקט
                 </Label>
                 <Select value={projectType} onValueChange={(value) => {
@@ -1352,7 +1367,7 @@ export default function Calculator() {
                     console.error('Error setting project type:', error);
                   }
                 }} dir="rtl">
-                  <SelectTrigger className="w-full h-12 border border-gray-200 bg-white text-gray-900 hover:border-gray-300 focus:border-red-400 focus:ring-0 rounded-xl text-base touch-manipulation cursor-pointer" dir="rtl" data-testid="select-project-type">
+                  <SelectTrigger className="w-full p-4 lg:p-3 xl:p-3 border border-gray-300 bg-white text-gray-900 hover:border-gray-400 text-lg lg:text-base xl:text-lg focus:border-gray-500 min-h-[56px] lg:min-h-[44px] xl:min-h-[48px] touch-manipulation cursor-pointer transition-all duration-150 ease-out" dir="rtl" data-testid="select-project-type">
                     <SelectValue placeholder="בחר סוג פרויקט" className="text-sm text-gray-900" dir="rtl" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px] lg:max-h-[250px] xl:max-h-[280px] overflow-y-auto">
@@ -1373,50 +1388,48 @@ export default function Calculator() {
 
               {/* Years Selection - Grid Cards */}
               <div>
-                <Label className="text-sm font-medium text-gray-500 mb-2 block text-right" dir="rtl" data-testid="label-years">
+                <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-years">
                   בחר תקופה
                 </Label>
                 {yearsLoading ? (
-                  <div className="text-center py-8 text-gray-400 text-sm">טוען...</div>
+                  <div className="text-center py-8 text-gray-600">טוען...</div>
                 ) : yearsError ? (
-                  <div className="text-center py-8 text-red-500 text-sm">שגיאה בטעינה</div>
+                  <div className="text-center py-8 text-red-600">שגיאה בטעינה</div>
                 ) : !projectType ? (
-                  <div className="text-center py-8 text-gray-400 text-sm">בחר סוג פרויקט תחילה</div>
+                  <div className="text-center py-8 text-gray-500">בחר סוג פרויקט תחילה</div>
                 ) : yearOptions.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400 text-sm">אין אפשרויות זמינות</div>
+                  <div className="text-center py-8 text-gray-500">אין אפשרויות זמינות</div>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2" dir="rtl">
+                  <div className="grid grid-cols-2 gap-2 lg:gap-3" dir="rtl">
                     {yearOptions.map((option) => (
                       <button
                         key={option.id}
                         type="button"
                         onClick={() => setYears(option.years.toString())}
                         className={`
-                          p-4 rounded-xl border-2 text-right transition-colors touch-manipulation
+                          relative p-3 lg:p-4 rounded-xl border-2 transition-all duration-200 touch-manipulation
                           ${years === option.years.toString()
-                            ? 'border-red-500 bg-red-50/60 shadow-sm'
-                            : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                            ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-600 shadow-xl shadow-red-200'
+                            : 'bg-white border-gray-200 hover:border-red-300 hover:shadow-md hover:bg-red-50/30'
                           }
                         `}
                         data-testid={`option-years-${option.years}`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-                            years === option.years.toString() ? 'border-red-500 bg-red-500' : 'border-gray-300 bg-white'
-                          }`}>
-                            {years === option.years.toString() && (
-                              <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                            )}
+                        <div className="text-center space-y-1">
+                          <div className={`text-xl lg:text-2xl font-bold ${years === option.years.toString() ? 'text-white' : 'text-gray-800'}`}>
+                            {option.years} {option.years === 1 ? 'שנה' : 'שנים'}
                           </div>
-                          <div className="text-right">
-                            <div className={`text-lg font-bold leading-tight ${years === option.years.toString() ? 'text-red-700' : 'text-gray-800'}`}>
-                              {option.years} {option.years === 1 ? 'שנה' : 'שנים'}
-                            </div>
-                            <div className={`text-sm font-semibold ${years === option.years.toString() ? 'text-red-500' : 'text-emerald-600'}`}>
-                              ₪{option.basePrice.toLocaleString()}
-                            </div>
+                          <div className={`text-base lg:text-lg font-bold ${years === option.years.toString() ? 'text-red-100' : 'text-emerald-600'}`}>
+                            ₪{option.basePrice.toLocaleString()}
                           </div>
                         </div>
+                        {years === option.years.toString() && (
+                          <div className="absolute top-2 left-2 w-5 h-5 bg-white/30 rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        )}
                       </button>
                     ))}
                   </div>
@@ -1425,14 +1438,14 @@ export default function Calculator() {
 
               {/* Certificate Quantity */}
               <div>
-                <Label className="text-sm font-medium text-gray-500 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
+                <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-certificates">
                   כמות תעודות
                 </Label>
-                <div className="flex items-center bg-gray-50 border border-gray-200 rounded-xl p-1" dir="ltr">
+                <div className="flex items-center gap-2" dir="ltr">
                   <Button
                     type="button"
                     onClick={() => setCertificates(Math.max(1, certificates - 1))}
-                    className="flex-shrink-0 w-10 h-10 bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 font-bold text-xl rounded-lg shadow-sm touch-manipulation"
+                    className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
                     data-testid="button-decrease-certificates"
                   >
                     −
@@ -1443,15 +1456,15 @@ export default function Calculator() {
                     max="1000"
                     value={certificates}
                     onChange={(e) => setCertificates(parseInt(e.target.value) || 1)}
-                    className="flex-1 border-0 bg-transparent text-xl font-bold text-gray-900 text-center focus:ring-0 focus:outline-none shadow-none touch-manipulation"
-                    placeholder="כמות"
+                    className="flex-1 p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation"
+                    placeholder="כמות תעודות"
                     data-testid="input-certificates"
                     inputMode="numeric"
                   />
                   <Button
                     type="button"
                     onClick={() => setCertificates(Math.min(1000, certificates + 1))}
-                    className="flex-shrink-0 w-10 h-10 bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 font-bold text-xl rounded-lg shadow-sm touch-manipulation"
+                    className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
                     data-testid="button-increase-certificates"
                   >
                     +
@@ -1462,14 +1475,14 @@ export default function Calculator() {
               {/* Backup Certificates - Only show if available */}
               {backupCertificatesAvailable && (
                 <div>
-                  <Label className="text-sm font-medium text-gray-500 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
                     תעודות גיבוי
                   </Label>
-                  <div className="flex items-center bg-gray-50 border border-gray-200 rounded-xl p-1" dir="ltr">
+                  <div className="flex items-center gap-2" dir="ltr">
                     <Button
                       type="button"
                       onClick={() => setBackupCertificates(Math.max(0, backupCertificates - 1))}
-                      className="flex-shrink-0 w-10 h-10 bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 font-bold text-xl rounded-lg shadow-sm touch-manipulation"
+                      className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
                       data-testid="button-decrease-backup-certificates"
                     >
                       −
@@ -1480,15 +1493,15 @@ export default function Calculator() {
                       max="100"
                       value={backupCertificates}
                       onChange={(e) => setBackupCertificates(parseInt(e.target.value) || 0)}
-                      className="flex-1 border-0 bg-transparent text-xl font-bold text-gray-900 text-center focus:ring-0 focus:outline-none shadow-none touch-manipulation"
-                      placeholder="0"
+                      className="flex-1 p-4 lg:p-2 xl:p-3 border border-gray-300 text-lg lg:text-base xl:text-lg focus:border-gray-500 hover:border-gray-400 bg-white text-gray-900 min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] text-center touch-manipulation"
+                      placeholder="תעודות גיבוי"
                       data-testid="input-backup-certificates"
                       inputMode="numeric"
                     />
                     <Button
                       type="button"
                       onClick={() => setBackupCertificates(Math.min(100, backupCertificates + 1))}
-                      className="flex-shrink-0 w-10 h-10 bg-white border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 font-bold text-xl rounded-lg shadow-sm touch-manipulation"
+                      className="flex-shrink-0 w-14 h-14 lg:w-10 lg:h-10 xl:w-12 xl:h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl lg:text-xl xl:text-2xl rounded-lg shadow-sm active:scale-95 transition-all duration-150 touch-manipulation"
                       data-testid="button-increase-backup-certificates"
                     >
                       +
@@ -1500,7 +1513,7 @@ export default function Calculator() {
               {/* Token Information */}
               {calculationResult && calculationResult.tokenPrice && (
                 <div>
-                  <div className="p-3 bg-red-50/60 border border-red-100 rounded-xl">
+                  <div className="p-3 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-xl">
                     {calculationResult.tokenIncluded && calculationResult.tokenDisclaimer === "עלות טוקן כלולה במחיר" ? (
                       // Token is included in price - show info only
                       <div className="flex items-start gap-3 py-1" dir="rtl">
@@ -1538,7 +1551,7 @@ export default function Calculator() {
             </div>
 
             {/* Advanced Calculation Button */}
-            <div className="text-center">
+            <div className="mt-4 text-center">
               <Dialog open={isAdvancedModalOpen} onOpenChange={(open) => {
                 setIsAdvancedModalOpen(open);
                 if (open && advancedItems.length === 0) {
@@ -1547,12 +1560,12 @@ export default function Calculator() {
                 }
               }}>
                 <DialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg font-medium text-sm touch-manipulation cursor-pointer"
+                  <Button 
+                    variant="outline" 
+                    className="border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-6 lg:px-4 xl:px-5 py-3 lg:py-2 xl:py-2 rounded-lg font-semibold text-lg lg:text-base xl:text-lg min-h-[56px] lg:min-h-[40px] xl:min-h-[44px] touch-manipulation cursor-pointer" 
                     data-testid="button-advanced-calculation"
                   >
-                    חישוב מתקדם ←
+                    חישוב מתקדם
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
@@ -2118,65 +2131,70 @@ export default function Calculator() {
 
             {/* Price Display - Only show when there's a result */}
             {calculationResult && calculationResult.totalPrice !== null && calculationResult.totalPrice !== undefined && (
-              <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-[0_4px_16px_rgba(0,0,0,0.1)]">
-                {/* Price Header — dark premium card */}
-                <div className="bg-gray-900 px-5 py-5 text-center">
-                  <p className="text-xs text-gray-400 font-medium tracking-widest uppercase mb-2" dir="rtl" data-testid="label-final-price">מחיר לתשלום</p>
-                  <p className="text-4xl sm:text-5xl font-black text-white tracking-tight" dir="rtl" data-testid="text-total-price">
+              <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 rounded-2xl overflow-hidden shadow-xl border border-red-100">
+                {/* Price Header */}
+                <div className="bg-gradient-to-br from-red-500 via-red-600 to-red-700 px-4 py-3 text-center">
+                  <p className="text-xs text-red-100 font-semibold uppercase tracking-widest mb-1" dir="rtl" data-testid="label-final-price">מחיר לתשלום</p>
+                  <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-sm" dir="rtl" data-testid="text-total-price">
                     ₪{calculationResult.totalPrice.toLocaleString()}
                   </p>
                   {calculationResult?.basePrice && calculationResult?.totalCertificates > 1 && (
-                    <p className="text-xs text-gray-500 mt-2 font-medium" dir="rtl" data-testid="text-unit-price">
+                    <p className="text-xs text-red-200 mt-1 font-medium" dir="rtl" data-testid="text-unit-price">
                       ₪{calculationResult.basePrice.toLocaleString()} לתעודה
                     </p>
                   )}
                 </div>
 
                 {/* Details section */}
-                <div className="bg-white px-4 py-3 space-y-2">
+                <div className="bg-white px-3 py-2 space-y-2">
                   {/* Savings for simple calculator */}
                   {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && backupCertificates > 0 && !calculationResult.totalSavings && (
-                    <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-2.5" dir="rtl">
-                      <span className="text-xs text-emerald-700 font-medium">
-                        חיסכון — {backupCertificates} {backupCertificates === 1 ? 'גיבוי' : 'גיבויים'}
-                      </span>
-                      <span className="text-sm font-bold text-emerald-600" data-testid="text-potential-savings">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-2 text-center" dir="rtl">
+                      <p className="text-xs text-green-700 font-semibold">פוטנציאל חיסכון</p>
+                      <p className="text-lg font-bold text-green-600" data-testid="text-potential-savings">
                         ₪{((currentConfig.basePrice - currentConfig.backupCertificatePrice) * backupCertificates).toLocaleString()}
-                      </span>
+                      </p>
+                      <p className="text-xs text-green-600 mt-0.5">
+                        {backupCertificates} {backupCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
+                      </p>
                     </div>
                   )}
 
                   {/* Savings from backend */}
                   {calculationResult.totalSavings && calculationResult.totalSavings > 0 && (
-                    <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-2.5" dir="rtl">
-                      <span className="text-xs text-emerald-700 font-medium">
-                        חיסכון — {calculationResult.discountedCertificates} {calculationResult.discountedCertificates === 1 ? 'גיבוי' : 'גיבויים'}
-                      </span>
-                      <span className="text-sm font-bold text-emerald-600" data-testid="text-potential-savings">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-2 text-center" dir="rtl">
+                      <p className="text-xs text-green-700 font-semibold">פוטנציאל חיסכון</p>
+                      <p className="text-lg font-bold text-green-600" data-testid="text-potential-savings">
                         ₪{calculationResult.totalSavings.toLocaleString()}
-                      </span>
+                      </p>
+                      <p className="text-xs text-green-600 mt-0.5">
+                        {calculationResult.discountedCertificates} {calculationResult.discountedCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
+                      </p>
                     </div>
                   )}
 
                   {/* Tokens */}
                   {calculationResult.totalTokens && calculationResult.totalTokens > 0 && (
-                    <div className="flex items-center justify-between bg-violet-50 rounded-xl px-4 py-2.5" dir="rtl">
-                      <span className="text-xs text-violet-700 font-medium">{calculationResult.totalTokens} טוקנים</span>
-                      <span className="text-sm font-bold text-violet-600">₪{calculationResult.tokenCost?.toLocaleString()}</span>
+                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-2 text-center" dir="rtl">
+                      <p className="text-xs text-purple-700 font-semibold">
+                        {calculationResult.totalTokens} טוקנים — ₪{calculationResult.tokenCost?.toLocaleString()}
+                      </p>
                     </div>
                   )}
 
                   {/* Backup / discount info */}
                   {calculationResult?.discountInfo && (
-                    <p className="text-xs text-gray-400 text-center font-medium py-1" data-testid="text-discount-info">
-                      {calculationResult.discountInfo}
-                    </p>
+                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-2 text-center">
+                      <p className="text-xs text-purple-700 font-medium" data-testid="text-discount-info">
+                        {calculationResult.discountInfo}
+                      </p>
+                    </div>
                   )}
 
                   {/* Day offset credit */}
                   {calculationResult?.dayOffsetInfo && (
-                    <div className="flex items-center justify-center bg-blue-50 rounded-xl px-4 py-2.5">
-                      <p className="text-xs text-blue-700 font-medium" data-testid="text-day-offset-info">
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-2 text-center">
+                      <p className="text-xs text-blue-700 font-semibold" data-testid="text-day-offset-info">
                         {calculationResult.dayOffsetInfo}
                       </p>
                     </div>
@@ -2184,7 +2202,7 @@ export default function Calculator() {
 
                   {/* Token disclaimer */}
                   {calculationResult?.tokenDisclaimer && (
-                    <p className="text-xs text-gray-400 text-center font-medium pb-1" data-testid="text-token-disclaimer">
+                    <p className="text-xs text-gray-500 text-center pb-1 font-medium" data-testid="text-token-disclaimer">
                       {calculationResult.tokenDisclaimer}
                     </p>
                   )}
@@ -2193,8 +2211,9 @@ export default function Calculator() {
             )}
 
             {/* Footer */}
-            <div className="pt-2 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400" dir="rtl" data-testid="text-company">Comsign © 2025 &nbsp;·&nbsp; <span data-testid="text-version">{versionInfo?.version || 'v3.0.1'}</span></p>
+            <div className="mt-2 pt-2 border-t border-gray-100 text-center">
+              <p className="font-bold text-gray-600 text-xs" dir="rtl" data-testid="text-company">Comsign © 2025</p>
+              <p className="text-xs text-gray-400 mt-0.5" data-testid="text-version">{versionInfo?.version || 'v3.0.1'}</p>
             </div>
 
           </CardContent>
