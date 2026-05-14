@@ -2269,23 +2269,6 @@ export default function Calculator() {
                     </p>
                   )}
 
-                  {/* SKU info */}
-                  {currentConfig && (currentConfig.sku || currentConfig.backupSku) && (
-                    <div className="flex flex-col gap-1 pt-1 border-t border-gray-100" dir="rtl">
-                      {currentConfig.sku && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400 font-medium">מקט תעודה</span>
-                          <span className="text-xs font-bold text-gray-700 tracking-wide">{currentConfig.sku}</span>
-                        </div>
-                      )}
-                      {currentConfig.backupSku && currentConfig.backupCertificatePrice > 0 && (
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-400 font-medium">מקט גיבוי</span>
-                          <span className="text-xs font-bold text-amber-700 tracking-wide">{currentConfig.backupSku}</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             )}
