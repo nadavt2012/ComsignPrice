@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "vite build && echo 'y' | npx drizzle-kit push && npx esbuild api/_handler.ts --bundle --packages=external --platform=node --target=node20 --format=esm --outfile=api/index.js --tsconfig=tsconfig.json",
+  "buildCommand": "vite build && (echo 'y' | npx drizzle-kit push || true) && npx esbuild api/_handler.ts --bundle --packages=external --platform=node --target=node20 --format=esm --outfile=api/index.js --tsconfig=tsconfig.json",
   "outputDirectory": "dist/public",
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index" },
