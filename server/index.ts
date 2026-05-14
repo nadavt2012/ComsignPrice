@@ -8,6 +8,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
+import MemoryStore from "memorystore";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { createHmac } from "crypto";
@@ -21,6 +22,13 @@ process.env.ENABLE_AUTO_SYNC = process.env.ENABLE_AUTO_SYNC || defaultAutoSync;
 if (process.env.NODE_ENV === 'development') {
   process.env.SYNC_SECRET = process.env.SYNC_SECRET || "ComsignAutoSyncSecretKey2024$#@!XyZ123456789";
   process.env.PROD_SYNC_URL = process.env.PROD_SYNC_URL || "https://comsignprice.shop/internal/sync/full";
+}
+
+// Security warning for production with missing secrets
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.SESSION_SECRET) {
+    console.error('[SECURITY] WARNING: SESSION_SECRET not set in production! Using insecure default.');
+  }
 }
 
 // Global type declaration for sync trigger
@@ -46,11 +54,24 @@ const logger = winston.createLogger({
   ]
 });
 
-// Trust proxy for accurate IP addresses
+// Trust proxy for accurate IP addresses (required for X-Forwarded-Proto and X-Forwarded-For)
 app.set('trust proxy', 1);
 
 // Advanced Security Headers with Helmet (2025 Configuration)
 const isProduction = process.env.NODE_ENV === 'production';
+
+// HTTP → HTTPS redirect in production (Replit proxy sets X-Forwarded-Proto)
+if (isProduction) {
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const proto = req.headers['x-forwarded-proto'];
+    // Allow health checks over HTTP for deployment monitoring
+    const isHealthCheck = req.path === '/health' || req.path === '/healthz' || req.path === '/ready';
+    if (!isHealthCheck && proto && proto !== 'https') {
+      return res.redirect(301, `https://${req.headers.host}${req.originalUrl}`);
+    }
+    next();
+  });
+}
 
 app.use(helmet({
   contentSecurityPolicy: {
@@ -314,16 +335,23 @@ app.use(express.urlencoded({
   parameterLimit: 20 // Prevent parameter pollution
 }));
 
-// Session Management with PostgreSQL Store (SECURITY FIX)
+// Session Management - PostgreSQL Store with MemoryStore fallback
 const PgSession = connectPg(session);
+const MemStore = MemoryStore(session);
 const sessionSecret = process.env.SESSION_SECRET || "ComsignSecureSessionSecret2025$#@!";
 
+const sessionStore = process.env.DATABASE_URL
+  ? new PgSession({
+      conString: process.env.DATABASE_URL,
+      tableName: 'user_sessions',
+      createTableIfMissing: true
+    })
+  : new MemStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
+
 app.use(session({
-  store: new PgSession({
-    conString: process.env.DATABASE_URL,
-    tableName: 'user_sessions',
-    createTableIfMissing: true
-  }),
+  store: sessionStore,
   secret: sessionSecret,
   resave: false,
   saveUninitialized: false,

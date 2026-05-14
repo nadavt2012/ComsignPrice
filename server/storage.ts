@@ -65,11 +65,26 @@ class DatabaseStorage implements IStorage {
 
   private async initializeDefaultPricing() {
     try {
-      // Check if we already have data in the database
+      // Initialize default admin user if no users exist
+      const existingUsers = await this.db.select().from(users).limit(1);
+      if (existingUsers.length === 0) {
+        const adminPassword = process.env.ADMIN_PASSWORD || 'Admin1234!';
+        const hashedPassword = await bcrypt.hash(adminPassword, 10);
+        await this.db.insert(users).values({
+          id: randomUUID(),
+          username: 'admin',
+          displayName: 'מנהל ראשי',
+          password: hashedPassword,
+          role: 'super_admin'
+        });
+        console.log('[STORAGE] Default admin user created (username: admin)');
+      }
+
+      // Check if we already have pricing data in the database
       const existingConfigs = await this.db.select().from(pricingConfigs).limit(1);
-      
+
       if (existingConfigs.length > 0) {
-        // Database already has data, don't initialize
+        // Database already has pricing data, don't initialize
         return;
       }
 
@@ -700,16 +715,15 @@ class MemStorage implements IStorage {
   }
 }
 
-// Use MemStorage when database is not available
+// Use DatabaseStorage when DATABASE_URL is set, fallback to MemStorage
 let storageInstance: IStorage;
 try {
-  // Try to connect to database
-  if (process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('ep-calm-sound')) {
+  if (process.env.DATABASE_URL) {
     storageInstance = new DatabaseStorage();
-    console.log('[STORAGE] Using DatabaseStorage');
+    console.log('[STORAGE] Using DatabaseStorage (Neon)');
   } else {
     storageInstance = new MemStorage();
-    console.log('[STORAGE] Using MemStorage with default data');
+    console.log('[STORAGE] DATABASE_URL not set - using MemStorage (data will not persist)');
   }
 } catch (error) {
   console.error('[STORAGE] Database connection failed, using MemStorage:', error);

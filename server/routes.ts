@@ -844,18 +844,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/admin/configs/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
-      const updates = req.body;
-      
-      // Update the configuration in storage
-      await storage.updatePricingConfig(id, updates);
-      
+      const data = adminConfigUpdateSchema.parse(req.body) as AdminConfigUpdate;
+
+      const updatedConfig = await storage.updatePricingConfig(id, data);
+
+      if (!updatedConfig) {
+        return res.status(404).json({ message: "Configuration not found" });
+      }
+
       // Trigger sync to production
       if (typeof global.triggerSync === 'function') {
         global.triggerSync();
       }
-      
-      res.json({ success: true, message: "Configuration updated successfully" });
+
+      res.json({ success: true, message: "Configuration updated successfully", config: updatedConfig });
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid request data", errors: error.errors });
+      }
       console.error("Error updating config:", error);
       res.status(500).json({ message: "Failed to update configuration" });
     }

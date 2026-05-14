@@ -54,8 +54,9 @@ export const queryClient = new QueryClient({
       staleTime: 1000 * 60 * 5, // 5 minutes - increased for better performance
       gcTime: 1000 * 60 * 10, // 10 minutes cleanup - increased for better caching
       retry: (failureCount, error: any) => {
-        // Smart retry: only retry on network errors, not on 4xx errors
-        if (error?.message?.includes('4')) return false;
+        // Don't retry on 4xx client errors (auth, not found, validation)
+        const status = error?.message ? parseInt(error.message.split(':')[0]) : 0;
+        if (status >= 400 && status < 500) return false;
         return failureCount < 2;
       },
       retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
