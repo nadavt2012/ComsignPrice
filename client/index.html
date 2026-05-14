@@ -39,7 +39,7 @@
     <meta property="og:title" content="מחירון פרויקטים - קומסיין" />
     <meta property="og:description" content="מחשבון מחירים מתקדם לפרויקטים שונים של קומסיין - עורכי דין, אדריכלים, מהנדסים ועוד" />
     <meta property="og:image" content="/icon-512.png" />
-    <meta property="og:url" content="https://comsign-pricing.replit.app" />
+    <meta property="og:url" content="https://comsignprice.shop" />
     <meta property="og:site_name" content="קומסיין - מחירון פרויקטים" />
     <meta property="og:locale" content="he_IL" />
     
@@ -159,9 +159,10 @@
     <!-- PWA Service Worker Registration - Only in Production -->
     <script>
       // Disable Service Worker completely in development
-      const isDevelopment = window.location.hostname === 'localhost' || 
-                           window.location.hostname.includes('replit.dev') || 
-                           window.location.hostname.includes('replit.co');
+      const isDevelopment = window.location.hostname === 'localhost' ||
+                           window.location.hostname.includes('replit.dev') ||
+                           window.location.hostname.includes('replit.co') ||
+                           window.location.hostname.includes('.vercel.app');
       
       if ('serviceWorker' in navigator && !isDevelopment) {
         // Production only - register SW
@@ -194,7 +195,5 @@
       }
     </script>
     
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
   </body>
 </html>

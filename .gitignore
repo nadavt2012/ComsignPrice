@@ -38,3 +38,4 @@ uv.lock
 
 # Logs
 *.log
+.vercel
