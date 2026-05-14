@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "vite build",
+  "buildCommand": "vite build && npx esbuild api/_handler.ts --bundle --packages=external --platform=node --target=node20 --format=esm --outfile=api/index.js --tsconfig=tsconfig.json",
   "outputDirectory": "dist/public",
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "maxDuration": 30
     }
   },
