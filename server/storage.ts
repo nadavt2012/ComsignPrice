@@ -80,45 +80,58 @@ class DatabaseStorage implements IStorage {
         console.log('[STORAGE] Default admin user created (username: admin)');
       }
 
-      // Check if we already have pricing data in the database
-      const existingConfigs = await this.db.select().from(pricingConfigs).limit(1);
-
-      if (existingConfigs.length > 0) {
-        // Database already has pricing data, don't initialize
-        return;
-      }
-
-      // Initialize with default pricing data only if database is empty
-      const defaultConfigs: InsertPricingConfig[] = [
-        { projectType: "lawyers", years: 1, basePrice: 100, backupCertificatePrice: 50, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-        { projectType: "lawyers", years: 2, basePrice: 150, backupCertificatePrice: 75, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-        { projectType: "lawyers", years: 4, basePrice: 250, backupCertificatePrice: 125, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-        { projectType: "lawyers", years: 5, basePrice: 300, backupCertificatePrice: 150, icon: "Scale", tokenPrice: 120, tokenIncluded: "true" },
-        { projectType: "architects", years: 1, basePrice: 120, backupCertificatePrice: 60, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "architects", years: 2, basePrice: 180, backupCertificatePrice: 90, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "architects", years: 4, basePrice: 280, backupCertificatePrice: 140, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "architects", years: 5, basePrice: 350, backupCertificatePrice: 175, icon: "Building", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "engineers", years: 1, basePrice: 110, backupCertificatePrice: 55, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "engineers", years: 2, basePrice: 160, backupCertificatePrice: 80, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "engineers", years: 4, basePrice: 260, backupCertificatePrice: 130, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "engineers", years: 5, basePrice: 320, backupCertificatePrice: 160, icon: "Wrench", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "magna", years: 3, basePrice: 200, backupCertificatePrice: 100, icon: "GraduationCap", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "regular", years: 1, basePrice: 80, backupCertificatePrice: 40, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "regular", years: 2, basePrice: 120, backupCertificatePrice: 60, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "regular", years: 4, basePrice: 200, backupCertificatePrice: 100, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
-        { projectType: "regular", years: 5, basePrice: 250, backupCertificatePrice: 125, icon: "User", tokenPrice: 120, tokenIncluded: "optional" },
+      const hebrewConfigs: InsertPricingConfig[] = [
+        { projectType: 'מע״מ (ממשל זמין)', years: 2, basePrice: 525, backupCertificatePrice: 305, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מע״מ (ממשל זמין)', years: 4, basePrice: 765, backupCertificatePrice: 420, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מע״מ (ממשל זמין)', years: 5, basePrice: 880, backupCertificatePrice: 465, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'אדריכלים (רישוי זמין)', years: 4, basePrice: 455, backupCertificatePrice: 305, icon: 'Building', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'משרד העבודה ורווחה', years: 2, basePrice: 255, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'משרד העבודה ורווחה', years: 4, basePrice: 325, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'בריאות (שקדיה)', years: 2, basePrice: 285, backupCertificatePrice: 205, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'בריאות (שקדיה)', years: 4, basePrice: 395, backupCertificatePrice: 255, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 1, basePrice: 345, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 2, basePrice: 375, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 4, basePrice: 475, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שע״מ', years: 5, basePrice: 520, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מכס (שער עולמי)', years: 2, basePrice: 290, backupCertificatePrice: 210, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מכס (שער עולמי)', years: 4, basePrice: 475, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מכס (שער עולמי)', years: 5, basePrice: 535, backupCertificatePrice: 350, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'מגנא', years: 3, basePrice: 990, backupCertificatePrice: 0, icon: 'TrendingUp', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 1, basePrice: 295, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 2, basePrice: 345, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 4, basePrice: 455, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'עורך דין (נט המשפט)', years: 5, basePrice: 555, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'נט המשפט (כתבים)', years: 2, basePrice: 550, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'true' },
+        { projectType: 'אופטמטריסטים', years: 2, basePrice: 350, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'אופטמטריסטים', years: 4, basePrice: 515, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'אופטמטריסטים', years: 5, basePrice: 590, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'פורטל ספקים', years: 2, basePrice: 350, backupCertificatePrice: 270, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'פורטל ספקים', years: 4, basePrice: 515, backupCertificatePrice: 360, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'פורטל ספקים', years: 5, basePrice: 535, backupCertificatePrice: 390, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional' },
+        { projectType: 'שמאים', years: 4, basePrice: 510, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional' },
       ];
 
-      for (const config of defaultConfigs) {
-        const id = randomUUID();
+      const existingConfigs = await this.db.select().from(pricingConfigs).limit(5);
+
+      // Detect English placeholder data and migrate to Hebrew
+      const hasEnglishData = existingConfigs.some(c =>
+        ['lawyers', 'architects', 'engineers', 'magna', 'regular'].includes(c.projectType)
+      );
+
+      if (hasEnglishData) {
+        console.log('[STORAGE] Detected English placeholder data — migrating to Hebrew production data');
+        await this.db.delete(pricingConfigs);
+      } else if (existingConfigs.length > 0) {
+        return; // Already has valid Hebrew data
+      }
+
+      for (const config of hebrewConfigs) {
         await this.db.insert(pricingConfigs).values({
           ...config,
-          id,
-          icon: config.icon || "User",
-          tokenPrice: config.tokenPrice || 120,
-          tokenIncluded: config.tokenIncluded || "optional"
+          id: randomUUID(),
         });
       }
+      console.log(`[STORAGE] Initialized ${hebrewConfigs.length} Hebrew pricing configs`);
     } catch (error) {
       console.error('Error initializing default pricing:', error);
     }

@@ -1344,23 +1344,22 @@ export default function Calculator() {
               
               {/* Title - Center */}
               <div className="text-center mb-1">
-                <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800" dir="rtl" data-testid="title-main">
+                <h1 className="text-xl sm:text-2xl lg:text-2xl xl:text-3xl font-black bg-gradient-to-r from-gray-900 via-gray-800 to-red-700 bg-clip-text text-transparent" dir="rtl" data-testid="title-main">
                   מחירון פרויקטים
                 </h1>
+                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 font-medium" dir="rtl">קומסיין - אבטחת מידע</p>
               </div>
-              
+
               {/* Decorative Line */}
-              <div className="flex justify-center">
-                <div className="w-20 sm:w-24 lg:w-32 xl:w-40 h-1 lg:h-2 bg-gradient-to-r from-red-500 to-red-600 rounded-full shadow-lg"></div>
-              </div>
+              <div className="h-px bg-gradient-to-r from-transparent via-red-400 to-transparent opacity-70 mx-2"></div>
             </div>
 
             {/* Calculator Form */}
             <div className="space-y-3 lg:space-y-1 xl:space-y-2">
               {/* Project Type Selection */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-project-type">
-                  <span>סוג הפרויקט</span>
+                <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-project-type">
+                  סוג הפרויקט
                 </Label>
                 <Select value={projectType} onValueChange={(value) => {
                   try {
@@ -1390,8 +1389,8 @@ export default function Calculator() {
 
               {/* Years Selection - Grid Cards */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-years">
-                  <span>בחר תקופה</span>
+                <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-years">
+                  בחר תקופה
                 </Label>
                 {yearsLoading ? (
                   <div className="text-center py-8 text-gray-600">טוען...</div>
@@ -1411,22 +1410,22 @@ export default function Calculator() {
                         className={`
                           relative p-3 lg:p-4 rounded-xl border-2 transition-all duration-200 touch-manipulation
                           ${years === option.years.toString()
-                            ? 'bg-red-50 border-red-500 shadow-lg shadow-red-100'
-                            : 'bg-white border-gray-300 hover:border-red-300 hover:shadow-md'
+                            ? 'bg-gradient-to-br from-red-500 to-red-700 border-red-600 shadow-xl shadow-red-200'
+                            : 'bg-white border-gray-200 hover:border-red-300 hover:shadow-md hover:bg-red-50/30'
                           }
                         `}
                         data-testid={`option-years-${option.years}`}
                       >
                         <div className="text-center space-y-1">
-                          <div className={`text-xl lg:text-2xl font-bold ${years === option.years.toString() ? 'text-red-600' : 'text-gray-800'}`}>
+                          <div className={`text-xl lg:text-2xl font-bold ${years === option.years.toString() ? 'text-white' : 'text-gray-800'}`}>
                             {option.years} {option.years === 1 ? 'שנה' : 'שנים'}
                           </div>
-                          <div className={`text-base lg:text-lg font-semibold ${years === option.years.toString() ? 'text-red-500' : 'text-green-600'}`}>
+                          <div className={`text-base lg:text-lg font-bold ${years === option.years.toString() ? 'text-red-100' : 'text-emerald-600'}`}>
                             ₪{option.basePrice.toLocaleString()}
                           </div>
                         </div>
                         {years === option.years.toString() && (
-                          <div className="absolute top-2 left-2 w-5 h-5 bg-red-600 rounded-full flex items-center justify-center">
+                          <div className="absolute top-2 left-2 w-5 h-5 bg-white/30 rounded-full flex items-center justify-center">
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
@@ -1440,8 +1439,8 @@ export default function Calculator() {
 
               {/* Certificate Quantity */}
               <div>
-                <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-certificates">
-                  <span>כמות תעודות</span>
+                <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-certificates">
+                  כמות תעודות
                 </Label>
                 <div className="flex items-center gap-2" dir="ltr">
                   <Button
@@ -1477,8 +1476,8 @@ export default function Calculator() {
               {/* Backup Certificates - Only show if available */}
               {backupCertificatesAvailable && (
                 <div>
-                  <Label className="text-sm font-semibold text-gray-700 mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
-                    <span>תעודות גיבוי</span>
+                  <Label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block text-right" dir="rtl" data-testid="label-backup-certificates">
+                    תעודות גיבוי
                   </Label>
                   <div className="flex items-center gap-2" dir="ltr">
                     <Button
@@ -2133,87 +2132,78 @@ export default function Calculator() {
 
             {/* Price Display - Only show when there's a result */}
             {calculationResult && calculationResult.totalPrice !== null && calculationResult.totalPrice !== undefined && (
-              <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 p-2 sm:p-3 lg:p-3 xl:p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 rounded-xl border shadow-lg">
-                <div className="text-center space-y-2">
-                  
-                  {/* Potential Savings - Show if backup certificates are selected */}
-                  {/* For simple calculator */}
+              <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 rounded-2xl overflow-hidden shadow-xl border border-red-100">
+                {/* Price Header */}
+                <div className="bg-gradient-to-br from-red-500 via-red-600 to-red-700 px-4 py-3 text-center">
+                  <p className="text-xs text-red-100 font-semibold uppercase tracking-widest mb-1" dir="rtl" data-testid="label-final-price">מחיר לתשלום</p>
+                  <p className="text-3xl sm:text-4xl font-black text-white drop-shadow-sm" dir="rtl" data-testid="text-total-price">
+                    ₪{calculationResult.totalPrice.toLocaleString()}
+                  </p>
+                  {calculationResult?.basePrice && calculationResult?.totalCertificates > 1 && (
+                    <p className="text-xs text-red-200 mt-1 font-medium" dir="rtl" data-testid="text-unit-price">
+                      ₪{calculationResult.basePrice.toLocaleString()} לתעודה
+                    </p>
+                  )}
+                </div>
+
+                {/* Details section */}
+                <div className="bg-white px-3 py-2 space-y-2">
+                  {/* Savings for simple calculator */}
                   {backupCertificatesAvailable && currentConfig && currentConfig.backupCertificatePrice < currentConfig.basePrice && backupCertificates > 0 && !calculationResult.totalSavings && (
-                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2 text-center" dir="rtl">
-                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1">פוטנציאל חיסכון</p>
-                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" data-testid="text-potential-savings">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-2 text-center" dir="rtl">
+                      <p className="text-xs text-green-700 font-semibold">פוטנציאל חיסכון</p>
+                      <p className="text-lg font-bold text-green-600" data-testid="text-potential-savings">
                         ₪{((currentConfig.basePrice - currentConfig.backupCertificatePrice) * backupCertificates).toLocaleString()}
                       </p>
-                      <p className="text-xs sm:text-sm text-green-700 mt-1">
-                        חסכון כולל על {backupCertificates} {backupCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
+                      <p className="text-xs text-green-600 mt-0.5">
+                        {backupCertificates} {backupCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
                       </p>
                     </div>
                   )}
-                  
-                  {/* For advanced calculator - show totalSavings from backend */}
+
+                  {/* Savings from backend */}
                   {calculationResult.totalSavings && calculationResult.totalSavings > 0 && (
-                    <div className="bg-green-50 border-2 border-green-300 rounded-lg p-2 lg:p-3 mb-2 text-center" dir="rtl">
-                      <p className="text-xs sm:text-sm text-green-700 font-semibold mb-1">פוטנציאל חיסכון</p>
-                      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600" data-testid="text-potential-savings">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-2 text-center" dir="rtl">
+                      <p className="text-xs text-green-700 font-semibold">פוטנציאל חיסכון</p>
+                      <p className="text-lg font-bold text-green-600" data-testid="text-potential-savings">
                         ₪{calculationResult.totalSavings.toLocaleString()}
                       </p>
-                      <p className="text-xs sm:text-sm text-green-700 mt-1">
-                        חסכון כולל על {calculationResult.discountedCertificates} {calculationResult.discountedCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
+                      <p className="text-xs text-green-600 mt-0.5">
+                        {calculationResult.discountedCertificates} {calculationResult.discountedCertificates === 1 ? 'תעודת גיבוי' : 'תעודות גיבוי'}
                       </p>
                     </div>
                   )}
-                  
-                  {/* Tokens Added - Show if tokens were added */}
+
+                  {/* Tokens */}
                   {calculationResult.totalTokens && calculationResult.totalTokens > 0 && (
-                    <div className="bg-purple-50 border-2 border-purple-300 rounded-lg p-3 mb-2 text-center" dir="rtl">
-                      <p className="text-xs sm:text-sm text-purple-700 font-semibold mb-1">טוקנים שנוספו</p>
-                      <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
-                        {calculationResult.totalTokens} טוקנים
-                      </p>
-                      <p className="text-xs sm:text-sm text-purple-700 font-semibold mt-2 mb-1">עלות הטוקנים</p>
-                      <p className="text-base sm:text-lg lg:text-xl font-bold text-purple-600">
-                        ₪{calculationResult.tokenCost?.toLocaleString()}
+                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-2 text-center" dir="rtl">
+                      <p className="text-xs text-purple-700 font-semibold">
+                        {calculationResult.totalTokens} טוקנים — ₪{calculationResult.tokenCost?.toLocaleString()}
                       </p>
                     </div>
                   )}
 
-                  {/* Main Price Display */}
-                  <div>
-                    <p className="text-xs sm:text-sm lg:text-sm xl:text-base text-gray-700 mb-1 lg:mb-2 xl:mb-2 font-semibold" dir="rtl" data-testid="label-final-price">מחיר לתשלום</p>
-                    <div className="bg-white border-gray-200 rounded-lg p-2 sm:p-3 lg:p-3 xl:p-4 shadow-lg border">
-                      <p className="text-xl sm:text-2xl lg:text-2xl xl:text-2xl font-bold text-red-600" dir="rtl" data-testid="text-total-price">
-                        ₪{calculationResult.totalPrice.toLocaleString()}
-                      </p>
-                      {/* Price per single certificate - only show when more than 1 certificate */}
-                      {calculationResult?.basePrice && calculationResult?.totalCertificates > 1 && (
-                        <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1" dir="rtl" data-testid="text-unit-price">
-                          מחיר תעודה אחת: ₪{calculationResult.basePrice.toLocaleString()}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Backup Certificates - Separate Line */}
+                  {/* Backup / discount info */}
                   {calculationResult?.discountInfo && (
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-2 lg:p-3">
-                      <p className="text-xs sm:text-sm lg:text-base text-purple-700 font-medium" data-testid="text-discount-info">
+                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-2 text-center">
+                      <p className="text-xs text-purple-700 font-medium" data-testid="text-discount-info">
                         {calculationResult.discountInfo}
                       </p>
                     </div>
                   )}
 
-                  {/* Day Offset Credit - Clear Display */}
+                  {/* Day offset credit */}
                   {calculationResult?.dayOffsetInfo && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-2 lg:p-3">
-                      <p className="text-xs sm:text-sm lg:text-base text-green-700 font-semibold" data-testid="text-day-offset-info">
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-2 text-center">
+                      <p className="text-xs text-blue-700 font-semibold" data-testid="text-day-offset-info">
                         {calculationResult.dayOffsetInfo}
                       </p>
                     </div>
                   )}
 
-                  {/* Token Disclaimer */}
+                  {/* Token disclaimer */}
                   {calculationResult?.tokenDisclaimer && (
-                    <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-2 font-medium" data-testid="text-token-disclaimer">
+                    <p className="text-xs text-gray-500 text-center pb-1 font-medium" data-testid="text-token-disclaimer">
                       {calculationResult.tokenDisclaimer}
                     </p>
                   )}
@@ -2222,10 +2212,9 @@ export default function Calculator() {
             )}
 
             {/* Footer */}
-            <div className="mt-1 sm:mt-2 lg:mt-2 xl:mt-3 text-center">
-              <p className="font-medium text-gray-700 text-xs sm:text-sm lg:text-base xl:text-lg" dir="rtl" data-testid="text-company">Comsign 2025</p>
-              <p className="text-xs sm:text-xs lg:text-sm xl:text-base text-gray-600" data-testid="text-developer">© Powered By NadavT</p>
-              <p className="text-xs text-gray-400 mt-1" data-testid="text-version">{versionInfo?.version || 'v3.0.1'}</p>
+            <div className="mt-2 pt-2 border-t border-gray-100 text-center">
+              <p className="font-bold text-gray-600 text-xs" dir="rtl" data-testid="text-company">Comsign © 2025</p>
+              <p className="text-xs text-gray-400 mt-0.5" data-testid="text-version">{versionInfo?.version || 'v3.0.1'}</p>
             </div>
 
           </CardContent>
