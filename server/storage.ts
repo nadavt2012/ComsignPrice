@@ -1,11 +1,16 @@
 import { type PricingConfig, type InsertPricingConfig, type AdminConfigUpdate, type User, type InsertUser, pricingConfigs, users } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { randomUUID, createHash } from "crypto";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, and } from "drizzle-orm";
 import { LRUCache } from "lru-cache";
 import NodeCache from "node-cache";
 import bcrypt from "bcrypt";
+
+function stableId(projectType: string, years: number): string {
+  const h = createHash('sha256').update(`${projectType}:${years}`).digest('hex');
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20,32)}`;
+}
 
 export interface IStorage {
   getPricingConfigs(): Promise<PricingConfig[]>;
@@ -561,34 +566,34 @@ class MemStorage implements IStorage {
   constructor() {
     // Initialize with PRODUCTION DATA - All 28 projects from comsignprice.shop
     const defaultConfigs: PricingConfig[] = [
-      { id: randomUUID(), projectType: 'מע״מ (ממשל זמין)', years: 2, basePrice: 525, backupCertificatePrice: 305, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'מע״מ (ממשל זמין)', years: 4, basePrice: 765, backupCertificatePrice: 420, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'מע״מ (ממשל זמין)', years: 5, basePrice: 880, backupCertificatePrice: 465, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'אדריכלים (רישוי זמין)', years: 4, basePrice: 455, backupCertificatePrice: 305, icon: 'Building', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'משרד העבודה ורווחה', years: 2, basePrice: 255, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'משרד העבודה ורווחה', years: 4, basePrice: 325, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'בריאות (שקדיה)', years: 2, basePrice: 285, backupCertificatePrice: 205, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'בריאות (שקדיה)', years: 4, basePrice: 395, backupCertificatePrice: 255, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'שע״מ', years: 1, basePrice: 345, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'שע״מ', years: 2, basePrice: 375, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'שע״מ', years: 4, basePrice: 475, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'שע״מ', years: 5, basePrice: 520, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'מכס (שער עולמי)', years: 2, basePrice: 290, backupCertificatePrice: 210, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'מכס (שער עולמי)', years: 4, basePrice: 475, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'מכס (שער עולמי)', years: 5, basePrice: 535, backupCertificatePrice: 350, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'מגנא', years: 3, basePrice: 990, backupCertificatePrice: 0, icon: 'TrendingUp', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'עורך דין (נט המשפט)', years: 1, basePrice: 295, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'עורך דין (נט המשפט)', years: 2, basePrice: 345, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'עורך דין (נט המשפט)', years: 4, basePrice: 455, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'עורך דין (נט המשפט)', years: 5, basePrice: 555, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'נט המשפט (כתבים)', years: 2, basePrice: 550, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'אופטמטריסטים', years: 2, basePrice: 350, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'אופטמטריסטים', years: 4, basePrice: 515, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'אופטמטריסטים', years: 5, basePrice: 590, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'פורטל ספקים', years: 2, basePrice: 350, backupCertificatePrice: 270, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'פורטל ספקים', years: 4, basePrice: 515, backupCertificatePrice: 360, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'פורטל ספקים', years: 5, basePrice: 535, backupCertificatePrice: 390, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
-      { id: randomUUID(), projectType: 'שמאים', years: 4, basePrice: 510, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('מע״מ (ממשל זמין)', 2), projectType: 'מע״מ (ממשל זמין)', years: 2, basePrice: 525, backupCertificatePrice: 305, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('מע״מ (ממשל זמין)', 4), projectType: 'מע״מ (ממשל זמין)', years: 4, basePrice: 765, backupCertificatePrice: 420, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('מע״מ (ממשל זמין)', 5), projectType: 'מע״מ (ממשל זמין)', years: 5, basePrice: 880, backupCertificatePrice: 465, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('אדריכלים (רישוי זמין)', 4), projectType: 'אדריכלים (רישוי זמין)', years: 4, basePrice: 455, backupCertificatePrice: 305, icon: 'Building', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('משרד העבודה ורווחה', 2), projectType: 'משרד העבודה ורווחה', years: 2, basePrice: 255, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('משרד העבודה ורווחה', 4), projectType: 'משרד העבודה ורווחה', years: 4, basePrice: 325, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('בריאות (שקדיה)', 2), projectType: 'בריאות (שקדיה)', years: 2, basePrice: 285, backupCertificatePrice: 205, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('בריאות (שקדיה)', 4), projectType: 'בריאות (שקדיה)', years: 4, basePrice: 395, backupCertificatePrice: 255, icon: 'Stethoscope', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('שע״מ', 1), projectType: 'שע״מ', years: 1, basePrice: 345, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('שע״מ', 2), projectType: 'שע״מ', years: 2, basePrice: 375, backupCertificatePrice: 0, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('שע״מ', 4), projectType: 'שע״מ', years: 4, basePrice: 475, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('שע״מ', 5), projectType: 'שע״מ', years: 5, basePrice: 520, backupCertificatePrice: 350, icon: 'CalcIcon', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('מכס (שער עולמי)', 2), projectType: 'מכס (שער עולמי)', years: 2, basePrice: 290, backupCertificatePrice: 210, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('מכס (שער עולמי)', 4), projectType: 'מכס (שער עולמי)', years: 4, basePrice: 475, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('מכס (שער עולמי)', 5), projectType: 'מכס (שער עולמי)', years: 5, basePrice: 535, backupCertificatePrice: 350, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('מגנא', 3), projectType: 'מגנא', years: 3, basePrice: 990, backupCertificatePrice: 0, icon: 'TrendingUp', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
+      { id: stableId('עורך דין (נט המשפט)', 1), projectType: 'עורך דין (נט המשפט)', years: 1, basePrice: 295, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
+      { id: stableId('עורך דין (נט המשפט)', 2), projectType: 'עורך דין (נט המשפט)', years: 2, basePrice: 345, backupCertificatePrice: 0, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
+      { id: stableId('עורך דין (נט המשפט)', 4), projectType: 'עורך דין (נט המשפט)', years: 4, basePrice: 455, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
+      { id: stableId('עורך דין (נט המשפט)', 5), projectType: 'עורך דין (נט המשפט)', years: 5, basePrice: 555, backupCertificatePrice: 335, icon: 'Scale', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
+      { id: stableId('נט המשפט (כתבים)', 2), projectType: 'נט המשפט (כתבים)', years: 2, basePrice: 550, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'true', sku: null, backupSku: null },
+      { id: stableId('אופטמטריסטים', 2), projectType: 'אופטמטריסטים', years: 2, basePrice: 350, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('אופטמטריסטים', 4), projectType: 'אופטמטריסטים', years: 4, basePrice: 515, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('אופטמטריסטים', 5), projectType: 'אופטמטריסטים', years: 5, basePrice: 590, backupCertificatePrice: 0, icon: 'FileText', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('פורטל ספקים', 2), projectType: 'פורטל ספקים', years: 2, basePrice: 350, backupCertificatePrice: 270, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('פורטל ספקים', 4), projectType: 'פורטל ספקים', years: 4, basePrice: 515, backupCertificatePrice: 360, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('פורטל ספקים', 5), projectType: 'פורטל ספקים', years: 5, basePrice: 535, backupCertificatePrice: 390, icon: 'User', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
+      { id: stableId('שמאים', 4), projectType: 'שמאים', years: 4, basePrice: 510, backupCertificatePrice: 315, icon: 'Car', tokenPrice: 120, tokenIncluded: 'optional', sku: null, backupSku: null },
     ];
 
     defaultConfigs.forEach(config => {
