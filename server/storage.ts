@@ -29,7 +29,8 @@ export interface IStorage {
 
 class DatabaseStorage implements IStorage {
   private db: ReturnType<typeof drizzle>;
-  
+  private initPromise: Promise<void>;
+
   // Enhanced Multi-Level Caching (2025 Standard)
   private configsCache: PricingConfig[] | null = null;
   private cacheTimestamp: number = 0;
@@ -60,7 +61,7 @@ class DatabaseStorage implements IStorage {
   constructor() {
     const sql = neon(process.env.DATABASE_URL!);
     this.db = drizzle(sql);
-    this.initializeDefaultPricing();
+    this.initPromise = this.initializeDefaultPricing();
   }
 
   private async initializeDefaultPricing() {
@@ -138,9 +139,10 @@ class DatabaseStorage implements IStorage {
   }
 
   async getPricingConfigs(): Promise<PricingConfig[]> {
+    await this.initPromise; // ensure seed/migration completes before first read
     this.cacheStats.totalQueries++;
     const cacheKey = 'all_pricing_configs';
-    
+
     // Check basic cache first (for backwards compatibility)
     if (this.isCacheValid()) {
       this.cacheStats.hits++;
