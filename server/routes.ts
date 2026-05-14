@@ -135,6 +135,8 @@ const adminConfigUpdateSchema = z.object({
   tokenIncluded: z.enum(["true", "false", "optional"], {
     errorMap: () => ({ message: "סטטוס טוקן חייב להיות 'true', 'false' או 'optional'" })
   }).optional(),
+  sku: z.string().max(100, "מקט ארוך מדי").optional(),
+  backupSku: z.string().max(100, "מקט גיבוי ארוך מדי").optional(),
 });
 
 const adminPasswordChangeSchema = z.object({

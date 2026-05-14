@@ -81,6 +81,8 @@ interface PricingConfig {
   icon: string;
   tokenPrice: number;
   tokenIncluded: string;
+  sku?: string | null;
+  backupSku?: string | null;
 }
 
 interface AdminConfigUpdate {
@@ -91,6 +93,8 @@ interface AdminConfigUpdate {
   icon?: string;
   tokenPrice?: number;
   tokenIncluded?: string;
+  sku?: string;
+  backupSku?: string;
 }
 
 // Form validation schema
@@ -102,6 +106,8 @@ const adminConfigSchema = z.object({
   icon: z.string().optional(),
   tokenPrice: z.number().min(0, "מחיר טוקן לא יכול להיות שלילי").max(10000, "מחיר טוקן מקסימלי הוא 10,000 שקלים").optional(),
   tokenIncluded: z.enum(["true", "false", "optional"], { errorMap: () => ({ message: "סטטוס טוקן חייב להיות 'true', 'false' או 'optional'" }) }).optional(),
+  sku: z.string().max(100, "מקט ארוך מדי").optional(),
+  backupSku: z.string().max(100, "מקט גיבוי ארוך מדי").optional(),
 });
 
 // ===== ADMIN COMPONENTS =====
@@ -128,6 +134,8 @@ function AdminConfigForm({
       icon: initialData?.icon || "User",
       tokenPrice: initialData?.tokenPrice || 120,
       tokenIncluded: initialData?.tokenIncluded || "optional",
+      sku: initialData?.sku || "",
+      backupSku: initialData?.backupSku || "",
     },
   });
 
@@ -291,6 +299,36 @@ function AdminConfigForm({
                     <SelectItem value="optional">אופציונלי</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="sku"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>מקט תעודה</FormLabel>
+                <FormControl>
+                  <Input placeholder="מספר מקט" {...field} value={field.value || ""} data-testid="input-sku" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="backupSku"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>מקט גיבוי</FormLabel>
+                <FormControl>
+                  <Input placeholder="מספר מקט גיבוי" {...field} value={field.value || ""} data-testid="input-backup-sku" />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -928,6 +966,18 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
                           <span className="font-semibold text-gray-700">אייקון:</span>
                           <span className="font-medium">{config.icon}</span>
                         </div>
+                        {config.sku && (
+                          <div className="flex items-center gap-2 bg-blue-50 p-3 rounded-lg">
+                            <span className="font-semibold text-gray-700">מקט:</span>
+                            <span className="font-bold text-blue-700">{config.sku}</span>
+                          </div>
+                        )}
+                        {config.backupSku && (
+                          <div className="flex items-center gap-2 bg-amber-50 p-3 rounded-lg">
+                            <span className="font-semibold text-gray-700">מקט גיבוי:</span>
+                            <span className="font-bold text-amber-700">{config.backupSku}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="flex lg:flex-col gap-2 justify-end">
@@ -1422,6 +1472,18 @@ export default function Calculator() {
                           <div className={`text-base lg:text-lg font-bold ${years === option.years.toString() ? 'text-red-100' : 'text-emerald-600'}`}>
                             ₪{option.basePrice.toLocaleString()}
                           </div>
+                          {option.sku && (
+                            <div className={`inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${years === option.years.toString() ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'}`} dir="rtl">
+                              <span>מקט:</span>
+                              <span className="font-semibold">{option.sku}</span>
+                            </div>
+                          )}
+                          {option.backupSku && option.backupCertificatePrice > 0 && (
+                            <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${years === option.years.toString() ? 'bg-white/15 text-red-100' : 'bg-amber-50 text-amber-600'}`} dir="rtl">
+                              <span>גיבוי:</span>
+                              <span className="font-semibold">{option.backupSku}</span>
+                            </div>
+                          )}
                         </div>
                         {years === option.years.toString() && (
                           <div className="absolute top-2 left-2 w-5 h-5 bg-white/30 rounded-full flex items-center justify-center">
@@ -2206,14 +2268,33 @@ export default function Calculator() {
                       {calculationResult.tokenDisclaimer}
                     </p>
                   )}
+
+                  {/* SKU info */}
+                  {currentConfig && (currentConfig.sku || currentConfig.backupSku) && (
+                    <div className="flex flex-col gap-1 pt-1 border-t border-gray-100" dir="rtl">
+                      {currentConfig.sku && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-400 font-medium">מקט תעודה</span>
+                          <span className="text-xs font-bold text-gray-700 tracking-wide">{currentConfig.sku}</span>
+                        </div>
+                      )}
+                      {currentConfig.backupSku && currentConfig.backupCertificatePrice > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-400 font-medium">מקט גיבוי</span>
+                          <span className="text-xs font-bold text-amber-700 tracking-wide">{currentConfig.backupSku}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Footer */}
-            <div className="mt-2 pt-2 border-t border-gray-100 text-center">
+            <div className="mt-2 pt-2 border-t border-gray-100 text-center space-y-0.5">
               <p className="font-bold text-gray-600 text-xs" dir="rtl" data-testid="text-company">Comsign © 2025</p>
-              <p className="text-xs text-gray-400 mt-0.5" data-testid="text-version">{versionInfo?.version || 'v3.0.1'}</p>
+              <p className="text-xs text-gray-400" data-testid="text-version">{versionInfo?.version || 'v3.0.1'}</p>
+              <p className="text-xs text-gray-300">powered by NadavT</p>
             </div>
 
           </CardContent>

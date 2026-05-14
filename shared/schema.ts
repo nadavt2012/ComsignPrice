@@ -12,6 +12,8 @@ export const pricingConfigs = pgTable("pricing_configs", {
   icon: text("icon").notNull().default("User"),
   tokenPrice: real("token_price").notNull().default(120),
   tokenIncluded: text("token_included").notNull().default("false"), // "true", "false", "optional"
+  sku: text("sku").default(""),
+  backupSku: text("backup_sku").default(""),
 });
 
 export const users = pgTable("users", {
@@ -52,6 +54,8 @@ export interface PricingConfigManual {
   icon: string;
   tokenPrice: number;
   tokenIncluded: string;
+  sku?: string;
+  backupSku?: string;
 }
 
 // ===== CALCULATION TYPES =====
@@ -115,6 +119,8 @@ export interface AdminConfigUpdate {
   icon?: string;
   tokenPrice?: number;
   tokenIncluded?: string;
+  sku?: string;
+  backupSku?: string;
 }
 
 export interface AdminPasswordChange {
