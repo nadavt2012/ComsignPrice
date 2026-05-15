@@ -2083,15 +2083,15 @@ export default function Calculator() {
                     )}
                     
                     {advancedResult && !calculateAdvancedMutation.isPending && (
-                      <div className="bg-white border-2 border-red-200 rounded-xl shadow-lg overflow-hidden" dir="rtl">
-                        {/* Header */}
-                        <div className="bg-gradient-to-r from-red-600 to-red-700 px-4 py-3 text-center">
-                          <p className="text-xs text-red-100 font-semibold uppercase tracking-widest mb-1">סיכום הזמנה</p>
-                          <p className="text-3xl font-black text-white">₪{advancedResult.totalPrice.toLocaleString()}</p>
+                      <div className="rounded-xl overflow-hidden border-2 border-red-200 shadow-lg" dir="rtl">
+                        {/* Total Header */}
+                        <div className="bg-gradient-to-r from-red-600 to-red-700 px-4 py-4 text-center">
+                          <p className="text-xs text-red-200 font-semibold uppercase tracking-widest mb-1">סה״כ לתשלום</p>
+                          <p className="text-4xl font-black text-white">₪{advancedResult.totalPrice.toLocaleString()}</p>
                         </div>
 
                         {/* Breakdown per row */}
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-gray-100 bg-white">
                           {advancedItems.map((item, idx) => {
                             const cfg = allConfigs.find(c => c.projectType === projectType && c.years === item.years);
                             if (!cfg) return null;
@@ -2099,34 +2099,48 @@ export default function Calculator() {
                             const totalCerts = item.regularCertificates + item.backupCertificates;
                             if (totalCerts === 0) return null;
                             const yearsLabel = item.years === 1 ? 'שנה' : 'שנים';
-                            const regLabel = item.certificateType === 'token' ? 'טוקן' : 'כרטיס';
-                            const backLabel = item.backupType === 'token' ? 'טוקן' : 'כרטיס';
                             return (
-                              <div key={idx} className="flex items-center justify-between px-4 py-3 text-base">
-                                <span className="font-bold text-red-600 text-lg">₪{rowCost.toLocaleString()}</span>
-                                <div className="text-right text-gray-700 font-medium">
-                                  <span className="font-bold">{item.years} {yearsLabel}</span>
-                                  {item.regularCertificates > 0 && <span className="mr-2 text-gray-500">· {item.regularCertificates} {regLabel}</span>}
-                                  {item.backupCertificates > 0 && <span className="mr-2 text-gray-500">· {item.backupCertificates} גיבוי {backLabel}</span>}
+                              <div key={idx} className="flex items-center justify-between px-5 py-4 gap-4">
+                                {/* Price — left */}
+                                <span className="font-black text-red-600 text-2xl flex-shrink-0">
+                                  ₪{rowCost.toLocaleString()}
+                                </span>
+                                {/* Badges — right */}
+                                <div className="flex items-center gap-2 flex-wrap justify-end">
+                                  <span className="bg-red-600 text-white text-sm font-bold px-3 py-1 rounded-full">
+                                    {item.years} {yearsLabel}
+                                  </span>
+                                  {item.regularCertificates > 0 && (
+                                    <span className="bg-gray-100 text-gray-700 text-sm font-semibold px-3 py-1 rounded-full">
+                                      {item.regularCertificates} {item.certificateType === 'token' ? 'טוקן' : 'כרטיס'}
+                                    </span>
+                                  )}
+                                  {item.backupCertificates > 0 && (
+                                    <span className="bg-blue-50 text-blue-700 text-sm font-semibold px-3 py-1 rounded-full border border-blue-100">
+                                      {item.backupCertificates} גיבוי {item.backupType === 'token' ? 'טוקן' : 'כרטיס'}
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             );
                           })}
                         </div>
 
-                        {/* Footer summary */}
-                        <div className="bg-gray-50 px-4 py-2.5 flex justify-between items-center text-sm text-gray-600 border-t border-gray-200">
-                          <span className="font-bold text-base">{advancedItems.reduce((s, i) => s + i.regularCertificates + i.backupCertificates, 0)} תעודות</span>
-                          <div className="flex gap-3">
+                        {/* Footer */}
+                        <div className="bg-gray-50 px-5 py-3 flex items-center justify-between border-t border-gray-200">
+                          <div className="flex gap-4">
                             {(advancedResult.totalSavings ?? 0) > 0 && (
-                              <span className="text-green-600 font-semibold">חיסכון ₪{advancedResult.totalSavings!.toLocaleString()}</span>
+                              <span className="text-green-600 font-semibold text-sm">חיסכון ₪{advancedResult.totalSavings!.toLocaleString()}</span>
                             )}
                             {(advancedResult.totalTokens ?? 0) > 0 && (
-                              <span className="text-purple-600 font-semibold">
+                              <span className="text-purple-600 font-semibold text-sm">
                                 {advancedResult.totalTokens} טוקנים{advancedResult.tokenCost ? ` — ₪${advancedResult.tokenCost.toLocaleString()}` : ''}
                               </span>
                             )}
                           </div>
+                          <span className="font-bold text-gray-700 text-sm">
+                            {advancedItems.reduce((s, i) => s + i.regularCertificates + i.backupCertificates, 0)} תעודות
+                          </span>
                         </div>
                       </div>
                     )}
