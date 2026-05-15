@@ -2134,7 +2134,7 @@ export default function Calculator() {
                             )}
                             {(advancedResult.totalTokens ?? 0) > 0 && (
                               <span className="text-purple-600 font-semibold text-sm">
-                                {advancedResult.totalTokens} טוקנים{advancedResult.tokenCost ? ` — ₪${advancedResult.tokenCost.toLocaleString()}` : ''}
+                                {advancedResult.totalTokens} טוקנים
                               </span>
                             )}
                           </div>
