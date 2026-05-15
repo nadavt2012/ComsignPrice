@@ -1635,20 +1635,12 @@ export default function Calculator() {
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
                   <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-center text-red-600 mb-2" dir="rtl">
+                    <DialogTitle className="text-2xl font-bold text-center text-red-600 mb-1" dir="rtl">
                       חישוב מתקדם
                     </DialogTitle>
-                    <DialogDescription className="text-sm text-gray-700 text-center" dir="rtl">
-                      בנה תמהיל מותאם אישית של תעודות עם תקופות זמן שונות
+                    <DialogDescription className="text-sm text-gray-500 text-center" dir="rtl">
+                      מלא כמויות לכל תקופה — החישוב יתעדכן אוטומטית | טוקן: ₪120
                     </DialogDescription>
-                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                      <p className="text-xs text-blue-800 text-center" dir="rtl">
-                        💡 <strong>טיפ:</strong> הוסף שורות עבור תקופות זמן שונות, מלא את מספר התעודות לכל סוג - החישוב יתעדכן אוטומטית
-                      </p>
-                      <p className="text-xs text-blue-700 text-center mt-2 font-semibold" dir="rtl">
-                        🔔 <span className="font-bold">תזכורת:</span> עלות כל טוקן שתוסיף היא ₪120
-                      </p>
-                    </div>
                   </DialogHeader>
                   
                   <div className="space-y-4 p-2" dir="rtl">
@@ -1857,18 +1849,12 @@ export default function Calculator() {
                     
                     {/* Desktop View - Table */}
                     <div className="hidden md:block border-2 border-red-100 rounded-xl overflow-hidden shadow-sm">
-                      <table className="w-full text-sm">
+                      <table className="w-full text-base">
                         <thead className="bg-gradient-to-l from-red-50 to-red-100">
                           <tr>
-                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200 w-32">תקופה</th>
-                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
-                              <div>תעודות</div>
-                              <div className="text-xs font-normal text-red-700 mt-0.5">בכרטיס או בטוקן</div>
-                            </th>
-                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">
-                              <div>גיבוי</div>
-                              <div className="text-xs font-normal text-red-700 mt-0.5">בכרטיס או בטוקן</div>
-                            </th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200 w-36">תקופה</th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">תעודות</th>
+                            <th className="p-3 text-right font-bold text-red-900 border-l border-red-200">גיבוי</th>
                             <th className="p-3 text-center font-bold text-red-900 w-16">מחק</th>
                           </tr>
                         </thead>
@@ -2112,15 +2098,16 @@ export default function Calculator() {
                             const rowCost = (item.regularCertificates * cfg.basePrice) + (item.backupCertificates * cfg.backupCertificatePrice);
                             const totalCerts = item.regularCertificates + item.backupCertificates;
                             if (totalCerts === 0) return null;
+                            const yearsLabel = item.years === 1 ? 'שנה' : 'שנים';
+                            const regLabel = item.certificateType === 'token' ? 'טוקן' : 'כרטיס';
+                            const backLabel = item.backupType === 'token' ? 'טוקן' : 'כרטיס';
                             return (
-                              <div key={idx} className="flex items-center justify-between px-4 py-2.5 text-sm">
-                                <span className="font-bold text-red-600">₪{rowCost.toLocaleString()}</span>
-                                <div className="text-right text-gray-700">
-                                  <span className="font-semibold">{item.years} שנים</span>
-                                  <span className="text-gray-400 mx-1">|</span>
-                                  {item.regularCertificates > 0 && <span>{item.regularCertificates} רגיל ({item.certificateType === 'token' ? 'טוקן' : 'כרטיס'})</span>}
-                                  {item.regularCertificates > 0 && item.backupCertificates > 0 && <span className="text-gray-400 mx-1">+</span>}
-                                  {item.backupCertificates > 0 && <span>{item.backupCertificates} גיבוי ({item.backupType === 'token' ? 'טוקן' : 'כרטיס'})</span>}
+                              <div key={idx} className="flex items-center justify-between px-4 py-3 text-base">
+                                <span className="font-bold text-red-600 text-lg">₪{rowCost.toLocaleString()}</span>
+                                <div className="text-right text-gray-700 font-medium">
+                                  <span className="font-bold">{item.years} {yearsLabel}</span>
+                                  {item.regularCertificates > 0 && <span className="mr-2 text-gray-500">· {item.regularCertificates} {regLabel}</span>}
+                                  {item.backupCertificates > 0 && <span className="mr-2 text-gray-500">· {item.backupCertificates} גיבוי {backLabel}</span>}
                                 </div>
                               </div>
                             );
@@ -2128,14 +2115,18 @@ export default function Calculator() {
                         </div>
 
                         {/* Footer summary */}
-                        <div className="bg-gray-50 px-4 py-2 flex justify-between items-center text-sm text-gray-600 border-t border-gray-200">
-                          <span className="font-semibold">{advancedItems.reduce((s, i) => s + i.regularCertificates + i.backupCertificates, 0)} תעודות</span>
-                          {(advancedResult.totalSavings ?? 0) > 0 && (
-                            <span className="text-green-600 font-semibold">חיסכון ₪{advancedResult.totalSavings!.toLocaleString()}</span>
-                          )}
-                          {(advancedResult.totalTokens ?? 0) > 0 && (
-                            <span className="text-purple-600 font-semibold">{advancedResult.totalTokens} טוקנים — ₪{advancedResult.tokenCost?.toLocaleString()}</span>
-                          )}
+                        <div className="bg-gray-50 px-4 py-2.5 flex justify-between items-center text-sm text-gray-600 border-t border-gray-200">
+                          <span className="font-bold text-base">{advancedItems.reduce((s, i) => s + i.regularCertificates + i.backupCertificates, 0)} תעודות</span>
+                          <div className="flex gap-3">
+                            {(advancedResult.totalSavings ?? 0) > 0 && (
+                              <span className="text-green-600 font-semibold">חיסכון ₪{advancedResult.totalSavings!.toLocaleString()}</span>
+                            )}
+                            {(advancedResult.totalTokens ?? 0) > 0 && (
+                              <span className="text-purple-600 font-semibold">
+                                {advancedResult.totalTokens} טוקנים{advancedResult.tokenCost ? ` — ₪${advancedResult.tokenCost.toLocaleString()}` : ''}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
