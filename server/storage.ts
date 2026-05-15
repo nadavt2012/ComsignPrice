@@ -2,7 +2,7 @@ import { type PricingConfig, type InsertPricingConfig, type AdminConfigUpdate, t
 import { randomUUID, createHash } from "crypto";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { LRUCache } from "lru-cache";
 import NodeCache from "node-cache";
 import bcrypt from "bcrypt";
@@ -71,6 +71,11 @@ class DatabaseStorage implements IStorage {
 
   private async initializeDefaultPricing() {
     try {
+      // Auto-migrate schema: add columns that may be missing from older DB instances
+      await this.db.execute(sql`ALTER TABLE pricing_configs ADD COLUMN IF NOT EXISTS sku TEXT DEFAULT ''`);
+      await this.db.execute(sql`ALTER TABLE pricing_configs ADD COLUMN IF NOT EXISTS backup_sku TEXT DEFAULT ''`);
+      console.log('[STORAGE] Schema migration complete (sku/backup_sku ensured)');
+
       // Initialize default admin user if no users exist
       const existingUsers = await this.db.select().from(users).limit(1);
       if (existingUsers.length === 0) {
@@ -636,12 +641,15 @@ class MemStorage implements IStorage {
 
   async createPricingConfig(config: InsertPricingConfig): Promise<PricingConfig> {
     const id = randomUUID();
+    const { sku, backupSku, ...rest } = config;
     const newConfig: PricingConfig = {
-      ...config,
+      ...rest,
       id,
       icon: config.icon || "User",
       tokenPrice: config.tokenPrice || 120,
-      tokenIncluded: config.tokenIncluded || "optional"
+      tokenIncluded: config.tokenIncluded || "optional",
+      sku: sku ?? null,
+      backupSku: backupSku ?? null,
     };
     this.configs.set(id, newConfig);
     return newConfig;
