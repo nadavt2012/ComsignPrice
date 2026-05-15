@@ -23,13 +23,16 @@ import { z } from "zod";
 import type { CalculationResult, AdvancedLineItem } from "@shared/schema";
 
 // Icons
-import { 
-  Settings, Building, Calendar, Award, Shield, 
-  User, Scale, Wrench, GraduationCap, Briefcase, 
-  Star, Heart, Home, Car, Plane, Camera, Music, 
-  Book, Coffee, Calculator as CalcIcon, Stethoscope, Gavel, 
+import {
+  Settings, Building, Calendar, Award, Shield,
+  User, Scale, Wrench, GraduationCap, Briefcase,
+  Star, Heart, Home, Car, Plane, Camera, Music,
+  Book, Coffee, Calculator as CalcIcon, Stethoscope, Gavel,
   FileText, Globe, Palette, Code, Zap, TrendingUp,
-  Search, ArrowUpDown, X
+  Search, ArrowUpDown, X,
+  Landmark, Truck, Factory, Leaf, Hammer, CreditCard,
+  Laptop, Phone, Scissors, Dumbbell, Utensils, ShoppingCart,
+  Microscope, HardHat, Sailboat, TreePine, FlaskConical, Waves
 } from "lucide-react";
 
 // Assets
@@ -58,6 +61,29 @@ const getIconComponent = (iconName: string) => {
     case 'Zap': return Zap;
     case 'Star': return Star;
     case 'TrendingUp': return TrendingUp;
+    case 'Award': return Award;
+    case 'Plane': return Plane;
+    case 'Music': return Music;
+    case 'Book': return Book;
+    case 'Coffee': return Coffee;
+    case 'Landmark': return Landmark;
+    case 'Truck': return Truck;
+    case 'Factory': return Factory;
+    case 'Leaf': return Leaf;
+    case 'Hammer': return Hammer;
+    case 'CreditCard': return CreditCard;
+    case 'Laptop': return Laptop;
+    case 'Phone': return Phone;
+    case 'Scissors': return Scissors;
+    case 'Dumbbell': return Dumbbell;
+    case 'Utensils': return Utensils;
+    case 'ShoppingCart': return ShoppingCart;
+    case 'Microscope': return Microscope;
+    case 'HardHat': return HardHat;
+    case 'Sailboat': return Sailboat;
+    case 'TreePine': return TreePine;
+    case 'FlaskConical': return FlaskConical;
+    case 'Waves': return Waves;
     default: return User;
   }
 };
@@ -140,16 +166,50 @@ function AdminConfigForm({
   });
 
   const availableIcons = [
-    { value: "User", label: "משתמש" },
-    { value: "Scale", label: "מאזניים (עורכי דין)" },
-    { value: "Building", label: "בניין (אדריכלים)" },
-    { value: "Stethoscope", label: "סטטוסקופ (בריאות)" },
-    { value: "Car", label: "רכב (מכס/שמאים)" },
-    { value: "CalcIcon", label: "מחשבון (שע״מ)" },
+    { value: "User", label: "אדם" },
+    { value: "Briefcase", label: "תיק עסקים" },
+    { value: "Scale", label: "מאזניים" },
+    { value: "Gavel", label: "פטיש שופט" },
+    { value: "Building", label: "בניין" },
+    { value: "Landmark", label: "מבנה ממשלה" },
+    { value: "Home", label: "בית" },
+    { value: "Stethoscope", label: "סטטוסקופ" },
+    { value: "Heart", label: "לב" },
+    { value: "Microscope", label: "מיקרוסקופ" },
+    { value: "FlaskConical", label: "מבחנה" },
+    { value: "Car", label: "רכב" },
+    { value: "Truck", label: "משאית" },
+    { value: "Plane", label: "מטוס" },
+    { value: "Sailboat", label: "סירה" },
+    { value: "CalcIcon", label: "מחשבון" },
+    { value: "TrendingUp", label: "גרף עולה" },
+    { value: "CreditCard", label: "כרטיס אשראי" },
+    { value: "GraduationCap", label: "כובע בוגר" },
+    { value: "Book", label: "ספר" },
+    { value: "Wrench", label: "מפתח ברגים" },
+    { value: "Hammer", label: "פטיש" },
+    { value: "HardHat", label: "קסדת בנייה" },
+    { value: "Factory", label: "מפעל" },
+    { value: "Shield", label: "מגן" },
+    { value: "Globe", label: "גלובוס" },
+    { value: "Laptop", label: "מחשב נייד" },
+    { value: "Code", label: "קוד" },
+    { value: "Phone", label: "טלפון" },
+    { value: "Camera", label: "מצלמה" },
+    { value: "Palette", label: "פלטת צבעים" },
+    { value: "Scissors", label: "מספריים" },
+    { value: "Utensils", label: "כלי אוכל" },
+    { value: "Coffee", label: "קפה" },
+    { value: "ShoppingCart", label: "עגלת קניות" },
+    { value: "Dumbbell", label: "משקולת" },
+    { value: "Music", label: "תו מוזיקה" },
+    { value: "Leaf", label: "עלה" },
+    { value: "TreePine", label: "עץ" },
+    { value: "Waves", label: "גלים" },
     { value: "FileText", label: "מסמך" },
-    { value: "TrendingUp", label: "גרף (מגנא)" },
-    { value: "Zap", label: "ברק" },
+    { value: "Award", label: "פרס" },
     { value: "Star", label: "כוכב" },
+    { value: "Zap", label: "ברק" },
   ];
 
   return (
