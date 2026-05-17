@@ -886,6 +886,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin - Update project types sort order
+  app.put("/api/admin/project-order", requireAuth, async (req, res) => {
+    try {
+      const { order } = req.body as { order: { projectType: string; sortOrder: number }[] };
+      if (!Array.isArray(order)) {
+        return res.status(400).json({ message: "order must be an array" });
+      }
+      await storage.updateProjectTypesSortOrder(order);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update project order" });
+    }
+  });
+
   // Admin - Force sync endpoint (SUPER ADMIN ONLY)
   app.post("/api/admin/force-sync", requireSuperAdmin, async (req, res) => {
     try {

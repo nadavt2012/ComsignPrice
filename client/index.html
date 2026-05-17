@@ -2,18 +2,8 @@
 <html lang="he" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=0, viewport-fit=cover" />
-    
-    <!-- AGGRESSIVE CACHE CONTROL: Forces Replit Published Site to Update -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, proxy-revalidate, s-maxage=0, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <!-- FORCE CACHE BREAK FOR PUBLISHED SITE: Version 2.1 -->
-    <meta name="cache-version" content="v2.1-20250915-pricing-fix-final">
-    <meta name="build-timestamp" content="1726396800000">  <!-- Forces browser cache refresh -->
-    <meta name="app-version" content="production-ready-2025.09.15">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes, viewport-fit=cover" />
+
     <!-- PWA Meta Tags -->
     <title>מחירון פרויקטים - קומסיין</title>
     <meta name="description" content="מחשבון מחירים מתקדם לפרויקטים שונים של קומסיין" />
@@ -21,179 +11,40 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="מחירון קומסיין" />
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-    
-    <!-- PWA Icons -->
+
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    
-    <!-- Open Graph Meta Tags for Social Sharing -->
+
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="מחירון פרויקטים - קומסיין" />
-    <meta property="og:description" content="מחשבון מחירים מתקדם לפרויקטים שונים של קומסיין - עורכי דין, אדריכלים, מהנדסים ועוד" />
+    <meta property="og:description" content="מחשבון מחירים מתקדם לפרויקטים שונים של קומסיין" />
     <meta property="og:image" content="/icon-512.png" />
     <meta property="og:url" content="https://comsignprice.shop" />
-    <meta property="og:site_name" content="קומסיין - מחירון פרויקטים" />
     <meta property="og:locale" content="he_IL" />
-    
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="מחירון פרויקטים - קומסיין" />
-    <meta name="twitter:description" content="מחשבון מחירים מתקדם לפרויקטים שונים של קומסיין" />
-    <meta name="twitter:image" content="/icon-512.png" />
-    
-    <!-- Advanced Performance Optimization (2025) -->
-    <!-- Critical Resource Hints -->
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    
-    <!-- Preload Critical CSS Variables -->
-    <link rel="preload" href="/src/index.css" as="style">
-    
-    <!-- Optimized Hebrew + Latin Fonts Loading with font-display: swap -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Heebo:wght@300;400;500;600;700;800;900&family=Assistant:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Prefetch Next-Likely Resources -->
-    <link rel="prefetch" href="/src/lib/queryClient.ts">
-    <link rel="prefetch" href="/src/pages/calculator.tsx">
-    
-    <!-- Enhanced Critical Resource Preloading -->
-    <link rel="preload" href="/icon-192.png" as="image" type="image/png">
-    <link rel="preload" href="/icon-512.png" as="image" type="image/png">
-    <link rel="preload" href="/manifest.json" as="fetch" crossorigin>
-    
-    <!-- Preload Critical JavaScript Modules -->
-    <link rel="modulepreload" href="/src/main.tsx">
-    <link rel="modulepreload" href="/src/App.tsx">
-    
-    <!-- Resource Hints for Performance -->
-    <link rel="prefetch" href="/src/components/ui/button.tsx">
-    <link rel="prefetch" href="/src/components/ui/card.tsx">
-    <link rel="prefetch" href="/src/components/ui/input.tsx">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div>
-    
-    <!-- Error Suppression Script -->
-    <script>
-      // Complete ResizeObserver error suppression
-      const OriginalResizeObserver = window.ResizeObserver;
-      window.ResizeObserver = class extends OriginalResizeObserver {
-        constructor(callback) {
-          super((entries, observer) => {
-            window.requestAnimationFrame(() => {
-              try {
-                callback(entries, observer);
-              } catch (e) {
-                // Silently ignore all ResizeObserver errors
-              }
-            });
-          });
-        }
-      };
-
-      // Comprehensive error suppression
-      const suppressError = (e) => {
-        if (e.message && (
-          e.message.includes('ResizeObserver') ||
-          e.message.includes('loop completed with undelivered notifications') ||
-          e.message.includes('undelivered notifications')
-        )) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-          return false;
-        }
-      };
-
-      window.addEventListener('error', suppressError, true);
-      window.addEventListener('unhandledrejection', (e) => {
-        if (e.reason?.message && (
-          e.reason.message.includes('ResizeObserver') ||
-          e.reason.message.includes('undelivered notifications')
-        )) {
-          e.preventDefault();
-          return false;
-        }
-      }, true);
-
-      // Override console methods
-      const originalError = console.error;
-      const originalWarn = console.warn;
-
-      console.error = function(...args) {
-        const msg = args[0];
-        if (msg && (
-          (typeof msg === 'string' && (msg.includes('ResizeObserver') || msg.includes('undelivered notifications'))) ||
-          (typeof msg === 'object' && msg.message && (msg.message.includes('ResizeObserver') || msg.message.includes('undelivered notifications')))
-        )) {
-          return;
-        }
-        originalError.apply(console, args);
-      };
-
-      console.warn = function(...args) {
-        const msg = args[0];
-        if (msg && typeof msg === 'string' && (
-          msg.includes('Missing `Description`') ||
-          msg.includes('aria-describedby') ||
-          msg.includes('ResizeObserver')
-        )) {
-          return;
-        }
-        originalWarn.apply(console, args);
-      };
-    </script>
-    
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- PWA Service Worker Registration - Only in Production -->
+
     <script>
-      // Disable Service Worker completely in development
-      const isDevelopment = window.location.hostname === 'localhost' ||
-                           window.location.hostname.includes('replit.dev') ||
-                           window.location.hostname.includes('replit.co') ||
-                           window.location.hostname.includes('.vercel.app');
-      
-      if ('serviceWorker' in navigator && !isDevelopment) {
-        // Production only - register SW
+      // Register Service Worker in production only
+      if ('serviceWorker' in navigator && location.hostname === 'comsignprice.shop') {
         window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw-v3.0.1.js')
-            .then(function(registration) {
-              console.log('SW registered: ', registration);
-              registration.update();
-            })
-            .catch(function(registrationError) {
-              console.log('SW registration failed: ', registrationError);
-            });
+          navigator.serviceWorker.register('/sw-v3.0.1.js').catch(() => {});
         });
-      } else if ('serviceWorker' in navigator && isDevelopment) {
-        // Development - unregister all existing service workers
-        console.log('Development mode: Unregistering all Service Workers for fresh content');
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          for(let registration of registrations) {
-            registration.unregister().then(function(boolean) {
-              console.log('SW unregistered:', boolean);
-            });
-          }
-        });
-      }
-      
-      // Development: Add cache-busting timestamp to all requests
-      if (isDevelopment) {
-        const timestamp = Date.now();
-        console.log('Development mode: Cache busting active', timestamp);
       }
     </script>
-    
   </body>
 </html>

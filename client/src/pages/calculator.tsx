@@ -109,6 +109,7 @@ interface PricingConfig {
   tokenIncluded: string;
   sku?: string | null;
   backupSku?: string | null;
+  sortOrder?: number;
 }
 
 interface AdminConfigUpdate {
@@ -743,6 +744,124 @@ function UserForm({ initialData, onSubmit, onCancel, isLoading }: any) {
   );
 }
 
+// ===== PROJECT ORDER PANEL =====
+function ProjectOrderPanel({ configs, onSaved }: { configs: PricingConfig[]; onSaved: () => void }) {
+  const { toast } = useToast();
+
+  // Build unique ordered project types list from configs
+  const initialOrder = useMemo(() => {
+    const seen = new Map<string, { projectType: string; icon: string; sortOrder: number }>();
+    configs.forEach(c => {
+      if (!seen.has(c.projectType)) {
+        seen.set(c.projectType, { projectType: c.projectType, icon: c.icon, sortOrder: c.sortOrder ?? 0 });
+      }
+    });
+    return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder || a.projectType.localeCompare(b.projectType, 'he'));
+  }, [configs]);
+
+  const [orderedTypes, setOrderedTypes] = useState(initialOrder);
+  const [isDirty, setIsDirty] = useState(false);
+
+  // Sync when configs reload
+  useEffect(() => {
+    setOrderedTypes(initialOrder);
+    setIsDirty(false);
+  }, [configs]);
+
+  const move = (index: number, direction: -1 | 1) => {
+    const newOrder = [...orderedTypes];
+    const target = index + direction;
+    if (target < 0 || target >= newOrder.length) return;
+    [newOrder[index], newOrder[target]] = [newOrder[target], newOrder[index]];
+    setOrderedTypes(newOrder);
+    setIsDirty(true);
+  };
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const order = orderedTypes.map((pt, idx) => ({ projectType: pt.projectType, sortOrder: idx }));
+      const res = await apiRequest("PUT", "/api/admin/project-order", { order });
+      return res.json();
+    },
+    onSuccess: () => {
+      setIsDirty(false);
+      onSaved();
+      toast({ title: "הסדר נשמר", description: "סדר הפרויקטים עודכן בהצלחה" });
+    },
+    onError: () => {
+      toast({ title: "שגיאה", description: "לא ניתן לשמור את הסדר", variant: "destructive" });
+    },
+  });
+
+  return (
+    <div className="bg-white border-2 border-gray-200 rounded-xl p-6 space-y-4 max-w-2xl mx-auto" dir="rtl">
+      <div className="text-center space-y-1">
+        <h2 className="text-xl font-bold text-gray-800">סדר הצגת פרויקטים</h2>
+        <p className="text-sm text-gray-500">גרור או השתמש בחיצים כדי לסדר — הפרויקטים הפופולריים למעלה</p>
+      </div>
+
+      <div className="space-y-2">
+        {orderedTypes.map((pt, index) => {
+          const IconComp = getIconComponent(pt.icon);
+          return (
+            <div
+              key={pt.projectType}
+              className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 hover:bg-blue-50 hover:border-blue-200 transition-colors group"
+            >
+              {/* Rank number */}
+              <span className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-sm flex-shrink-0">
+                {index + 1}
+              </span>
+
+              {/* Icon */}
+              <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+                <IconComp className="w-5 h-5 text-gray-600" />
+              </div>
+
+              {/* Name */}
+              <span className="flex-1 font-semibold text-gray-800 text-base">{pt.projectType}</span>
+
+              {/* Arrows */}
+              <div className="flex gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => move(index, -1)}
+                  disabled={index === 0}
+                  className="h-8 w-8 p-0 hover:bg-blue-100 disabled:opacity-20 rounded-lg"
+                  title="הזז למעלה"
+                >
+                  <span className="text-base font-bold text-blue-600">▲</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => move(index, 1)}
+                  disabled={index === orderedTypes.length - 1}
+                  className="h-8 w-8 p-0 hover:bg-blue-100 disabled:opacity-20 rounded-lg"
+                  title="הזז למטה"
+                >
+                  <span className="text-base font-bold text-blue-600">▼</span>
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex justify-center pt-2">
+        <Button
+          onClick={() => saveMutation.mutate()}
+          disabled={!isDirty || saveMutation.isPending}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-bold text-base disabled:opacity-40 min-w-[160px]"
+        >
+          {saveMutation.isPending ? "שומר..." : isDirty ? "שמור סדר" : "הסדר עדכני ✓"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) {
   const [editingConfig, setEditingConfig] = useState<PricingConfig | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -884,24 +1003,31 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
       {/* Tabs Navigation */}
       <Tabs defaultValue="view" className="flex-1 flex flex-col" dir="rtl">
         <div className="bg-white border-b shadow-sm" dir="rtl">
-          <TabsList className={`max-w-7xl mx-auto h-auto bg-transparent gap-2 p-2 ${role === 'super_admin' ? 'grid grid-cols-3' : 'grid grid-cols-2'}`} dir="rtl">
-            <TabsTrigger 
-              value="view" 
+          <TabsList className={`max-w-7xl mx-auto h-auto bg-transparent gap-2 p-2 ${role === 'super_admin' ? 'grid grid-cols-4' : 'grid grid-cols-3'}`} dir="rtl">
+            <TabsTrigger
+              value="view"
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
               dir="rtl"
             >
               ניהול מחירים
             </TabsTrigger>
-            <TabsTrigger 
-              value="add" 
+            <TabsTrigger
+              value="add"
               className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
               dir="rtl"
             >
               הוסף מחיר חדש
             </TabsTrigger>
+            <TabsTrigger
+              value="order"
+              className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
+              dir="rtl"
+            >
+              סדר פרויקטים
+            </TabsTrigger>
             {role === 'super_admin' && (
-              <TabsTrigger 
-                value="users" 
+              <TabsTrigger
+                value="users"
                 className="data-[state=active]:bg-blue-600 data-[state=active]:text-white py-3 px-6 text-base font-medium rounded-lg transition-all"
                 dir="rtl"
               >
@@ -1076,6 +1202,10 @@ function AdminPanel({ role, onLogout }: { role: string; onLogout: () => void }) 
             onCancel={() => setShowAddForm(false)}
             title="הוסף קונפיגורציה חדשה"
           />
+        </TabsContent>
+
+        <TabsContent value="order" className="space-y-4">
+          <ProjectOrderPanel configs={configs} onSaved={() => queryClient.invalidateQueries({ queryKey: ["/api/pricing"] })} />
         </TabsContent>
 
         {role === 'super_admin' && (

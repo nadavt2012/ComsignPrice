@@ -14,6 +14,7 @@ export const pricingConfigs = pgTable("pricing_configs", {
   tokenIncluded: text("token_included").notNull().default("false"), // "true", "false", "optional"
   sku: text("sku").default(""),
   backupSku: text("backup_sku").default(""),
+  sortOrder: integer("sort_order").notNull().default(0),
 });
 
 export const users = pgTable("users", {
