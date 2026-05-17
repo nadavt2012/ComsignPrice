@@ -29,11 +29,21 @@ import {
   Star, Heart, Home, Car, Plane, Camera, Music,
   Book, Coffee, Calculator as CalcIcon, Stethoscope, Gavel,
   FileText, Globe, Palette, Code, Zap, TrendingUp,
-  Search, ArrowUpDown, X,
+  Search, ArrowUpDown, X, GripVertical,
   Landmark, Truck, Factory, Leaf, Hammer, CreditCard,
   Laptop, Phone, Scissors, Dumbbell, Utensils, ShoppingCart,
   Microscope, HardHat, Sailboat, TreePine, FlaskConical, Waves
 } from "lucide-react";
+import {
+  DndContext, closestCenter, PointerSensor, KeyboardSensor,
+  useSensor, useSensors, DragOverlay,
+  type DragStartEvent, type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext, verticalListSortingStrategy,
+  useSortable, arrayMove, sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Assets
 import comsignLogo from "@assets/Comsign-logo_1755345203728.jpg";
@@ -745,12 +755,62 @@ function UserForm({ initialData, onSubmit, onCancel, isLoading }: any) {
 }
 
 // ===== PROJECT ORDER PANEL =====
+type OrderedProjectType = { projectType: string; icon: string; sortOrder: number };
+
+function SortableProjectItem({
+  id, projectType, icon, index, isDragOverlay,
+}: {
+  id: string; projectType: string; icon: string; index: number; isDragOverlay?: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition ?? "transform 200ms cubic-bezier(0.25, 1, 0.5, 1)",
+    zIndex: isDragOverlay ? 999 : undefined,
+  };
+  const IconComp = getIconComponent(icon);
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 rounded-xl px-4 py-3 border select-none transition-colors ${
+        isDragging
+          ? "opacity-40 bg-gray-50 border-gray-200"
+          : isDragOverlay
+          ? "bg-white border-blue-400 shadow-2xl ring-2 ring-blue-300"
+          : "bg-gray-50 border-gray-200 hover:bg-blue-50 hover:border-blue-200"
+      }`}
+    >
+      {/* Drag handle */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 text-gray-300 hover:text-blue-500 transition-colors touch-none"
+      >
+        <GripVertical className="w-5 h-5" />
+      </div>
+
+      {/* Rank */}
+      <span className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-sm flex-shrink-0">
+        {index + 1}
+      </span>
+
+      {/* Icon */}
+      <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm">
+        <IconComp className="w-5 h-5 text-gray-600" />
+      </div>
+
+      {/* Name */}
+      <span className="flex-1 font-semibold text-gray-800 text-base">{projectType}</span>
+    </div>
+  );
+}
+
 function ProjectOrderPanel({ configs, onSaved }: { configs: PricingConfig[]; onSaved: () => void }) {
   const { toast } = useToast();
 
-  // Build unique ordered project types list from configs
   const initialOrder = useMemo(() => {
-    const seen = new Map<string, { projectType: string; icon: string; sortOrder: number }>();
+    const seen = new Map<string, OrderedProjectType>();
     configs.forEach(c => {
       if (!seen.has(c.projectType)) {
         seen.set(c.projectType, { projectType: c.projectType, icon: c.icon, sortOrder: c.sortOrder ?? 0 });
@@ -759,21 +819,33 @@ function ProjectOrderPanel({ configs, onSaved }: { configs: PricingConfig[]; onS
     return Array.from(seen.values()).sort((a, b) => a.sortOrder - b.sortOrder || a.projectType.localeCompare(b.projectType, 'he'));
   }, [configs]);
 
-  const [orderedTypes, setOrderedTypes] = useState(initialOrder);
+  const [orderedTypes, setOrderedTypes] = useState<OrderedProjectType[]>(initialOrder);
   const [isDirty, setIsDirty] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Sync when configs reload
   useEffect(() => {
     setOrderedTypes(initialOrder);
     setIsDirty(false);
   }, [configs]);
 
-  const move = (index: number, direction: -1 | 1) => {
-    const newOrder = [...orderedTypes];
-    const target = index + direction;
-    if (target < 0 || target >= newOrder.length) return;
-    [newOrder[index], newOrder[target]] = [newOrder[target], newOrder[index]];
-    setOrderedTypes(newOrder);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setOrderedTypes(prev => {
+      const oldIndex = prev.findIndex(p => p.projectType === active.id);
+      const newIndex = prev.findIndex(p => p.projectType === over.id);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
     setIsDirty(true);
   };
 
@@ -793,61 +865,47 @@ function ProjectOrderPanel({ configs, onSaved }: { configs: PricingConfig[]; onS
     },
   });
 
+  const activeItem = activeId ? orderedTypes.find(p => p.projectType === activeId) : null;
+
   return (
     <div className="bg-white border-2 border-gray-200 rounded-xl p-6 space-y-4 max-w-2xl mx-auto" dir="rtl">
       <div className="text-center space-y-1">
         <h2 className="text-xl font-bold text-gray-800">סדר הצגת פרויקטים</h2>
-        <p className="text-sm text-gray-500">גרור או השתמש בחיצים כדי לסדר — הפרויקטים הפופולריים למעלה</p>
+        <p className="text-sm text-gray-500">לחץ לחיצה ארוכה על פרויקט וגרור אותו למקום הרצוי</p>
       </div>
 
-      <div className="space-y-2">
-        {orderedTypes.map((pt, index) => {
-          const IconComp = getIconComponent(pt.icon);
-          return (
-            <div
-              key={pt.projectType}
-              className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 hover:bg-blue-50 hover:border-blue-200 transition-colors group"
-            >
-              {/* Rank number */}
-              <span className="w-7 h-7 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-sm flex-shrink-0">
-                {index + 1}
-              </span>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={orderedTypes.map(p => p.projectType)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-2">
+            {orderedTypes.map((pt, index) => (
+              <SortableProjectItem
+                key={pt.projectType}
+                id={pt.projectType}
+                projectType={pt.projectType}
+                icon={pt.icon}
+                index={index}
+              />
+            ))}
+          </div>
+        </SortableContext>
 
-              {/* Icon */}
-              <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 shadow-sm">
-                <IconComp className="w-5 h-5 text-gray-600" />
-              </div>
-
-              {/* Name */}
-              <span className="flex-1 font-semibold text-gray-800 text-base">{pt.projectType}</span>
-
-              {/* Arrows */}
-              <div className="flex gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => move(index, -1)}
-                  disabled={index === 0}
-                  className="h-8 w-8 p-0 hover:bg-blue-100 disabled:opacity-20 rounded-lg"
-                  title="הזז למעלה"
-                >
-                  <span className="text-base font-bold text-blue-600">▲</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => move(index, 1)}
-                  disabled={index === orderedTypes.length - 1}
-                  className="h-8 w-8 p-0 hover:bg-blue-100 disabled:opacity-20 rounded-lg"
-                  title="הזז למטה"
-                >
-                  <span className="text-base font-bold text-blue-600">▼</span>
-                </Button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+        <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.25, 1, 0.5, 1)" }}>
+          {activeItem ? (
+            <SortableProjectItem
+              id={activeItem.projectType}
+              projectType={activeItem.projectType}
+              icon={activeItem.icon}
+              index={orderedTypes.findIndex(p => p.projectType === activeItem.projectType)}
+              isDragOverlay
+            />
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       <div className="flex justify-center pt-2">
         <Button
